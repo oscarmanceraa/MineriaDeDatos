@@ -1,11 +1,93 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask Project</title>
-</head>
-<body>
-    <h1>¡Proyecto Flask iniciado!</h1>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Biodiversity Data Lab · Biodiversidad bajo presión{% endblock %}
+{% block nav_inicio %}is-active{% endblock %}
+
+{% block content %}
+<section class="hero">
+
+    <header class="hero-heading">
+        <p class="hero-eyebrow">Minería de Datos · Ciencia para el planeta</p>
+        <h1 class="hero-title">Biodiversidad <span>bajo presión</span></h1>
+        <p class="hero-sub">
+            Explorando patrones entre la biodiversidad animal
+            y la transformación de sus hábitats mediante Minería de Datos.
+        </p>
+    </header>
+
+    <div class="orbital" aria-label="Mapa de etapas del proyecto">
+
+        <!-- ETAPA 01 · ACTIVA -->
+        <a class="stage stage--1 stage--active" href="{{ url_for('main.etapa1') }}">
+            <span class="stage__state">Activa</span>
+            <span class="stage__num">Etapa 01</span>
+            <span class="stage__title">Formulación y contextualización</span>
+            <span class="stage__desc">
+                Definición del problema, preguntas de investigación, necesidades
+                de información, fuentes de datos y construcción del dataset inicial.
+            </span>
+            <span class="stage__cta">
+                Explorar etapa
+                <span class="stage__arrow" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </span>
+            </span>
+        </a>
+
+        <!-- Planeta central -->
+        <div class="planet-stage">
+            <span class="planet-orbit" aria-hidden="true"></span>
+            <span class="data-dot dot-a" aria-hidden="true"></span>
+            <span class="data-dot dot-b" aria-hidden="true"></span>
+            <span class="data-dot dot-c" aria-hidden="true"></span>
+            <span class="data-dot dot-d" aria-hidden="true"></span>
+            <span class="data-dot dot-e" aria-hidden="true"></span>
+            <span class="data-dot dot-f" aria-hidden="true"></span>
+            <div class="planet" role="img" aria-label="Planeta Tierra: biodiversidad bajo presión"></div>
+        </div>
+
+        <!-- ETAPA 02 -->
+        <div class="stage stage--2 stage--soon" data-tip="Disponible en próximas etapas del proyecto">
+            <span class="stage__state stage__state--soon">Próximamente</span>
+            <span class="stage__num">Etapa 02</span>
+            <span class="stage__title">En preparación</span>
+        </div>
+
+        <!-- ETAPA 03 -->
+        <div class="stage stage--3 stage--soon" data-tip="Disponible en próximas etapas del proyecto">
+            <span class="stage__state stage__state--soon">Próximamente</span>
+            <span class="stage__num">Etapa 03</span>
+            <span class="stage__title">En preparación</span>
+        </div>
+
+        <!-- ETAPA 04 -->
+        <div class="stage stage--4 stage--soon" data-tip="Disponible en próximas etapas del proyecto">
+            <span class="stage__state stage__state--soon">Próximamente</span>
+            <span class="stage__num">Etapa 04</span>
+            <span class="stage__title">En preparación</span>
+        </div>
+
+    </div>
+
+    <div class="scales" aria-label="Escalas del análisis">
+        <span class="scale">Global</span>
+        <span class="scale-sep" aria-hidden="true">→</span>
+        <span class="scale">Colombia</span>
+        <span class="scale-sep" aria-hidden="true">→</span>
+        <span class="scale scale--focus">Cundinamarca</span>
+    </div>
+
+    <div class="project-progress" role="status" aria-label="Progreso del proyecto">
+        <span class="progress-label">Progreso del proyecto</span>
+        <div class="progress-meta">
+            <span class="progress-step">Etapa 01 de 04</span>
+            <span class="progress-percent">25%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill"></div></div>
+    </div>
+
+</section>
+{% endblock %}

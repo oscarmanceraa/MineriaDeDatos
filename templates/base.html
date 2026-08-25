@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Biodiversity Data Lab: explorando patrones entre la biodiversidad animal y la transformación de sus hábitats mediante Minería de Datos.">
+    <title>{% block title %}Biodiversity Data Lab{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="backdrop" aria-hidden="true">
+        <span class="backdrop-glow glow-green"></span>
+        <span class="backdrop-glow glow-cyan"></span>
+    </div>
+
+    <header class="site-header">
+        <a class="brand" href="{{ url_for('main.index') }}" aria-label="Inicio">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span class="brand-name">Biodiversity&nbsp;Data&nbsp;Lab</span>
+        </a>
+
+        <nav class="nav" aria-label="Navegación principal">
+            <a class="nav-link {% block nav_inicio %}{% endblock %}" href="{{ url_for('main.index') }}">Inicio</a>
+            <a class="nav-link nav-link--accent {% block nav_etapa1 %}{% endblock %}" href="{{ url_for('main.etapa1') }}">Etapa 1</a>
+            <a class="nav-link {% block nav_acerca %}{% endblock %}" href="#proyecto">Acerca del proyecto</a>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer" id="proyecto">
+        <p class="footer-line">
+            Proyecto de Minería de Datos · Biodiversidad animal y pérdida de hábitat.
+        </p>
+        <p class="footer-sub">GLOBAL&nbsp;→&nbsp;COLOMBIA&nbsp;→&nbsp;CUNDINAMARCA</p>
+    </footer>
+</body>
+</html>

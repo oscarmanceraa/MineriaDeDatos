@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Etapa 01 · Formulación y contextualización{% endblock %}
+{% block nav_etapa1 %}is-active{% endblock %}
+
+{% block content %}
+<section class="etapa-page">
+
+    <nav class="breadcrumb" aria-label="Ruta de navegación">
+        <a href="{{ url_for('main.index') }}" class="breadcrumb-link">Inicio</a>
+        <span class="breadcrumb-sep" aria-hidden="true">/</span>
+        <span class="breadcrumb-current">Etapa 01</span>
+    </nav>
+
+    <header class="etapa-hero">
+        <p class="etapa-hero__kicker">Etapa activa</p>
+        <h1 class="etapa-hero__title">Formulación y contextualización</h1>
+        <p class="etapa-hero__sub">
+            Esta fase define el marco del proyecto: el problema de estudio, las
+            preguntas de investigación y los datos que alimentarán el análisis.
+        </p>
+    </header>
+
+    <div class="etapa-grid">
+        <article class="item-card">
+            <span class="item-num">01</span>
+            <h2 class="item-title">Problema y contexto</h2>
+            <span class="item-state">En construcción</span>
+        </article>
+
+        <article class="item-card">
+            <span class="item-num">02</span>
+            <h2 class="item-title">Pregunta principal y secundarias</h2>
+            <span class="item-state">En construcción</span>
+        </article>
+
+        <article class="item-card">
+            <span class="item-num">03</span>
+            <h2 class="item-title">Necesidades de información</h2>
+            <span class="item-state">En construcción</span>
+        </article>
+
+        <article class="item-card">
+            <span class="item-num">04</span>
+            <h2 class="item-title">Fuentes de datos</h2>
+            <span class="item-state">En construcción</span>
+        </article>
+
+        <article class="item-card">
+            <span class="item-num">05</span>
+            <h2 class="item-title">Dataset</h2>
+            <span class="item-state">En construcción</span>
+        </article>
+
+        <article class="item-card">
+            <span class="item-num">06</span>
+            <h2 class="item-title">Diccionario de datos</h2>
+            <span class="item-state">En construcción</span>
+        </article>
+
+        <article class="item-card">
+            <span class="item-num">07</span>
+            <h2 class="item-title">Calidad inicial de los datos</h2>
+            <span class="item-state">En construcción</span>
+        </article>
+
+        <article class="item-card">
+            <span class="item-num">08</span>
+            <h2 class="item-title">Limitaciones y consideraciones</h2>
+            <span class="item-state">En construcción</span>
+        </article>
+    </div>
+
+    <div class="etapa-note">
+        <span class="etapa-note__dot" aria-hidden="true"></span>
+        <p>
+            Los ocho apartados de la Etapa 01 se implementarán próximamente.
+            Esta sección marca el punto de partida del proyecto.
+        </p>
+    </div>
+
+</section>
+{% endblock %}
