@@ -1,0 +1,196 @@
+<div class="source-table-wrap">
+    <table class="source-table">
+        <thead>
+            <tr>
+                <th>Nivel</th>
+                <th>Tipo</th>
+                <th>Fuente / Institución</th>
+                <th>Cobertura</th>
+                <th>Registros aprox.</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="badge badge--global">Global</span></td>
+                <td><span class="badge badge--terciaria">Terciaria</span></td>
+                <td><span class="src-name">GBIF API</span><br>GBIF Secretariat</td>
+                <td>Global (filtro Cundinamarca)</td>
+                <td>&gt;14.48 M (Animalia, Colombia)</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge--global">Global</span></td>
+                <td><span class="badge badge--secundaria">Secundaria</span></td>
+                <td><span class="src-name">IUCN Red List API</span><br>IUCN</td>
+                <td>Global</td>
+                <td>&gt;175,900 especies</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge--nacional">Nacional</span></td>
+                <td><span class="badge badge--terciaria">Terciaria</span></td>
+                <td><span class="src-name">SiB Colombia</span><br>Instituto Humboldt</td>
+                <td>Nacional (recorte Cundinamarca)</td>
+                <td>2.08 M observaciones</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge--nacional">Nacional</span></td>
+                <td><span class="badge badge--secundaria">Secundaria</span></td>
+                <td><span class="src-name">NaturaLista Colombia</span><br>iNaturalist / Instituto Humboldt</td>
+                <td>Nacional</td>
+                <td>Millones (subconjunto)</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge--regional">Regional</span></td>
+                <td><span class="badge badge--primaria">Primaria</span></td>
+                <td><span class="src-name">SIBIO CAR Cundinamarca</span><br>CAR Cundinamarca</td>
+                <td>Regional (jurisdicción CAR)</td>
+                <td>Monitoreos directos</td>
+            </tr>
+            <tr>
+                <td><span class="badge badge--regional">Regional</span></td>
+                <td><span class="badge badge--secundaria">Secundaria</span></td>
+                <td><span class="src-name">Datos Abiertos Cundinamarca</span><br>Gobernación de Cundinamarca</td>
+                <td>Regional (116 municipios)</td>
+                <td>116 municipios</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<h3 class="doc-prose__title">Fichas detalladas de fuentes</h3>
+<div class="source-cards">
+
+    <article class="source-card">
+        <div class="source-card__head">
+            <span class="badge badge--terciaria">Terciaria</span>
+            <span class="badge badge--global">Global</span>
+        </div>
+        <h3 class="source-card__name">GBIF API</h3>
+        <p class="source-card__inst">GBIF Secretariat</p>
+        <dl class="source-fields">
+            <div class="source-field"><dt>URL</dt><dd><a href="https://www.gbif.org/occurrence/search" target="_blank" rel="noopener">gbif.org/occurrence/search</a></dd></div>
+            <div class="source-field"><dt>Cobertura</dt><dd>Global, con filtro nacional (Colombia) y regional (Cundinamarca)</dd></div>
+            <div class="source-field"><dt>Periodo</dt><dd>1990 – 2026</dd></div>
+            <div class="source-field"><dt>Formato</dt><dd>JSON REST API (api.gbif.org/v1/occurrence/search) / DwC-A</dd></div>
+            <div class="source-field"><dt>Método</dt><dd>Consulta de la API con filtros taxonómicos, geográficos y temporales; descarga de ocurrencias.</dd></div>
+            <div class="source-field"><dt>Registros</dt><dd>&gt;14.48 M de Animalia en Colombia; global &gt;100 M</dd></div>
+            <div class="source-field"><dt>Variables</dt><dd>occurrenceID, scientificName, class, order, family, decimalLatitude, decimalLongitude, eventDate, year, month, day, basisOfRecord</dd></div>
+            <div class="source-field"><dt>Consulta</dt><dd>22 / 08 / 2026</dd></div>
+            <div class="source-field"><dt>Restricciones</dt><dd>Licencias CC0 / CC-BY / CC-BY-NC según dataset; citar la fuente y respetar los términos de la API.</dd></div>
+        </dl>
+        <p class="source-justify"><strong>Justificación:</strong> pertinencia alta (fauna georreferenciada y fechada), confiabilidad alta (estándar Darwin Core curado por nodos), actualidad (datos continuos) y amplia cobertura con recorte nacional/regional.</p>
+    </article>
+
+    <article class="source-card">
+        <div class="source-card__head">
+            <span class="badge badge--secundaria">Secundaria</span>
+            <span class="badge badge--global">Global</span>
+        </div>
+        <h3 class="source-card__name">IUCN Red List API</h3>
+        <p class="source-card__inst">IUCN</p>
+        <dl class="source-fields">
+            <div class="source-field"><dt>URL</dt><dd><a href="https://www.iucnredlist.org" target="_blank" rel="noopener">iucnredlist.org</a></dd></div>
+            <div class="source-field"><dt>Cobertura</dt><dd>Global</dd></div>
+            <div class="source-field"><dt>Periodo</dt><dd>Evaluaciones actualizadas (2010 – 2026)</dd></div>
+            <div class="source-field"><dt>Formato</dt><dd>JSON API (api.iucnredlist.org) / CSV</dd></div>
+            <div class="source-field"><dt>Método</dt><dd>Consulta de la API de evaluaciones y categorías de amenaza.</dd></div>
+            <div class="source-field"><dt>Registros</dt><dd>&gt;175,900 especies evaluadas</dd></div>
+            <div class="source-field"><dt>Variables</dt><dd>Nombre científico, categoría de amenaza, distribución geográfica</dd></div>
+            <div class="source-field"><dt>Consulta</dt><dd>22 / 08 / 2026</dd></div>
+            <div class="source-field"><dt>Restricciones</dt><dd>Requiere token de API; atribución obligatoria; límites de consulta.</dd></div>
+        </dl>
+        <p class="source-justify"><strong>Justificación:</strong> pertinencia (contexto de riesgo de las especies), confiabilidad (evaluaciones de expertos), actualidad (revisiones periódicas) y cobertura mundial.</p>
+    </article>
+
+    <article class="source-card">
+        <div class="source-card__head">
+            <span class="badge badge--terciaria">Terciaria</span>
+            <span class="badge badge--nacional">Nacional</span>
+        </div>
+        <h3 class="source-card__name">SiB Colombia</h3>
+        <p class="source-card__inst">Instituto Humboldt</p>
+        <dl class="source-fields">
+            <div class="source-field"><dt>URL</dt><dd><a href="https://biodiversidad.co" target="_blank" rel="noopener">biodiversidad.co</a> · cifras.biodiversidad.co/cundinamarca</dd></div>
+            <div class="source-field"><dt>Cobertura</dt><dd>Nacional (nodo de GBIF), con recorte en Cundinamarca</dd></div>
+            <div class="source-field"><dt>Periodo</dt><dd>1990 – 2026</dd></div>
+            <div class="source-field"><dt>Formato</dt><dd>DwC Archive (IPT)</dd></div>
+            <div class="source-field"><dt>Método</dt><dd>Descarga de archivos Darwin Core del IPT con filtros regionales.</dd></div>
+            <div class="source-field"><dt>Registros</dt><dd>2.08 M observaciones en Cundinamarca (fauna y flora)</dd></div>
+            <div class="source-field"><dt>Variables</dt><dd>Estándar DwC: occurrenceID, taxonomía, coordenadas, fechas, basisOfRecord</dd></div>
+            <div class="source-field"><dt>Consulta</dt><dd>23 / 08 / 2026</dd></div>
+            <div class="source-field"><dt>Restricciones</dt><dd>Licencias CC0 / CC-BY / CC-BY-NC de los datasets publicados; atribución a la fuente.</dd></div>
+        </dl>
+        <p class="source-justify"><strong>Justificación:</strong> pertinencia (datos nacionales curados), confiabilidad (nodo nacional de GBIF), actualidad y cobertura nacional con recorte regional.</p>
+    </article>
+
+    <article class="source-card">
+        <div class="source-card__head">
+            <span class="badge badge--secundaria">Secundaria</span>
+            <span class="badge badge--nacional">Nacional</span>
+        </div>
+        <h3 class="source-card__name">NaturaLista Colombia</h3>
+        <p class="source-card__inst">iNaturalist / Instituto Humboldt</p>
+        <dl class="source-fields">
+            <div class="source-field"><dt>URL</dt><dd><a href="https://colombia.inaturalist.org" target="_blank" rel="noopener">colombia.inaturalist.org</a></dd></div>
+            <div class="source-field"><dt>Cobertura</dt><dd>Nacional</dd></div>
+            <div class="source-field"><dt>Periodo</dt><dd>2003 – 2026 (masivo desde ~2015)</dd></div>
+            <div class="source-field"><dt>Formato</dt><dd>API REST JSON (api.inaturalist.org/v1/observations)</dd></div>
+            <div class="source-field"><dt>Método</dt><dd>Consulta de observaciones con filtros taxonómicos, geográficos y temporales.</dd></div>
+            <div class="source-field"><dt>Registros</dt><dd>Millones a nivel nacional (subconjunto filtrado)</dd></div>
+            <div class="source-field"><dt>Variables</dt><dd>Taxón, coordenadas, fecha/hora, usuario, calidad de observación</dd></div>
+            <div class="source-field"><dt>Consulta</dt><dd>23 / 08 / 2026</dd></div>
+            <div class="source-field"><dt>Restricciones</dt><dd>Licencias CC0 / CC-BY / CC-BY-NC de fotos y observaciones; límites de la API.</dd></div>
+        </dl>
+        <p class="source-justify"><strong>Justificación:</strong> pertinencia (marcas temporales precisas, clave para el sesgo), confiabilidad media-alta (validación comunitaria), actualidad y cobertura nacional.</p>
+    </article>
+
+    <article class="source-card">
+        <div class="source-card__head">
+            <span class="badge badge--primaria">Primaria</span>
+            <span class="badge badge--regional">Regional</span>
+        </div>
+        <h3 class="source-card__name">SIBIO CAR Cundinamarca</h3>
+        <p class="source-card__inst">CAR Cundinamarca</p>
+        <dl class="source-fields">
+            <div class="source-field"><dt>URL</dt><dd><a href="https://datosgeograficos.car.gov.co" target="_blank" rel="noopener">datosgeograficos.car.gov.co</a> · IPT: ipt.biodiversidad.co/sib/resource?r=car_biodiversidad</dd></div>
+            <div class="source-field"><dt>Cobertura</dt><dd>Regional (jurisdicción y cuencas de la CAR)</dd></div>
+            <div class="source-field"><dt>Periodo</dt><dd>2000 – 2026</dd></div>
+            <div class="source-field"><dt>Formato</dt><dd>DwC Archive (IPT)</dd></div>
+            <div class="source-field"><dt>Método</dt><dd>Descarga de registros de monitoreos directos de fauna de la CAR.</dd></div>
+            <div class="source-field"><dt>Registros</dt><dd>Monitoreos directos de fauna en cuencas de la CAR</dd></div>
+            <div class="source-field"><dt>Variables</dt><dd>Taxón, coordenadas, fecha, método y sitio de muestreo</dd></div>
+            <div class="source-field"><dt>Consulta</dt><dd>23 / 08 / 2026</dd></div>
+            <div class="source-field"><dt>Restricciones</dt><dd>Uso académico/difusión según condiciones del recurso; atribución a la CAR.</dd></div>
+        </dl>
+        <p class="source-justify"><strong>Justificación:</strong> pertinencia alta (datos primarios de campo), confiabilidad institucional, actualidad y cobertura regional específica — fuente primaria por observación y trampeo directo.</p>
+    </article>
+
+    <article class="source-card">
+        <div class="source-card__head">
+            <span class="badge badge--secundaria">Secundaria</span>
+            <span class="badge badge--regional">Regional</span>
+        </div>
+        <h3 class="source-card__name">Datos Abiertos Cundinamarca</h3>
+        <p class="source-card__inst">Gobernación de Cundinamarca</p>
+        <dl class="source-fields">
+            <div class="source-field"><dt>URL</dt><dd><a href="https://mapasyestadisticascundinamarcamap.opendata.arcgis.com" target="_blank" rel="noopener">mapasyestadisticascundinamarcamap.opendata.arcgis.com</a></dd></div>
+            <div class="source-field"><dt>Cobertura</dt><dd>Regional (división político-administrativa de Cundinamarca)</dd></div>
+            <div class="source-field"><dt>Periodo</dt><dd>Vigente (2020 – 2026)</dd></div>
+            <div class="source-field"><dt>Formato</dt><dd>CSV / GeoJSON</dd></div>
+            <div class="source-field"><dt>Método</dt><dd>Descarga de capas geoespaciales de municipios y su clasificación territorial del DANE.</dd></div>
+            <div class="source-field"><dt>Registros</dt><dd>116 municipios</dd></div>
+            <div class="source-field"><dt>Variables</dt><dd>Municipio, código DANE, tipología (urbano / rural), geometría</dd></div>
+            <div class="source-field"><dt>Consulta</dt><dd>23 / 08 / 2026</dd></div>
+            <div class="source-field"><dt>Restricciones</dt><dd>Acceso abierto de la Gobernación; atribución al DANE.</dd></div>
+        </dl>
+        <p class="source-justify"><strong>Justificación:</strong> pertinencia (asigna la variable urbanRuralCategory), confiabilidad (datos DANE / Gobernación), actualidad y cobertura departamental.</p>
+    </article>
+
+</div>
+
+<p class="doc-prose__p">
+    La integración de fuentes se realiza mediante la variable geográfica
+    <strong class="highlight">municipality</strong> (que une registros de fauna con la
+    tipología territorial del DANE) y las variables temporales
+    <strong class="highlight">year</strong> y <strong class="highlight">month</strong>,
+    de modo que sea posible unir y comparar los niveles global, nacional y regional.
+</p>

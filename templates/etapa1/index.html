@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Etapa 01 · Formulación y contextualización{% endblock %}
+{% block nav_etapa1 %}is-active{% endblock %}
+
+{% block content %}
+<section class="etapa-page">
+
+    <nav class="breadcrumb" aria-label="Ruta de navegación">
+        <a href="{{ url_for('main.index') }}" class="breadcrumb-link">Inicio</a>
+        <span class="breadcrumb-sep" aria-hidden="true">/</span>
+        <span class="breadcrumb-current">Etapa 01</span>
+    </nav>
+
+    <header class="etapa-hero">
+        <p class="etapa-hero__kicker">Etapa activa · Minería de Datos</p>
+        <h1 class="etapa-hero__title">Formulación y contextualización</h1>
+        <p class="etapa-hero__sub">
+            Biodiversidad animal: variación temporal y patrones de observación de
+            fauna entre entornos urbanos y rurales&nbsp;
+            <span class="hero-scope">(Global → Colombia → Cundinamarca)</span>.
+        </p>
+    </header>
+
+    <div class="apartados-grid">
+        {% for a in apartados %}
+            {% if a.disponible %}
+                <a class="item-card item-card--link" href="{{ url_for('main.apartado', slug=a.slug) }}">
+                    <span class="item-num">{{ a.num }}</span>
+                    <h2 class="item-title">{{ a.titulo }}</h2>
+                    <span class="item-cta">
+                        Abrir apartado
+                        <span class="item-arrow" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </span>
+                    </span>
+                </a>
+            {% else %}
+                <div class="item-card item-card--soon" data-tip="Disponible en próximas etapas del proyecto">
+                    <span class="item-num">{{ a.num }}</span>
+                    <h2 class="item-title">{{ a.titulo }}</h2>
+                    <span class="item-state">Próximamente</span>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="etapa-note">
+        <span class="etapa-note__dot" aria-hidden="true"></span>
+        <p>
+            Los apartados 01–04 ya están disponibles. Los apartados 05–08 se
+            implementarán en las siguientes entregas de la Etapa 01.
+        </p>
+    </div>
+
+</section>
+{% endblock %}

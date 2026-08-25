@@ -1,0 +1,101 @@
+<div class="question-main">
+    <span class="question-main__label">Pregunta principal</span>
+    <p class="question-main__text">
+        ¿De qué manera difieren la dinámica temporal (multianual y estacional) y la
+        composición taxonómica de los registros de fauna animal entre municipios
+        urbanos y rurales de Cundinamarca, y en qué medida estos patrones regionales
+        reflejan las tendencias de observación observadas a escala nacional y global?
+    </p>
+</div>
+
+<h3 class="doc-prose__title">Preguntas secundarias · orientadas a Minería de Datos</h3>
+<div class="question-grid">
+    <article class="question-card">
+        <span class="question-card__tag">Clustering · Agrupamiento</span>
+        <span class="question-card__num">Secundaria 01</span>
+        <p class="question-card__text">
+            ¿Es posible agrupar los municipios de Cundinamarca en conglomerados
+            (clusters) homogéneos según su perfil de registro temporal (meses pico
+            de observación, volumen histórico de datos) y su clasificación territorial
+            (Urbano vs. Rural)?
+        </p>
+    </article>
+
+    <article class="question-card">
+        <span class="question-card__tag">Reglas de asociación</span>
+        <span class="question-card__num">Secundaria 02</span>
+        <p class="question-card__text">
+            ¿Qué patrones de co-ocurrencia o asociación existen entre la tipología
+            territorial (Urbano vs. Rural), la época del año (trimestre o mes), la
+            fuente del registro (HUMAN_OBSERVATION vs. PRESERVED_SPECIMEN) y la
+            clase o grupo taxonómico del animal registrado?
+        </p>
+    </article>
+
+    <article class="question-card">
+        <span class="question-card__tag">Clasificación · Predicción</span>
+        <span class="question-card__num">Secundaria 03</span>
+        <p class="question-card__text">
+            ¿Se puede predecir con alta precisión si una observación biológica dada
+            fue realizada en un entorno urbano o rural basándose exclusivamente en el
+            grupo taxonómico del animal, el mes del año, el año de registro y la
+            fuente del observador?
+        </p>
+    </article>
+</div>
+
+<h3 class="doc-prose__title">Conocimiento esperado a partir de los datos</h3>
+<div class="callout">
+    <span class="callout__label">Qué se espera descubrir</span>
+    <p class="callout__text">
+        A partir del análisis de los registros de fauna, el proyecto busca distinguir
+        si la mayor riqueza aparente de zonas urbanas refleja una mayor biodiversidad
+        real o un mayor esfuerzo de observación humana, para así interpretar de forma
+        honesta los patrones observados.
+    </p>
+    <ul class="callout-list">
+        <li>Identificar patrones temporales diferenciados entre entornos urbanos y rurales.</li>
+        <li>Cuantificar el efecto del sesgo de observación sobre la riqueza registrada.</li>
+        <li>Agrupar municipios con perfiles de registro similares (clusters).</li>
+        <li>Detectar asociaciones entre la fuente del registro, la época del año y el grupo taxonómico.</li>
+        <li>Construir un modelo predictivo sencillo que estime el entorno (urbano o rural) a partir de variables biológicas y temporales.</li>
+    </ul>
+</div>
+
+<h3 class="doc-prose__title">Orientación de las preguntas hacia los datos</h3>
+<p class="doc-prose__p">
+    Cada pregunta orienta variables, periodos y relaciones concretas que se explotan
+    en etapas posteriores de minería de datos.
+</p>
+<div class="source-table-wrap">
+    <table class="source-table">
+        <thead>
+            <tr>
+                <th>Pregunta</th>
+                <th>Variables clave</th>
+                <th>Periodo</th>
+                <th>Relación / patrón a analizar</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Secundaria 01 · Clustering</td>
+                <td>municipality, year, month, urbanRuralCategory</td>
+                <td>1990–2026</td>
+                <td>Agrupar municipios por perfil temporal de registro y clasificación territorial.</td>
+            </tr>
+            <tr>
+                <td>Secundaria 02 · Asociación</td>
+                <td>urbanRuralCategory, month, basisOfRecord, class / order / family</td>
+                <td>Estacional (12 meses)</td>
+                <td>Co-ocurrencia entre tipología territorial, época, fuente y grupo taxonómico.</td>
+            </tr>
+            <tr>
+                <td>Secundaria 03 · Clasificación</td>
+                <td>class / order / family, month, year, basisOfRecord</td>
+                <td>2000–2026</td>
+                <td>Predecir entorno urbano vs. rural a partir de variables biológicas y temporales.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
