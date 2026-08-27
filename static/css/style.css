@@ -221,6 +221,20 @@ a {
   color: var(--green-soft);
 }
 
+.nav-link--external {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-link--external svg {
+  transition: transform 0.3s ease;
+}
+
+.nav-link--external:hover svg {
+  transform: translate(2px, -2px);
+}
+
 /* ---------- Hero ---------- */
 .hero {
   position: relative;
