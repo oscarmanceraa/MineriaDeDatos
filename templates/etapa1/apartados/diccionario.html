@@ -1,0 +1,158 @@
+<div class="doc-prose">
+
+    <p>
+        El diccionario de datos define la estructura formal, los tipos de datos, las unidades de medida,
+        los dominios de valores válidos y las descripciones semánticas de cada uno de los campos que
+        componen el dataset integrado del proyecto.
+    </p>
+
+    <h3 class="doc-prose__title">Especificación de campos del dataset</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Nombre del campo</th>
+                    <th>Tipo de dato</th>
+                    <th>Unidad de medida</th>
+                    <th>Dominio / Dominio de valores</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>occurrenceID</code></td>
+                    <td><span class="badge badge--secundaria">Categórica (ID)</span></td>
+                    <td>N/A</td>
+                    <td>Cadena única / UUID</td>
+                    <td>Identificador único del registro biológico en la fuente original.</td>
+                </tr>
+                <tr>
+                    <td><code>scientificName</code></td>
+                    <td><span class="badge badge--secundaria">Categórica</span></td>
+                    <td>N/A</td>
+                    <td>Texto latín (ej. <em>Zenaida auriculata</em>)</td>
+                    <td>Nombre científico aceptado del taxón registrado.</td>
+                </tr>
+                <tr>
+                    <td><code>class</code></td>
+                    <td><span class="badge badge--secundaria">Categórica</span></td>
+                    <td>N/A</td>
+                    <td>Aves, Mammalia, Amphibia, Reptilia</td>
+                    <td>Clase taxonómica del animal.</td>
+                </tr>
+                <tr>
+                    <td><code>decimalLatitude</code></td>
+                    <td><span class="badge badge--primaria">Numérica (Float)</span></td>
+                    <td>Grados decimales</td>
+                    <td>4.0 a 5.8 (Cundinamarca)</td>
+                    <td>Latitud geográfica del avistamiento en coordenadas WGS84.</td>
+                </tr>
+                <tr>
+                    <td><code>decimalLongitude</code></td>
+                    <td><span class="badge badge--primaria">Numérica (Float)</span></td>
+                    <td>Grados decimales</td>
+                    <td>-74.8 a -73.0 (Cundinamarca)</td>
+                    <td>Longitud geográfica del avistamiento en coordenadas WGS84.</td>
+                </tr>
+                <tr>
+                    <td><code>year</code></td>
+                    <td><span class="badge badge--primaria">Numérica (Int)</span></td>
+                    <td>Año</td>
+                    <td>1990 – 2026</td>
+                    <td>Año en el que se realizó la recolección u observación.</td>
+                </tr>
+                <tr>
+                    <td><code>month</code></td>
+                    <td><span class="badge badge--global">Temporal (Int)</span></td>
+                    <td>Mes</td>
+                    <td>1 a 12</td>
+                    <td>Mes del año correspondiente a la observación.</td>
+                </tr>
+                <tr>
+                    <td><code>day</code></td>
+                    <td><span class="badge badge--global">Temporal (Int)</span></td>
+                    <td>Día</td>
+                    <td>1 a 31</td>
+                    <td>Día exacto del mes de la observación.</td>
+                </tr>
+                <tr>
+                    <td><code>eventDate</code></td>
+                    <td><span class="badge badge--global">Temporal</span></td>
+                    <td>YYYY-MM-DD</td>
+                    <td>Cadenas ISO 8601</td>
+                    <td>Fecha completa del evento de campo.</td>
+                </tr>
+                <tr>
+                    <td><code>basisOfRecord</code></td>
+                    <td><span class="badge badge--secundaria">Categórica</span></td>
+                    <td>N/A</td>
+                    <td>HUMAN_OBSERVATION, PRESERVED_SPECIMEN</td>
+                    <td>Origen de la evidencia (Observación humana vs. Museo/Colección).</td>
+                </tr>
+                <tr>
+                    <td><code>municipality</code></td>
+                    <td><span class="badge badge--regional">Geográfica / Cat.</span></td>
+                    <td>N/A</td>
+                    <td>Nombres oficiales DANE</td>
+                    <td>Municipio de Cundinamarca a donde se ubica el registro.</td>
+                </tr>
+                <tr>
+                    <td><code>urbanRuralCategory</code></td>
+                    <td><span class="badge badge--nacional">Categórica</span></td>
+                    <td>N/A</td>
+                    <td>Urbano, Rural</td>
+                    <td>Clasificación territorial del municipio según tipología del DANE.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Dimensiones analíticas del modelo</h3>
+    <div class="info-grid">
+        <article class="info-card">
+            <span class="info-card__label">Dimensión Taxonómica</span>
+            <div class="info-card__body">
+                <p>
+                    Campos <code>scientificName</code>, <code>class</code> (y niveles complementarios <code>order</code> y <code>family</code>). Permiten estratificar la riqueza biológica y modelar patrones de selectividad por grupo faunístico.
+                </p>
+            </div>
+        </article>
+
+        <article class="info-card">
+            <span class="info-card__label">Dimensión Espacio-Temporal</span>
+            <div class="info-card__body">
+                <p>
+                    Campos <code>decimalLatitude</code>, <code>decimalLongitude</code>, <code>municipality</code>, <code>year</code>, <code>month</code>, <code>day</code> y <code>eventDate</code>. Base para evaluar estacionalidad y tendencias históricas.
+                </p>
+            </div>
+        </article>
+
+        <article class="info-card">
+            <span class="info-card__label">Dimensión Metodológica</span>
+            <div class="info-card__body">
+                <p>
+                    Campo <code>basisOfRecord</code>. Separa las observaciones humanas directas (ciencia ciudadana) de especímenes preservados (colecciones institucionales), fundamental para cuantificar el sesgo de muestreo.
+                </p>
+            </div>
+        </article>
+
+        <article class="info-card">
+            <span class="info-card__label">Dimensión Territorial</span>
+            <div class="info-card__body">
+                <p>
+                    Campo <code>urbanRuralCategory</code>. Variable objetivo y comparativa central que vincula el registro con la clasificación oficial del DANE en los 116 municipios de Cundinamarca.
+                </p>
+            </div>
+        </article>
+    </div>
+
+    <div class="callout">
+        <div class="callout__label">Normalización y compatibilidad</div>
+        <div class="callout__text">
+            Todos los nombres de campo siguen la nomenclatura estándar del estándar internacional
+            <strong>Darwin Core (DwC)</strong>, complementados con la tipología territorial oficial
+            del DANE para asegurar plena interoperabilidad y reproducibilidad del análisis.
+        </div>
+    </div>
+
+</div>

@@ -7,8 +7,8 @@ APARTADOS = [
     {'slug': 'preguntas', 'num': '02', 'titulo': 'Pregunta principal y secundarias', 'disponible': True},
     {'slug': 'necesidades', 'num': '03', 'titulo': 'Necesidades de información', 'disponible': True},
     {'slug': 'fuentes', 'num': '04', 'titulo': 'Recolección y selección de fuentes', 'disponible': True},
-    {'slug': 'dataset', 'num': '05', 'titulo': 'Dataset', 'disponible': False},
-    {'slug': 'diccionario', 'num': '06', 'titulo': 'Diccionario de datos', 'disponible': False},
+    {'slug': 'dataset', 'num': '05', 'titulo': 'Dataset', 'disponible': True},
+    {'slug': 'diccionario', 'num': '06', 'titulo': 'Diccionario de datos', 'disponible': True},
     {'slug': 'calidad', 'num': '07', 'titulo': 'Calidad inicial de los datos', 'disponible': True},
     {'slug': 'limitaciones', 'num': '08', 'titulo': 'Limitaciones y consideraciones', 'disponible': True},
 ]

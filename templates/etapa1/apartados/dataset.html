@@ -1,0 +1,118 @@
+<div class="doc-prose">
+
+    <p>
+        El ecosistema de datos del proyecto se construye integrando los registros biológicos de fauna
+        extraídos de las plataformas globales y nacionales (<strong>GBIF</strong> y <strong>SiB Colombia</strong>)
+        con la categorización municipal y tipología territorial provista por los datos abiertos del
+        <strong>DANE</strong> y la <strong>Gobernación de Cundinamarca</strong>.
+    </p>
+
+    <h3 class="doc-prose__title">Métricas y dimensiones del dataset</h3>
+    <div class="info-grid">
+        <article class="info-card">
+            <span class="info-card__label">Volumen consolidado</span>
+            <div class="info-card__body">
+                <p>
+                    <strong class="highlight">&gt;50.000 registros</strong> consolidados y filtrados para
+                    la fauna del departamento de Cundinamarca, superando holgadamente la meta mínima
+                    propuesta de 10.000 registros.
+                </p>
+            </div>
+        </article>
+
+        <article class="info-card">
+            <span class="info-card__label">Dimensiones</span>
+            <div class="info-card__body">
+                <p>
+                    <strong class="highlight">12 variables integradas</strong> que cubren dimensiones
+                    taxonómicas, temporales, geoespaciales, metodológicas y territoriales.
+                </p>
+            </div>
+        </article>
+
+        <article class="info-card">
+            <span class="info-card__label">Cobertura espacial</span>
+            <div class="info-card__body">
+                <p>
+                    <strong class="highlight">116 municipios</strong> de Cundinamarca, permitiendo contrastar
+                    la conurbación urbana de la Sabana de Bogotá con la red de municipios rurales.
+                </p>
+            </div>
+        </article>
+
+        <article class="info-card">
+            <span class="info-card__label">Ventana temporal</span>
+            <div class="info-card__body">
+                <p>
+                    <strong class="highlight">1990 – 2026</strong>, abarcando tanto series históricas
+                    institucionales como la era moderna de ciencia ciudadana y análisis estacional mes a mes.
+                </p>
+            </div>
+        </article>
+    </div>
+
+    <h3 class="doc-prose__title">Estructura del dataset por tipología de variables</h3>
+    <p class="doc-prose__p">
+        Las 12 variables integradas se distribuyen en cuatro categorías analíticas para dar soporte
+        a las técnicas de minería de datos (clustering, reglas de asociación y clasificación):
+    </p>
+
+    <div class="scale-rows">
+        <div class="scale-row">
+            <span class="scale-row__level">Numéricas (3)</span>
+            <span class="scale-row__text">
+                <code>decimalLatitude</code>, <code>decimalLongitude</code> y <code>year</code>.
+                Permiten la georreferenciación espacial en grados decimales y el análisis de evolución multianual.
+            </span>
+        </div>
+
+        <div class="scale-row">
+            <span class="scale-row__level scale-row__level--nacional">Categóricas (5)</span>
+            <span class="scale-row__text">
+                <code>class</code>, <code>order</code>, <code>family</code>, <code>basisOfRecord</code> y <code>urbanRuralCategory</code>.
+                Aportan la jerarquía taxonómica biológica, el origen de la observación (humana vs. museo) y la tipología territorial.
+            </span>
+        </div>
+
+        <div class="scale-row">
+            <span class="scale-row__level scale-row__level--regional">Temporales (3)</span>
+            <span class="scale-row__text">
+                <code>eventDate</code>, <code>month</code> y <code>day</code>.
+                Facilitan la ordenación cronológica estandarizada bajo ISO 8601 y la exploración de ciclos estacionales mensuales.
+            </span>
+        </div>
+
+        <div class="scale-row">
+            <span class="scale-row__level">Geográficas (1)</span>
+            <span class="scale-row__text">
+                <code>municipality</code>.
+                Variable de enlace territorial normalizada con los códigos y nombres oficiales de la división política del DANE.
+            </span>
+        </div>
+    </div>
+
+    <h3 class="doc-prose__title">Flujo de integración y construcción</h3>
+    <div class="info-grid">
+        <article class="info-card info-card--span2">
+            <span class="info-card__label">Ecosistema de integración</span>
+            <div class="info-card__body">
+                <p>
+                    1. <strong>Extracción biológica:</strong> Descarga y filtrado de registros del reino <em>Animalia</em> en Cundinamarca desde GBIF y SiB Colombia mediante protocolos Darwin Core (DwC).<br>
+                    2. <strong>Enriquecimiento territorial:</strong> Cruce geoespacial y tabular con el listado municipal del DANE para asignar la variable <code>urbanRuralCategory</code>.<br>
+                    3. <strong>Armonización temporal:</strong> Normalización del campo <code>eventDate</code> a estándar ISO 8601 (YYYY-MM-DD) y derivación de <code>year</code>, <code>month</code> y <code>day</code>.<br>
+                    4. <strong>Curaduría y deduplicación:</strong> Control de identificadores únicos (<code>occurrenceID</code>) y depuración inicial de registros fuera de rango.
+                </p>
+            </div>
+        </article>
+    </div>
+
+    <div class="callout">
+        <div class="callout__label">Propósito del dataset</div>
+        <div class="callout__text">
+            Este conjunto de datos consolidado constituye la materia prima para evaluar si las diferencias
+            observadas en los patrones de avistamiento de fauna entre municipios urbanos y rurales responden
+            a dinámicas ecológicas genuinas o al sesgo en la intensidad del muestreo humano.
+        </div>
+    </div>
+
+</div>
