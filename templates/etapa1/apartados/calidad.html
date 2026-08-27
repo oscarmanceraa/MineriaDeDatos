@@ -1,0 +1,137 @@
+<div class="doc-prose">
+
+    <h3 class="doc-prose__title">Valores faltantes (Missing Values)</h3>
+    <div class="info-grid">
+        <article class="info-card">
+            <span class="info-card__label">day</span>
+            <div class="info-card__body">
+                <p>
+                    Aproximadamente 15% de los registros anteriores a 2000 carecen de día exacto
+                    (solo se reportan year y month). La estrategia de imputación sugerida es asignar
+                    el día 1 del mes o trabajar con agregación mensual según el análisis. Para
+                    clustering estacional no afecta; para modelos de clasificación con variable day,
+                    se recomienda excluir el registro o imputarlo con la mediana del mes.
+                </p>
+            </div>
+        </article>
+
+        <article class="info-card">
+            <span class="info-card__label">Coordenadas</span>
+            <div class="info-card__body">
+                <p>
+                    <strong>decimalLatitude/decimalLongitude</strong> nulos o en (0,0) aparecen en un
+                    porcentaje menor (aprox. 2–3%). Esto indica errores clásicos de geolocalización
+                    tipo “Null Island”, frecuentes en fuentes secundarias como Datos Abiertos
+                    Cundinamarca. Se recomienda filtrar estos registros o georreferenciarlos por
+                    municipio a través del centroide cuando sea posible.
+                </p>
+            </div>
+        </article>
+
+        <article class="info-card">
+            <span class="info-card__label">Taxonomía</span>
+            <div class="info-card__body">
+                <p>
+                    Algunos registros de <em>PRESERVED_SPECIMEN</em> (colecciones de museo) solo tienen
+                    determinación a nivel de familia u orden, sin especie confirmada. Esto reduce la
+                    granularidad taxonómica disponible para ese subconjunto y debe manejarse con filtros
+                    por nivel de identificación.
+                </p>
+            </div>
+        </article>
+    </div>
+
+    <h3 class="doc-prose__title">Inconsistencia en formatos</h3>
+    <div class="scale-rows">
+        <div class="scale-row">
+            <span class="scale-row__level">Fechas</span>
+            <span class="scale-row__text">
+                Se integran formatos heterogéneos como DD/MM/YYYY, MM/DD/YYYY y YYYY-MM-DD en GBIF,
+                SiB Colombia, iNaturalist y CAR Cundinamarca. Se recomienda estandarizar a ISO 8601,
+                verificando ambigüedades como 03/04/2015, que podría corresponder al 3 de abril o al
+                4 de marzo, mediante cruce con year/month cuando existan por separado.
+            </span>
+        </div>
+        <div class="scale-row">
+            <span class="scale-row__level scale-row__level--nacional">Municipios</span>
+            <span class="scale-row__text">
+                Los nombres de municipios no están normalizados, con variaciones de escritura, tilde,
+                mayúsculas y abreviaturas como “Fusa” vs. “Fusagasugá”. Esto exige una normalización
+                frente al listado oficial DANE de los 116 municipios antes de unir (join) con la tabla
+                de tipología urbano/rural.
+            </span>
+        </div>
+        <div class="scale-row">
+            <span class="scale-row__level scale-row__level--regional">Taxonomía</span>
+            <span class="scale-row__text">
+                Distintas fuentes usan sinónimos o versiones desactualizadas de nombres científicos.
+                Esto exige un proceso de resolución de nombres (name matching) contra el GBIF Backbone
+                Taxonomy para evitar inconsistencias por cambios filogenéticos o nomenclatura repetida.
+            </span>
+        </div>
+    </div>
+
+    <h3 class="doc-prose__title">Duplicados</h3>
+    <p>
+        Los registros duplicados entre GBIF y SiB Colombia son comunes, dado que SiB Colombia
+        publica muchos datos también hacia GBIF. Se identifican por coincidencia de occurrenceID,
+        o por alta similitud en coordenadas + fecha + especie. Antes del análisis es necesario una
+        etapa de deduplicación para evitar inflar artificialmente el volumen de observaciones urbanas.
+    </p>
+
+    <h3 class="doc-prose__title">Valores atípicos (Outliers)</h3>
+    <div class="info-grid">
+        <article class="info-card">
+            <span class="info-card__label">Coordenadas</span>
+            <div class="info-card__body">
+                <p>
+                    Se encuentran coordenadas fuera del rango esperado para Cundinamarca
+                    (4.0–5.8 lat / -74.8 a -73.0 long), producto de errores de digitación o registros
+                    mal asignados administrativamente al departamento.
+                </p>
+            </div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Fechas</span>
+            <div class="info-card__body">
+                <p>
+                    Hay fechas futuras o anteriores a 1900 en registros de museo mal transcritos.
+                    Se deben filtrar para no distorsionar series temporales y análisis estacionales.
+                </p>
+            </div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Observador</span>
+            <div class="info-card__body">
+                <p>
+                    Picos anómalos de un solo observador hiperactivo en una fecha puntual pueden generar
+                    un sesgo del tipo <em>single-observer effect</em>, especialmente en iNaturalist, y
+                    distorsionar patrones estacionales si no se pondera adecuadamente.
+                </p>
+            </div>
+        </article>
+    </div>
+
+    <h3 class="doc-prose__title">Sesgos espacio-temporales (ampliación)</h3>
+    <p>
+        El sesgo se acentúa marcadamente después de 2015, cuando la masificación de smartphones
+        incrementó la participación ciudadana. También existe un sesgo de “especies carismáticas”:
+        aves y mamíferos grandes están sobrerrepresentados frente a anfibios, reptiles e invertebrados,
+        porque son más fáciles de fotografiar e identificar por observadores no especializados.
+    </p>
+    <p>
+        Además, el sesgo de accesibilidad vial implica que muchas observaciones se concentran en zonas
+        cercanas a vías, urbanizaciones o puntos turísticos, generando una sobreestimación de la riqueza
+        aparente en municipios urbanos y una subrepresentación de zonas rurales o de difícil acceso.
+    </p>
+
+    <div class="callout">
+        <div class="callout__label">Conclusión</div>
+        <div class="callout__text">
+            La calidad inicial de los datos es adecuada para un primer diagnóstico del problema, pero
+            exige limpieza, normalización y validación rigurosa antes de cualquier inferencia ecológica.
+            Sin estas etapas, los sesgos espaciales, temporales y taxonómicos pueden inducir resultados
+            engañosos sobre la biodiversidad de Cundinamarca.
+        </div>
+    </div>
+</div>

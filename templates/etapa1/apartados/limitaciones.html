@@ -1,0 +1,104 @@
+<div class="doc-prose">
+
+    <p>
+        La clasificación simplificada del municipio (ya mencionada) supone que cada municipio entero
+        se define como urbano o rural, pero esta estrategia pierde la heterogeneidad interna del
+        territorio. Por ejemplo, un municipio catalogado como rural por el DANE puede tener un casco
+        urbano denso donde ocurre buena parte de sus observaciones, generando un efecto de “falso
+        positivo urbano” dentro de la categoría rural.
+    </p>
+
+    <p>
+        El sesgo de muestreo recreativo (ya mencionado) se concentra en fines de semana, días festivos
+        y horario diurno, lo que además limita la detección de fauna nocturna o crepuscular, como
+        murciélagos, algunos felinos y búhos. Esto implica que la ausencia de registros en ciertas
+        horas o temporadas no debe interpretarse necesariamente como ausencia biológica real.
+    </p>
+
+    <p>
+        La trazabilidad y licenciamiento se mantienen bajo criterios de reutilización adecuados:
+        CC0, CC-BY y CC-BY-NC respetados, conservando <strong>occurrenceID</strong> e
+        <strong>institutionCode</strong> para garantizar trazabilidad de cada observación y la
+        adecuada atribución a la fuente original.
+    </p>
+
+    <h3 class="doc-prose__title">Limitaciones adicionales a incorporar</h3>
+
+    <div class="info-grid">
+        <article class="info-card">
+            <span class="info-card__label">Observer Effort Bias</span>
+            <div class="info-card__body">
+                <p>
+                    El volumen de registros no es un proxy directo de abundancia real de fauna, sino en
+                    gran medida del esfuerzo de muestreo humano. Este punto es central para la
+                    investigación, porque cualquier conclusión sobre “mayor riqueza urbana vs. rural”
+                    debe controlarse por el número de observadores activos y no solo por el conteo bruto
+                    de registros.
+                </p>
+            </div>
+        </article>
+
+        <article class="info-card">
+            <span class="info-card__label">Cobertura tecnológica</span>
+            <div class="info-card__body">
+                <p>
+                    La comparación entre 1990–2010 y 2011–2026 no es una comparación “limpia”, porque
+                    coexisten distintos niveles de penetración de GPS, cámaras digitales y conectividad
+                    móvil entre municipios urbanos y rurales. Esto puede confundirse con un patrón
+                    ecológico genuino.
+                </p>
+            </div>
+        </article>
+
+        <article class="info-card">
+            <span class="info-card__label">APIs externas</span>
+            <div class="info-card__body">
+                <p>
+                    GBIF, IUCN e iNaturalist pueden imponer límites de tasa (rate limits), cambios en su
+                    esquema de respuesta o interrupciones de servicio, afectando la reproducibilidad
+                    exacta de la extracción si no se versiona o almacena una copia local y consolidada del
+                    dataset.
+                </p>
+            </div>
+        </article>
+    </div>
+
+    <div class="scale-rows">
+        <div class="scale-row">
+            <span class="scale-row__level">Falacia ecológica</span>
+            <span class="scale-row__text">
+                Al trabajar con clasificación urbano/rural a nivel municipal, existe riesgo de falacia
+                ecológica: los patrones observados a nivel agregado (municipio) no necesariamente
+                representan la dinámica real a nivel de punto geográfico individual.
+            </span>
+        </div>
+        <div class="scale-row">
+            <span class="scale-row__level scale-row__level--nacional">Comparabilidad</span>
+            <span class="scale-row__text">
+                La comparación entre <em>HUMAN_OBSERVATION</em> y <em>PRESERVED_SPECIMEN</em> es limitada,
+                porque estas dos fuentes tienen dinámicas de generación distintas: una es continua y
+                masiva, la otra es puntual e institucional. Cualquier regla de asociación entre
+                <em>basisOfRecord</em> y tipología territorial debe interpretarse con cautela y no como
+                causalidad ecológica.
+            </span>
+        </div>
+        <div class="scale-row">
+            <span class="scale-row__level scale-row__level--regional">Año 2026</span>
+            <span class="scale-row__text">
+                Al ser el año en curso, los datos de 2026 estarán necesariamente incompletos frente a
+                años cerrados, lo que puede introducir una caída artificial en el volumen de registros
+                si no se anota explícitamente esta advertencia en los análisis de tendencia multianual.
+            </span>
+        </div>
+    </div>
+
+    <div class="callout">
+        <div class="callout__label">Consideración final</div>
+        <div class="callout__text">
+            Las limitaciones no invalidan el estudio, pero sí condicionan la interpretación de los
+            resultados. La comparación entre municipios urbanos y rurales debe hacerse con control de
+            esfuerzo, validación espacial y temporal, y una lectura cuidadosa de los sesgos estructurales
+            de los datos abiertos.
+        </div>
+    </div>
+</div>
