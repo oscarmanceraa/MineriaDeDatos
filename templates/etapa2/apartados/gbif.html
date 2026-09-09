@@ -36,6 +36,11 @@
     </div>
     <p>{{ res.descripcion.resumen }}</p>
 
+    <div class="callout">
+        <div class="callout__label">Propósito del conjunto de datos</div>
+        <div class="callout__text">{{ res.proposito }}</div>
+    </div>
+
     <h3 class="doc-prose__title">Requisitos de calidad</h3>
     <div class="scale-rows">
         {% for r in res.requisitos %}
@@ -202,13 +207,20 @@
         {% endfor %}
     </div>
     <p>
-        Los registros de GBIF y SiB Colombia se integraron bajo el estándar Darwin Core, se
-        estandarizaron las fechas a ISO 8601 y se homogeneizó la composición taxonómica. La
-        deduplicación (por identificador y por similitud coordenada+fecha+especie) evita el doble
-        conteo derivado de que SiB Colombia publica hacia GBIF.
+        Como parte del plan, los registros de GBIF y SiB Colombia <strong>se integrarán</strong>
+        bajo el estándar Darwin Core, <strong>se estandarizarán</strong> las fechas a ISO 8601 y
+        <strong>se homogeneizará</strong> la composición taxonómica. La deduplicación (por
+        identificador y por similitud coordenada+fecha+especie) evitará el doble conteo derivado de
+        que SiB Colombia publica hacia GBIF.
     </p>
 
     <h3 class="doc-prose__title">Plan de tratamiento</h3>
+    <p>
+        Acciones planificadas para corregir o controlar los problemas identificados. Se
+        documentan como medidas <strong>por ejecutar</strong> en la etapa de tratamiento; los
+        valores de alcance indican la población afectada y la columna de resultado esperado
+        define la meta a alcanzar.
+    </p>
     <div class="source-table-wrap">
         <table class="source-table">
             <thead>
@@ -216,7 +228,7 @@
                     <th>Acción</th>
                     <th>Descripción</th>
                     <th>Alcance</th>
-                    <th>Resultado</th>
+                    <th>Resultado esperado</th>
                 </tr>
             </thead>
             <tbody>
@@ -230,40 +242,6 @@
                 {% endfor %}
             </tbody>
         </table>
-    </div>
-
-    <h3 class="doc-prose__title">Comparación antes / después</h3>
-    <div class="info-grid">
-        <article class="info-card">
-            <span class="info-card__label">Antes</span>
-            <div class="info-card__body">
-                <p>Registros: <strong>{{ res.antes_despues.antes.registros }}</strong></p>
-                <p>Completitud: <strong>{{ res.antes_despues.antes.completitud }}%</strong></p>
-                <p>Fechas válidas: <strong>{{ res.antes_despues.antes.fechas }}%</strong></p>
-                <p>Coordenadas válidas: <strong>{{ res.antes_despues.antes.coordenadas }}%</strong></p>
-                <p>Duplicados: <strong>{{ res.antes_despues.antes.duplicados }}</strong></p>
-            </div>
-        </article>
-        <article class="info-card">
-            <span class="info-card__label">Después</span>
-            <div class="info-card__body">
-                <p>Registros: <strong>{{ res.antes_despues.despues.registros }}</strong></p>
-                <p>Completitud: <strong>{{ res.antes_despues.despues.completitud }}%</strong></p>
-                <p>Fechas válidas: <strong>{{ res.antes_despues.despues.fechas }}%</strong></p>
-                <p>Coordenadas válidas: <strong>{{ res.antes_despues.despues.coordenadas }}%</strong></p>
-                <p>Duplicados: <strong>{{ res.antes_despues.despues.duplicados }}</strong></p>
-            </div>
-        </article>
-    </div>
-
-    <div class="callout">
-        <div class="callout__label">Conclusión</div>
-        <div class="callout__text">
-            El conjunto GBIF es de alta calidad en coordenadas y unicidad, pero presenta fechas en
-            formatos heterogéneos (5% no ISO) y una proporción relevante de registros sin coordenadas
-            (sin georreferenciar). El tratamiento estandarizó fechas y limpió coordenadas inválidas,
-            mejorando la consistencia temporal y la exactitud geográfica.
-        </div>
     </div>
 
     {% endif %}

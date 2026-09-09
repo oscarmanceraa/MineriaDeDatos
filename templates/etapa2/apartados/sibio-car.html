@@ -17,6 +17,19 @@
     </div>
     <p>{{ res.descripcion.resumen }}</p>
 
+    <div class="callout">
+        <div class="callout__label">Propósito del conjunto de datos</div>
+        <div class="callout__text">{{ res.proposito }}</div>
+    </div>
+
+    {% if res.pendiente %}
+    <div class="callout">
+        <div class="callout__label">Pendiente de análisis</div>
+        <div class="callout__text">Este dataset aún no se ha perfilado. Se documenta el <strong>plan de tratamiento</strong> a ejecutar una vez integrada la fuente.</div>
+    </div>
+    {% endif %}
+
+    {% if res.perfil %}
     <h3 class="doc-prose__title">Resultados del perfilamiento</h3>
     <div class="info-grid">
         <article class="info-card"><span class="info-card__label">Registros</span><div class="info-card__body"><p>{{ res.kpi.registros }}</p></div></article>
@@ -58,22 +71,8 @@
     </div>
 
     <h3 class="doc-prose__title">Indicadores relevantes</h3>
-    {% for c in res.distribucion %}
-    <div class="scale-row">
-        <span class="scale-row__level">{{ c.code }} · {{ c.label }}</span>
-        <div class="progress-track"><div class="progress-fill" style="width: {{ c.pct }}%"></div></div>
-        <span class="scale-row__text">{{ c.n }} registros · {{ c.pct }}%</span>
-    </div>
-    {% endfor %}
-    <div class="scale-rows">
-        {% for i in res.integrado %}
-        <div class="scale-row">
-            <span class="scale-row__level">{{ i.clave }}</span>
-            <div class="progress-track"><div class="progress-fill" style="width: {{ i.pct }}%"></div></div>
-            <span class="scale-row__text">{{ i.valor }} · {{ i.pct }}%</span>
-        </div>
-        {% endfor %}
-    </div>
+    {% if res.distribucion %}{% for c in res.distribucion %}<div class="scale-row"><span class="scale-row__level">{{ c.code }} · {{ c.label }}</span><div class="progress-track"><div class="progress-fill" style="width: {{ c.pct }}%"></div></div><span class="scale-row__text">{{ c.n }} registros · {{ c.pct }}%</span></div>{% endfor %}{% endif %}
+    <div class="scale-rows">{% for i in res.integrado %}<div class="scale-row"><span class="scale-row__level">{{ i.clave }}</span><div class="progress-track"><div class="progress-fill" style="width: {{ i.pct }}%"></div></div><span class="scale-row__text">{{ i.valor }} · {{ i.pct }}%</span></div>{% endfor %}</div>
 
     <h3 class="doc-prose__title">Problemas identificados</h3>
     <div class="source-table-wrap">
@@ -90,30 +89,31 @@
             </tbody>
         </table>
     </div>
+    {% endif %}
 
-    <h3 class="doc-prose__title">Acciones de tratamiento aplicadas</h3>
+    <h3 class="doc-prose__title">Análisis de causas</h3>
+    <div class="info-grid">
+        {% for c in res.causas %}
+        <article class="info-card">
+            <span class="info-card__label">{{ c.causa }}</span>
+            <div class="info-card__body"><p>{{ c.detalle }}</p><p><strong>Relacionada con:</strong> {{ c.relacion }}</p></div>
+        </article>
+        {% endfor %}
+    </div>
+
+    <h3 class="doc-prose__title">Plan de tratamiento</h3>
+    <p>
+        Acciones planificadas para corregir o controlar los problemas identificados. Se documentan como
+        medidas <strong>por ejecutar</strong> en la etapa de tratamiento; la columna de resultado esperado
+        define la meta a alcanzar.
+    </p>
     <div class="source-table-wrap">
         <table class="source-table">
-            <thead><tr><th>Acción</th><th>Tratamiento</th><th>Alcance</th><th>Resultado</th></tr></thead>
+            <thead><tr><th>Acción</th><th>Tratamiento</th><th>Alcance</th><th>Resultado esperado</th></tr></thead>
             <tbody>
             {% for t in res.tratamiento %}
                 <tr><td><strong>{{ t.accion }}</strong></td><td>{{ t.desc }}</td><td>{{ t.alcance }}</td><td>{{ t.resultado }}</td></tr>
             {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <h3 class="doc-prose__title">Comparación antes y después</h3>
-    <div class="source-table-wrap">
-        <table class="source-table">
-            <thead><tr><th>Indicador</th><th>Antes</th><th>Después</th><th>Lectura</th></tr></thead>
-            <tbody>
-                <tr><td>Registros</td><td>{{ res.antes_despues.antes.registros }}</td><td>{{ res.antes_despues.despues.registros }}</td><td>Se conservaron todos los registros.</td></tr>
-                <tr><td>Completitud</td><td>{{ res.antes_despues.antes.completitud }}%</td><td>{{ res.antes_despues.despues.completitud }}%</td><td>Municipio sigue pendiente de geocodificación.</td></tr>
-                <tr><td>Fechas válidas</td><td>{{ res.antes_despues.antes.fechas }}%</td><td>{{ res.antes_despues.despues.fechas }}%</td><td>Se homogeneizó la representación temporal.</td></tr>
-                <tr><td>Coordenadas válidas</td><td>{{ res.antes_despues.antes.coordenadas }}%</td><td>{{ res.antes_despues.despues.coordenadas }}%</td><td>No había coordenadas que corregir.</td></tr>
-                <tr><td>Duplicados</td><td>{{ res.antes_despues.antes.duplicados }}</td><td>{{ res.antes_despues.despues.duplicados }}</td><td>No fue necesario eliminar registros.</td></tr>
-                <tr><td>Municipios informados</td><td>{{ res.antes_despues.antes.municipios }}%</td><td>{{ res.antes_despues.despues.municipios }}%</td><td>No se imputó información no respaldada.</td></tr>
             </tbody>
         </table>
     </div>

@@ -28,6 +28,11 @@
     </div>
     <p>{{ res.descripcion.resumen }}</p>
 
+    <div class="callout">
+        <div class="callout__label">Propósito del conjunto de datos</div>
+        <div class="callout__text">{{ res.proposito }}</div>
+    </div>
+
     <h3 class="doc-prose__title">Requisitos de calidad</h3>
     <div class="scale-rows">
         {% for r in res.requisitos %}
@@ -204,12 +209,19 @@
         {% endfor %}
     </div>
     <p>
-        Los nombres científicos se homologaron a <code>name_key</code> (sin autoría, minúsculas) para
-        permitir el cruce con NaturaLista y SiB Colombia; los nombres identificados se estandarizaron
-        contra el GBIF Backbone Taxonomy.
+        Como parte del plan, los nombres científicos <strong>se homologarán</strong> a
+        <code>name_key</code> (sin autoría, minúsculas) para permitir el cruce con NaturaLista y SiB
+        Colombia; los nombres identificados <strong>se estandarizarán</strong> contra el GBIF
+        Backbone Taxonomy.
     </p>
 
     <h3 class="doc-prose__title">Plan de tratamiento</h3>
+    <p>
+        Acciones planificadas para corregir o controlar los problemas identificados. Se
+        documentan como medidas <strong>por ejecutar</strong> en la etapa de tratamiento; los
+        valores de alcance indican la población afectada y la columna de resultado esperado
+        define la meta a alcanzar.
+    </p>
     <div class="source-table-wrap">
         <table class="source-table">
             <thead>
@@ -217,7 +229,7 @@
                     <th>Acción</th>
                     <th>Descripción</th>
                     <th>Alcance</th>
-                    <th>Resultado</th>
+                    <th>Resultado esperado</th>
                 </tr>
             </thead>
             <tbody>
@@ -231,43 +243,6 @@
                 {% endfor %}
             </tbody>
         </table>
-    </div>
-
-    <h3 class="doc-prose__title">Comparación antes / después</h3>
-    <div class="info-grid">
-        <article class="info-card">
-            <span class="info-card__label">Antes</span>
-            <div class="info-card__body">
-                <p>Registros: <strong>{{ res.antes_despues.antes.registros }}</strong></p>
-                <p>Completitud: <strong>{{ res.antes_despues.antes.completitud }}%</strong></p>
-                <p>Unicidad: <strong>{{ res.antes_despues.antes.unicidad }}%</strong></p>
-                <p>Validez: <strong>{{ res.antes_despues.antes.validez }}%</strong></p>
-                <p>Exactitud: <strong>{{ res.antes_despues.antes.exactitud }}%</strong></p>
-                <p>Órdenes nulos: <strong>{{ res.antes_despues.antes.nulos_order }}</strong></p>
-            </div>
-        </article>
-        <article class="info-card">
-            <span class="info-card__label">Después</span>
-            <div class="info-card__body">
-                <p>Registros: <strong>{{ res.antes_despues.despues.registros }}</strong></p>
-                <p>Completitud: <strong>{{ res.antes_despues.despues.completitud }}%</strong></p>
-                <p>Unicidad: <strong>{{ res.antes_despues.despues.unicidad }}%</strong></p>
-                <p>Validez: <strong>{{ res.antes_despues.despues.validez }}%</strong></p>
-                <p>Exactitud: <strong>{{ res.antes_despues.despues.exactitud }}%</strong></p>
-                <p>Órdenes nulos: <strong>{{ res.antes_despues.despues.nulos_order }}</strong></p>
-            </div>
-        </article>
-    </div>
-
-    <div class="callout">
-        <div class="callout__label">Conclusión</div>
-        <div class="callout__text">
-            El dataset IUCN es altamente limpio como referencia de amenaza: unicidad y validez del 100%.
-            El único problema material (jerarquías incompletas en 3–66 especies) se resolvió por imputación
-            desde la familia y clasificación residual, alcanzando completitud del 100%. Su integración con
-            NaturaLista es limitada (2.4%) porque la referencia cubre mayoritariamente aves y mamíferos,
-            mientras la ciencia ciudadana registra sobre todo invertebrados.
-        </div>
     </div>
 
     {% endif %}

@@ -32,6 +32,11 @@
     </div>
     <p>{{ res.descripcion.resumen }}</p>
 
+    <div class="callout">
+        <div class="callout__label">Propósito del conjunto de datos</div>
+        <div class="callout__text">{{ res.proposito }}</div>
+    </div>
+
     <h3 class="doc-prose__title">Requisitos de calidad</h3>
     <div class="scale-rows">
         {% for r in res.requisitos %}
@@ -234,14 +239,21 @@
         {% endfor %}
     </div>
     <p>
-        Los nombres científicos se normalizaron a <code>name_key</code> y se cruzaron contra la referencia
-        IUCN por nombre; las especies sin coincidencia se homologaron a la categoría <code>NE</code>
+        Como parte del plan, los nombres científicos <strong>se normalizarán</strong> a
+        <code>name_key</code> y <strong>se cruzarán</strong> contra la referencia IUCN por nombre; las
+        especies sin coincidencia <strong>se homologarán</strong> a la categoría <code>NE</code>
         (No Evaluada). El bajo porcentaje de cruce (2.4%) refleja que gran parte de las observaciones
         ciudadanas corresponden a invertebrados identificados a nivel de género o superior, ausentes en
         la referencia de especies IUCN.
     </p>
 
     <h3 class="doc-prose__title">Plan de tratamiento</h3>
+    <p>
+        Acciones planificadas para corregir o controlar los problemas identificados. Se
+        documentan como medidas <strong>por ejecutar</strong> en la etapa de tratamiento; los
+        valores de alcance indican la población afectada y la columna de resultado esperado
+        define la meta a alcanzar.
+    </p>
     <div class="source-table-wrap">
         <table class="source-table">
             <thead>
@@ -249,7 +261,7 @@
                     <th>Acción</th>
                     <th>Descripción</th>
                     <th>Alcance</th>
-                    <th>Resultado</th>
+                    <th>Resultado esperado</th>
                 </tr>
             </thead>
             <tbody>
@@ -263,44 +275,6 @@
                 {% endfor %}
             </tbody>
         </table>
-    </div>
-
-    <h3 class="doc-prose__title">Comparación antes / después</h3>
-    <div class="info-grid">
-        <article class="info-card">
-            <span class="info-card__label">Antes</span>
-            <div class="info-card__body">
-                <p>Registros: <strong>{{ res.antes_despues.antes.registros }}</strong></p>
-                <p>Completitud: <strong>{{ res.antes_despues.antes.completitud }}%</strong></p>
-                <p>Unicidad: <strong>{{ res.antes_despues.antes.unicidad }}%</strong></p>
-                <p>Validez: <strong>{{ res.antes_despues.antes.validez }}%</strong></p>
-                <p>Exactitud: <strong>{{ res.antes_despues.antes.exactitud }}%</strong></p>
-                <p>Fechas nulas: <strong>{{ res.antes_despues.antes.nulos_fecha }}</strong></p>
-            </div>
-        </article>
-        <article class="info-card">
-            <span class="info-card__label">Después</span>
-            <div class="info-card__body">
-                <p>Registros: <strong>{{ res.antes_despues.despues.registros }}</strong></p>
-                <p>Completitud: <strong>{{ res.antes_despues.despues.completitud }}%</strong></p>
-                <p>Unicidad: <strong>{{ res.antes_despues.despues.unicidad }}%</strong></p>
-                <p>Validez: <strong>{{ res.antes_despues.despues.validez }}%</strong></p>
-                <p>Exactitud: <strong>{{ res.antes_despues.despues.exactitud }}%</strong></p>
-                <p>Fechas nulas: <strong>{{ res.antes_despues.despues.nulos_fecha }}</strong></p>
-            </div>
-        </article>
-    </div>
-
-    <div class="callout">
-        <div class="callout__label">Conclusión</div>
-        <div class="callout__text">
-            NaturaLista presenta una calidad estructural sólida (unicidad y validez del 100%), pero muestra
-            problemas concentrados en completitud (fechas, especie, hora y precisión posicional) y en
-            exactitud geográfica (coordenadas fuera del recorte). El tratamiento eliminó 117 observaciones
-            irreparables (113 sin fecha recuperable y 4 con coordenadas fuera de rango) y estandarizó tipos,
-            campos obligatorios. Persiste el reto del cruce taxonómico con IUCN (2.4%) y los sesgos de
-            esfuerzo de muestreo por observador.
-        </div>
     </div>
 
     {% endif %}

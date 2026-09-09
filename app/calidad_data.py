@@ -1,44 +1,41 @@
 # -*- coding: utf-8 -*-
-"""Resultados de calidad de datos embebidos para la sección Etapa 02 · Calidad de Datos.
+"""Resultados y plan de calidad de datos embebidos para la sección Etapa 02 · Calidad de Datos.
 
-Datos integrados para los 6 datasets del ecosistema (GBIF, IUCN, SiB Colombia, NaturaLista,
-SIBIO CAR y Datos Abiertos). Los valores de GBIF y SiB Colombia corresponden al análisis de
-calidad sobre los datasets extraídos; se mantienen embebidos para no depender de archivos
-del sistema de archivos en el despliegue. Los scripts de regeneración se excluyen del repo.
+Se integran los 6 datasets del ecosistema (GBIF, IUCN, SiB Colombia, NaturaLista, SIBIO CAR y
+Datos Abiertos). Los datasets con análisis muestran su perfilamiento y dimensiones; los que aún
+no se han perfilado se marcan como pendientes. El plan de tratamiento se documenta como acciones
+a ejecutar (no como resultados consumados) y los datos se mantienen embebidos para no depender
+del sistema de archivos en el despliegue.
 """
 
 RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de categorías de amenaza',
-                          'fuente': 'Unión Internacional para la Conservación de la Naturaleza (IUCN), '
-                                    'enriquecimiento GBIF',
-                          'cobertura': 'Especies de fauna del recorte departamental de Cundinamarca '
-                                       '(Colombia)',
-                          'periodo': 'Evaluaciones vigentes consultadas el 22/08/2026 (período de estudio '
-                                     '1990–2026)',
+                          'fuente': 'Unión Internacional para la Conservación de la Naturaleza (IUCN), enriquecimiento '
+                                    'GBIF',
+                          'cobertura': 'Especies de fauna del recorte departamental de Cundinamarca (Colombia)',
+                          'periodo': 'Evaluaciones vigentes consultadas el 22/08/2026 (período de estudio 1990–2026)',
                           'formato': 'CSV derivado (species-level) con 8 variables',
                           'consulta': '22 / 08 / 2026',
                           'restricciones': 'Uso académico; citación obligatoria de IUCN Red List y GBIF',
-                          'resumen': 'El dataset de IUCN Red List utilizada en esta etapa corresponde a la '
-                                     'referencia de amenaza por especie, obtenida a partir del '
-                                     'enriquecimiento de GBIF/SiB Colombia (columna iucnRedListCategory) y '
-                                     'consolidada a nivel de especie (717 especies únicas). Cada especie se '
-                                     'asocia a una categoría de riesgo oficial. Este marco permite '
-                                     'contextualizar la vulnerabilidad de la fauna observada en entornos '
+                          'resumen': 'El dataset de IUCN Red List utilizada en esta etapa corresponde a la referencia '
+                                     'de amenaza por especie, obtenida a partir del enriquecimiento de GBIF/SiB '
+                                     'Colombia (columna iucnRedListCategory) y consolidada a nivel de especie (717 '
+                                     'especies únicas). Cada especie se asocia a una categoría de riesgo oficial. Este '
+                                     'marco permite contextualizar la vulnerabilidad de la fauna observada en entornos '
                                      'urbanos y rurales de Cundinamarca.'},
           'requisitos': [{'req': 'Identificación inequívoca de especies',
-                          'just': 'Cada fila debe identificar una sola especie con nombre científico válido '
-                                  'para permitir la fusión con observaciones.'},
+                          'just': 'Cada fila debe identificar una sola especie con nombre científico válido para '
+                                  'permitir la fusión con observaciones.'},
                          {'req': 'Categoría de amenaza estándar',
-                          'just': 'La categoría debe pertenecer al vocabulario IUCN (CR, EN, VU, NT, LC, DD, '
-                                  'NE) para comparabilidad global.'},
+                          'just': 'La categoría debe pertenecer al vocabulario IUCN (CR, EN, VU, NT, LC, DD, NE) para '
+                                  'comparabilidad global.'},
                          {'req': 'Jerarquía taxonómica completa',
-                          'just': 'Clase, orden y familia completas favorecen análisis de clustering por '
-                                  'grupos biológicos.'},
+                          'just': 'Clase, orden y familia completas favorecen análisis de clustering por grupos '
+                                  'biológicos.'},
                          {'req': 'Actualidad de la evaluación',
-                          'just': 'La referencia debe corresponder a la versión vigente consultada en 2026 '
-                                  'para reflejar el riesgo real.'},
+                          'just': 'La referencia debe corresponder a la versión vigente consultada en 2026 para '
+                                  'reflejar el riesgo real.'},
                          {'req': 'Ausencia de duplicados',
-                          'just': 'Cada especie debe aparecer una única vez para que el cruce no inflame '
-                                  'conteos.'}],
+                          'just': 'Cada especie debe aparecer una única vez para que el cruce no inflame conteos.'}],
           'kpi': {'registros': 717,
                   'variables': 12,
                   'duplicados': 0,
@@ -109,47 +106,47 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                       'promedio': '-',
                       'atipicos': '-'}],
           'dimensiones': [{'dim': 'Completitud',
-                           'def': 'Presencia de valores en los campos esenciales del registro '
-                                  '(identificador, especie, familia y categoría de amenaza).',
+                           'def': 'Presencia de valores en los campos esenciales del registro (identificador, especie, '
+                                  'familia y categoría de amenaza).',
                            'metrica': 'Porcentaje de registros sin valores nulos en los campos obligatorios.',
                            'formula': '(registros completos / registros totales) × 100',
                            'valor': 100.0,
                            'estado': 'OK'},
                           {'dim': 'Exactitud',
-                           'def': 'Acercamiento del valor al estado real de la Lista Roja: la categoría '
-                                  'codificada corresponde a un código oficial vigente.',
-                           'metrica': 'Porcentaje de especies con categoría perteneciente al dominio oficial '
-                                      'IUCN (CR, EN, VU, NT, LC, DD, EX, EW, NE).',
+                           'def': 'Acercamiento del valor al estado real de la Lista Roja: la categoría codificada '
+                                  'corresponde a un código oficial vigente.',
+                           'metrica': 'Porcentaje de especies con categoría perteneciente al dominio oficial IUCN (CR, '
+                                      'EN, VU, NT, LC, DD, EX, EW, NE).',
                            'formula': '(categorías válidas / categorías totales) × 100',
                            'valor': 100.0,
                            'estado': 'OK'},
                           {'dim': 'Consistencia',
-                           'def': 'Coherencia interna entre la denominación científica y su nombre aceptado: '
-                                  'un mismo taxón no debe presentar denominaciones contradictorias.',
-                           'metrica': 'Porcentaje de registros donde scientificName y acceptedScientificName '
-                                      'son coincidentes o coherentes.',
+                           'def': 'Coherencia interna entre la denominación científica y su nombre aceptado: un mismo '
+                                  'taxón no debe presentar denominaciones contradictorias.',
+                           'metrica': 'Porcentaje de registros donde scientificName y acceptedScientificName son '
+                                      'coincidentes o coherentes.',
                            'formula': '(registros coherentes / registros totales) × 100',
                            'valor': 100.0,
                            'estado': 'OK'},
                           {'dim': 'Unicidad',
-                           'def': 'Ausencia de registros duplicados: cada especie aparece una única vez en '
-                                  'la referencia.',
+                           'def': 'Ausencia de registros duplicados: cada especie aparece una única vez en la '
+                                  'referencia.',
                            'metrica': 'Porcentaje de registros únicos por nombre científico.',
                            'formula': '(1 − duplicados / total) × 100',
                            'valor': 100.0,
                            'estado': 'OK'},
                           {'dim': 'Validez',
-                           'def': 'Conformidad de los valores con el dominio y formato declarado (códigos '
-                                  'IUCN oficiales, nombres en nomenclatura binomial).',
+                           'def': 'Conformidad de los valores con el dominio y formato declarado (códigos IUCN '
+                                  'oficiales, nombres en nomenclatura binomial).',
                            'metrica': 'Porcentaje de categorías dentro del vocabulario controlado IUCN.',
                            'formula': '(valores en dominio / total) × 100',
                            'valor': 100.0,
                            'estado': 'OK'},
                           {'dim': 'Actualidad',
-                           'def': 'Vigencia de la información frente al período de estudio (1990–2026) y la '
-                                  'última consulta a la fuente (2026-08-22).',
-                           'metrica': 'Porcentaje de registros con jerarquía taxonómica completa y '
-                                      'actualizada dentro de la referencia consultada.',
+                           'def': 'Vigencia de la información frente al período de estudio (1990–2026) y la última '
+                                  'consulta a la fuente (2026-08-22).',
+                           'metrica': 'Porcentaje de registros con jerarquía taxonómica completa y actualizada dentro '
+                                      'de la referencia consultada.',
                            'formula': '(registros completos de jerarquía / total) × 100',
                            'valor': 90.38,
                            'estado': 'Regular'}],
@@ -172,61 +169,72 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                          'impacto': 'Medio',
                          'evidencia': '66 especies (9.21%) sin orden; afecta agrupaciones jerárquicas.'},
                         {'variable': 'scientificName / acceptedScientificName',
-                         'desc': 'La criticidad IUCN puede diferir según la versión taxonómica usada por '
-                                 'GBIF.',
+                         'desc': 'La criticidad IUCN puede diferir según la versión taxonómica usada por GBIF.',
                          'cantidad': 0,
                          'dim': 'Consistencia',
                          'impacto': 'Bajo',
-                         'evidencia': '0 denominaciones con variación de nomenclatura frente al nombre '
-                                      'aceptado.'},
+                         'evidencia': '0 denominaciones con variación de nomenclatura frente al nombre aceptado.'},
                         {'variable': 'iucnRedListCategory',
-                         'desc': 'Desproporción de especies evaluadas: dominio dominado por LC (preocupación '
-                                 'menor), con muy pocas especies amenazadas.',
+                         'desc': 'Desproporción de especies evaluadas: dominio dominado por LC (preocupación menor), '
+                                 'con muy pocas especies amenazadas.',
                          'cantidad': 676,
                          'dim': 'Exactitud',
                          'impacto': 'Bajo',
                          'evidencia': '676 especies LC (94.28%) frente a 8 EN y 1 CR.'}],
           'causas': [{'causa': 'Duplicidad/incompatibilidad de fuentes',
-                      'detalle': 'GBIF agrega datos de miles de conjuntos (colecciones, ciencia ciudadana). '
-                                 'La categoría IUCN se asigna automáticamente por match taxonómico del GBIF '
-                                 'Backbone, produciendo jerarquías incompletas en especies poco resueltas o '
-                                 'sin especie válida.',
+                      'detalle': 'GBIF agrega datos de miles de conjuntos (colecciones, ciencia ciudadana). La '
+                                 'categoría IUCN se asigna automáticamente por match taxonómico del GBIF Backbone, '
+                                 'produciendo jerarquías incompletas en especies poco resueltas o sin especie válida.',
                       'relacion': 'Completitud (class/order nulos)'},
                      {'causa': 'Vocabulario controlado no validado en origen',
-                      'detalle': 'La columna iucnRedListCategory proviene del enriquecimiento automático de '
-                                 'GBIF; la falta de validación previa podría admitir códigos no oficiales o '
-                                 'categorías desactualizadas según la versión de la Lista Roja.',
+                      'detalle': 'La columna iucnRedListCategory proviene del enriquecimiento automático de GBIF; la '
+                                 'falta de validación previa podría admitir códigos no oficiales o categorías '
+                                 'desactualizadas según la versión de la Lista Roja.',
                       'relacion': 'Validez y Exactitud'},
                      {'causa': 'Evolución taxonómica (nomenclatura cambiante)',
-                      'detalle': 'Cambios filogenéticos y sinonimia entre scientificName y '
-                                 'acceptedScientificName generan inconsistencias de nomenclatura sin un '
-                                 'proceso de homologación (name matching).',
+                      'detalle': 'Cambios filogenéticos y sinonimia entre scientificName y acceptedScientificName '
+                                 'generan inconsistencias de nomenclatura sin un proceso de homologación (name '
+                                 'matching).',
                       'relacion': 'Consistencia'},
                      {'causa': 'Falta de actualización de la evaluación',
-                      'detalle': 'Las evaluaciones IUCN no se revisan anualmente para todas las especies; '
-                                 'categorías como LC pueden estar desactualizadas frente a la última '
-                                 'consulta (2026-08-22).',
+                      'detalle': 'Las evaluaciones IUCN no se revisan anualmente para todas las especies; categorías '
+                                 'como LC pueden estar desactualizadas frente a la última consulta (2026-08-22).',
                       'relacion': 'Actualidad'}],
-          'tratamiento': [{'accion': 'Homologación de nombres científicos',
-                           'desc': 'Se generó `name_estandarizado` eliminando autoría y normalizando a '
-                                   'minúsculas para permitir el cruce con NaturaLista y SiB.',
-                           'alcance': 717,
-                           'resultado': '100% de los registros homologados'},
-                          {'accion': 'Etiquetado de categorías en español',
-                           'desc': 'Se añadió `categoria_nombre` mapeando el código IUCN a su denominación '
-                                   'vigente.',
-                           'alcance': 717,
-                           'resultado': 'Vocabulario legible para usuarios no técnicos'},
-                          {'accion': 'Imputación jerárquica de order y class',
-                           'desc': 'El orden faltante se imputó a partir de la familia (moda); los '
-                                   "irrecuperables se etiquetan 'Sin clasificar' para no distorsionar "
-                                   'análisis.',
-                           'alcance': 66,
-                           'resultado': '717−66 órdenes resueltos; 66 etiquetados'},
-                          {'accion': 'Deduplicación final',
-                           'desc': 'Verificación de unicidad por nombre científico.',
-                           'alcance': 0,
-                           'resultado': '0 duplicados eliminados; unicidad 100.0%'}],
+          'tratamiento': [{'accion': 'Eliminación de duplicados',
+                           'desc': 'Se eliminarán los registros duplicados por identificador y por similitud '
+                                   '(coordenadas + fecha + taxón), priorizando la fuente institucional.',
+                           'alcance': '0',
+                           'resultado': 'Meta: unicidad de identificador al 100%'},
+                          {'accion': 'Tratamiento de valores nulos',
+                           'desc': 'Se imputarán o marcarán los valores nulos de campos secundarios y se conservarán '
+                                   'los campos núcleo con un indicador de ausencia.',
+                           'alcance': '69 celdas',
+                           'resultado': 'Meta: completitud de campos núcleo ≥ 95%'},
+                          {'accion': 'Corrección de tipos de datos',
+                           'desc': 'Se corregirán los tipos de datos (numéricos, enteros y fechas) para garantizar '
+                                   'operaciones y agregaciones coherentes.',
+                           'alcance': '717 especies',
+                           'resultado': 'Meta: 100% de columnas con tipo correcto'},
+                          {'accion': 'Estandarización de fechas y textos',
+                           'desc': 'Se normalizarán las fechas a ISO 8601 y los textos (tildes, mayúsculas y '
+                                   'abreviaturas) para unificar la representación.',
+                           'alcance': '717 especies',
+                           'resultado': 'Meta: 100% de fechas en ISO 8601'},
+                          {'accion': 'Homologación de categorías',
+                           'desc': 'Se unificarán las categorías taxonómicas y territoriales contra el listado de '
+                                   'referencia (GBIF Backbone / DANE).',
+                           'alcance': 'nombres sin autoría',
+                           'resultado': 'Meta: vocabulario controlado coherente'},
+                          {'accion': 'Validación de rangos',
+                           'desc': 'Se auditará el dominio de coordenadas, fechas y recuentos, anulando los valores '
+                                   'fuera de rango.',
+                           'alcance': '717 especies',
+                           'resultado': 'Meta: 100% de valores dentro de dominio'},
+                          {'accion': 'Tratamiento justificado de valores atípicos',
+                           'desc': 'Se revisarán los valores atípicos con criterio documentado (asimetría, '
+                                   'co-ocurrencia biológica) y se decidirá su filtrado o conservación.',
+                           'alcance': 'desproporción LC',
+                           'resultado': 'Meta: mantener co-ocurrencias reales y eliminar errores'}],
           'antes_despues': {'antes': {'registros': 717,
                                       'completitud': 90.38,
                                       'unicidad': 100.0,
@@ -240,42 +248,41 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                                         'exactitud': 100.0,
                                         'nulos_order': 0}},
           'integrado': [{'clave': 'Registros enriquecidos con categoría IUCN', 'valor': '118', 'pct': 2.36},
-                        {'clave': 'Registros sin categoría (se homologan a NE)',
-                         'valor': '4 877',
-                         'pct': 97.64}]},
+                        {'clave': 'Registros sin categoría (se homologan a NE)', 'valor': '4 877', 'pct': 97.64}],
+          'proposito': 'Contextualizar el estado de conservación (categorías de amenaza) de las especies observadas '
+                       'para contrastar entornos urbanos y rurales.'},
  'naturalista': {'descripcion': {'titulo': 'NaturaLista Colombia - Observaciones de ciencia ciudadana',
                                  'fuente': 'NaturaLista Colombia (iNaturalist / Instituto Humboldt)',
-                                 'cobertura': 'Registros de Animalia georreferenciados en Cundinamarca '
-                                              '(place_id 12733)',
+                                 'cobertura': 'Registros de Animalia georreferenciados en Cundinamarca (place_id '
+                                              '12733)',
                                  'periodo': '2000 – 2026 (ventana de estudio 1990 – 2026)',
-                                 'formato': 'CSV con 37 variables (observación, taxonomía, geoespacial, '
-                                            'temporal, metodológica)',
+                                 'formato': 'CSV con 37 variables (observación, taxonomía, geoespacial, temporal, '
+                                            'metodológica)',
                                  'consulta': 'Descarga vía API iNaturalist; consulta 08/09/2026',
                                  'restricciones': 'Licencias CC de los observadores; atribución requerida',
-                                 'resumen': 'El dataset de NaturaLista Colombia reúne 5.112 observaciones de '
-                                            'fauna (Animalia) registradas por ciencia ciudadana en '
-                                            'Cundinamarca. Incluye identificación taxonómica, coordenadas, '
-                                            'fechas y hora de observación, grado de calidad, precisión '
-                                            'posicional y usuario. Es la fuente secundaria clave para '
-                                            'cuantificar el esfuerzo de observación humano.'},
+                                 'resumen': 'El dataset de NaturaLista Colombia reúne 5.112 observaciones de fauna '
+                                            '(Animalia) registradas por ciencia ciudadana en Cundinamarca. Incluye '
+                                            'identificación taxonómica, coordenadas, fechas y hora de observación, '
+                                            'grado de calidad, precisión posicional y usuario. Es la fuente secundaria '
+                                            'clave para cuantificar el esfuerzo de observación humano.'},
                  'requisitos': [{'req': 'Fecha de observación válida',
-                                 'just': 'Indispensable para el análisis temporal y estacional (mes a mes) '
-                                         'entre urbano y rural.'},
+                                 'just': 'Indispensable para el análisis temporal y estacional (mes a mes) entre '
+                                         'urbano y rural.'},
                                 {'req': 'Coordenadas dentro del recorte de estudio',
-                                 'just': 'Deben pertenecer a Cundinamarca para el cruce espacial con '
-                                         'tipologías municipales DANE.'},
+                                 'just': 'Deben pertenecer a Cundinamarca para el cruce espacial con tipologías '
+                                         'municipales DANE.'},
                                 {'req': 'Identificación taxonómica mínima',
-                                 'just': 'Idealmente a especie para permitir el enriquecimiento con IUCN y '
-                                         'medir riqueza.'},
+                                 'just': 'Idealmente a especie para permitir el enriquecimiento con IUCN y medir '
+                                         'riqueza.'},
                                 {'req': 'Grado de calidad de la observación',
-                                 'just': 'Las observaciones Research Grade aportan mayor fiabilidad; las de '
-                                         'menor grado deben ponderarse.'},
+                                 'just': 'Las observaciones Research Grade aportan mayor fiabilidad; las de menor '
+                                         'grado deben ponderarse.'},
                                 {'req': 'Precisión posicional conocida',
                                  'just': 'La incertidumbre de las coordenadas debe ser conocida para no '
                                          'sobreinterpretar patrones espaciales.'},
                                 {'req': 'Esfuerzo de muestreo trazable',
-                                 'just': 'El usuario y el identificador permiten controlar el sesgo de '
-                                         'observador único.'}],
+                                 'just': 'El usuario y el identificador permiten controlar el sesgo de observador '
+                                         'único.'}],
                  'kpi': {'registros': 5112,
                          'variables': 37,
                          'duplicados': 0,
@@ -535,49 +542,46 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                              'promedio': '-',
                              'atipicos': '-'}],
                  'dimensiones': [{'dim': 'Completitud',
-                                  'def': 'Presencia de valores en campos esenciales de la observación '
-                                         '(identificador, usuario, nombre científico y fecha de '
-                                         'observación).',
+                                  'def': 'Presencia de valores en campos esenciales de la observación (identificador, '
+                                         'usuario, nombre científico y fecha de observación).',
                                   'metrica': 'Porcentaje de observaciones sin valores nulos en los campos '
                                              'obligatorios.',
                                   'formula': '(registros completos / registros totales) × 100',
                                   'valor': 97.79,
                                   'estado': 'OK'},
                                  {'dim': 'Exactitud',
-                                  'def': 'Correspondencia de las coordenadas con el territorio real del área '
-                                         'de estudio (Cundinamarca, recorte 3.9–5.9 lat, −75.0 a −72.5 lon).',
-                                  'metrica': 'Porcentaje de observaciones dentro del recorte geográfico '
-                                             'esperado.',
+                                  'def': 'Correspondencia de las coordenadas con el territorio real del área de '
+                                         'estudio (Cundinamarca, recorte 3.9–5.9 lat, −75.0 a −72.5 lon).',
+                                  'metrica': 'Porcentaje de observaciones dentro del recorte geográfico esperado.',
                                   'formula': '(1 − observaciones fuera de rango / total) × 100',
                                   'valor': 99.92,
                                   'estado': 'OK'},
                                  {'dim': 'Consistencia',
                                   'def': 'Coherencia entre los campos de fecha (observed_on, datetime y '
                                          'time_observed_at) y la disponibilidad de fechas parseables.',
-                                  'metrica': 'Porcentaje de observaciones con fecha de observación válida y '
-                                             'parseable.',
+                                  'metrica': 'Porcentaje de observaciones con fecha de observación válida y parseable.',
                                   'formula': '(observaciones con fecha válida / total) × 100',
                                   'valor': 97.79,
                                   'estado': 'OK'},
                                  {'dim': 'Unicidad',
-                                  'def': 'Ausencia de observaciones duplicadas según el identificador único '
-                                         'de la plataforma.',
+                                  'def': 'Ausencia de observaciones duplicadas según el identificador único de la '
+                                         'plataforma.',
                                   'metrica': 'Porcentaje de observaciones con identificador único.',
                                   'formula': '(1 − duplicados / total) × 100',
                                   'valor': 100.0,
                                   'estado': 'OK'},
                                  {'dim': 'Validez',
-                                  'def': 'Conformidad de las fechas con el dominio temporal esperado '
-                                         '(1990–2026, sin fechas futuras ni anteriores al estudio).',
+                                  'def': 'Conformidad de las fechas con el dominio temporal esperado (1990–2026, sin '
+                                         'fechas futuras ni anteriores al estudio).',
                                   'metrica': 'Porcentaje de observaciones con fecha dentro del rango válido.',
                                   'formula': '(1 − fechas fuera de rango / total) × 100',
                                   'valor': 100.0,
                                   'estado': 'OK'},
                                  {'dim': 'Actualidad',
-                                  'def': 'Vigencia temporal de las observaciones dentro del período de '
-                                         'estudio del proyecto (1990–2026).',
-                                  'metrica': 'Porcentaje de observaciones posteriores a 1999 (cobertura '
-                                             'completa del período moderno).',
+                                  'def': 'Vigencia temporal de las observaciones dentro del período de estudio del '
+                                         'proyecto (1990–2026).',
+                                  'metrica': 'Porcentaje de observaciones posteriores a 1999 (cobertura completa del '
+                                             'período moderno).',
                                   'formula': '(observaciones en ventana temporal / total) × 100',
                                   'valor': 100.0,
                                   'estado': 'OK'}],
@@ -597,13 +601,13 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                                         {'label': 'Nov', 'n': 339, 'pct': 6.63},
                                         {'label': 'Dic', 'n': 299, 'pct': 5.85}],
                  'problemas': [{'variable': 'species_guess',
-                                'desc': 'Observaciones sin identificación a nivel de especie (solo género, '
-                                        'familia, orden o reino).',
+                                'desc': 'Observaciones sin identificación a nivel de especie (solo género, familia, '
+                                        'orden o reino).',
                                 'cantidad': 576,
                                 'dim': 'Completitud',
                                 'impacto': 'Medio',
-                                'evidencia': '576 observaciones (11.27%) sin especie; limita el cruce con '
-                                             'IUCN y el análisis de riqueza.'},
+                                'evidencia': '576 observaciones (11.27%) sin especie; limita el cruce con IUCN y el '
+                                             'análisis de riqueza.'},
                                {'variable': 'observed_on / datetime',
                                 'desc': 'Observaciones sin fecha de observación registrada.',
                                 'cantidad': 113,
@@ -612,13 +616,12 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                                 'evidencia': '113 observaciones (2.21%) sin fecha; impiden análisis '
                                              'temporal/estacional.'},
                                {'variable': 'time_observed_at',
-                                'desc': 'Hora de observación sin registrar (esfuerzo de muestreo de '
-                                        'resolución horaria incompleta).',
+                                'desc': 'Hora de observación sin registrar (esfuerzo de muestreo de resolución horaria '
+                                        'incompleta).',
                                 'cantidad': 512,
                                 'dim': 'Completitud',
                                 'impacto': 'Bajo',
-                                'evidencia': '512 observaciones (10.02%) sin hora; solo afecta análisis '
-                                             'horarios.'},
+                                'evidencia': '512 observaciones (10.02%) sin hora; solo afecta análisis horarios.'},
                                {'variable': 'positional_accuracy',
                                 'desc': 'Precisión posicional (metros) ausente en observaciones.',
                                 'cantidad': 772,
@@ -626,90 +629,94 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                                 'impacto': 'Bajo',
                                 'evidencia': '772 observaciones (15.1%) sin dato de precisión.'},
                                {'variable': 'coordinates_obscured',
-                                'desc': 'Coordenadas oscurecidas/ocultas por privacidad, con precisión '
-                                        'degradada.',
+                                'desc': 'Coordenadas oscurecidas/ocultas por privacidad, con precisión degradada.',
                                 'cantidad': 162,
                                 'dim': 'Exactitud',
                                 'impacto': 'Medio',
-                                'evidencia': '162 observaciones (3.17%) con `coordinates_obscured=True`; su '
-                                             'posición es aproximada.'},
+                                'evidencia': '162 observaciones (3.17%) con `coordinates_obscured=True`; su posición '
+                                             'es aproximada.'},
                                {'variable': 'decimalLatitude / decimalLongitude',
-                                'desc': 'Coordenadas fuera del recorte geográfico de Cundinamarca (errores '
-                                        'de georreferenciación).',
+                                'desc': 'Coordenadas fuera del recorte geográfico de Cundinamarca (errores de '
+                                        'georreferenciación).',
                                 'cantidad': 4,
                                 'dim': 'Exactitud',
                                 'impacto': 'Medio',
                                 'evidencia': '4 observaciones fuera de límites (lat 3.9772–5.7297; lon '
                                              '-74.9041–-73.0960).'},
                                {'variable': 'quality_grade',
-                                'desc': 'Gran proporción de observaciones sin grado de investigación '
-                                        '(needs_id) que reduce la fiabilidad taxonómica.',
+                                'desc': 'Gran proporción de observaciones sin grado de investigación (needs_id) que '
+                                        'reduce la fiabilidad taxonómica.',
                                 'cantidad': 4010,
                                 'dim': 'Exactitud',
                                 'impacto': 'Medio',
-                                'evidencia': '4010 observaciones (78.44%) en `needs_id` frente a 807 en '
-                                             '`research`.'},
+                                'evidencia': '4010 observaciones (78.44%) en `needs_id` frente a 807 en `research`.'},
                                {'variable': 'user_login',
-                                'desc': 'Concentración del esfuerzo de muestreo en pocos observadores '
-                                        '(efecto observador único).',
+                                'desc': 'Concentración del esfuerzo de muestreo en pocos observadores (efecto '
+                                        'observador único).',
                                 'cantidad': 3,
                                 'dim': 'Consistencia',
                                 'impacto': 'Bajo',
-                                'evidencia': '3 usuarios aportan ≥100 observaciones; el más activo registra '
-                                             '188 (3.68% del total).'}],
+                                'evidencia': '3 usuarios aportan ≥100 observaciones; el más activo registra 188 (3.68% '
+                                             'del total).'}],
                  'causas': [{'causa': 'Errores de captura y georreferenciación',
-                             'detalle': 'Observadores en campo registran desde el teléfono sin GPS fino; '
-                                        'errores de digito o localidades mal asignadas generan coordenadas '
-                                        'fuera del recorte de Cundinamarca (incluidas zonas de Bogotá o '
-                                        'departamentos vecinos).',
+                             'detalle': 'Observadores en campo registran desde el teléfono sin GPS fino; errores de '
+                                        'digito o localidades mal asignadas generan coordenadas fuera del recorte de '
+                                        'Cundinamarca (incluidas zonas de Bogotá o departamentos vecinos).',
                              'relacion': 'Exactitud (coordenadas fuera de rango)'},
                             {'causa': 'Ausencia de validaciones en el formulario de captura',
-                             'detalle': 'La plataforma permite publicar observaciones sin fecha y sin '
-                                        'identificación a especie (genus/familia), generando valores nulos '
-                                        'en campos esenciales.',
+                             'detalle': 'La plataforma permite publicar observaciones sin fecha y sin identificación a '
+                                        'especie (genus/familia), generando valores nulos en campos esenciales.',
                              'relacion': 'Completitud (fecha y species_guess)'},
                             {'causa': 'Política de privacidad (coordenadas oscurecidas)',
-                             'detalle': 'iNaturalist oscurece automáticamente coordenadas de especies '
-                                        'sensibles o por solicitud del observador, degradando la precisión '
-                                        'exacta del punto.',
+                             'detalle': 'iNaturalist oscurece automáticamente coordenadas de especies sensibles o por '
+                                        'solicitud del observador, degradando la precisión exacta del punto.',
                              'relacion': 'Exactitud (coordinates_obscured)'},
                             {'causa': 'Duplicidad de registros entre fuentes',
-                             'detalle': 'NaturaLista publica hacia GBIF/SiB, por lo que las mismas '
-                                        'observaciones pueden aparecer en múltiples datasets; los cuasi '
-                                        'duplicados (mismo observador, fecha, especie y lugar) son difícil '
-                                        'de detectar sin claves canónicas.',
+                             'detalle': 'NaturaLista publica hacia GBIF/SiB, por lo que las mismas observaciones '
+                                        'pueden aparecer en múltiples datasets; los cuasi duplicados (mismo '
+                                        'observador, fecha, especie y lugar) son difícil de detectar sin claves '
+                                        'canónicas.',
                              'relacion': 'Unicidad (cuasi duplicados)'},
                             {'causa': 'Sesgo de esfuerzo de muestreo',
-                             'detalle': 'Un grupo reducido de observadores activos concentra gran parte del '
-                                        'esfuerzo, y la actividad crece en épocas con mejores condiciones o '
-                                        'menos restricciones (pico estacional en abril), no por abundancia '
-                                        'biológica real.',
+                             'detalle': 'Un grupo reducido de observadores activos concentra gran parte del esfuerzo, '
+                                        'y la actividad crece en épocas con mejores condiciones o menos restricciones '
+                                        '(pico estacional en abril), no por abundancia biológica real.',
                              'relacion': 'Consistencia (efecto observador único)'}],
-                 'tratamiento': [{'accion': 'Recuperación de fechas',
-                                  'desc': 'observed_on vacío se intentó reconstruir desde `datetime`; '
-                                          'ninguna fue recuperable porque ambas columnas estaban vacías.',
-                                  'alcance': 113,
-                                  'resultado': '113 observaciones irrecuperables eliminadas'},
-                                 {'accion': 'Filtro geográfico',
-                                  'desc': 'Observaciones fuera del recorte de Cundinamarca se eliminaron '
-                                          'para evitar contaminación espacial.',
-                                  'alcance': 4,
-                                  'resultado': '4 eliminadas'},
-                                 {'accion': 'Estandarización temporal',
-                                  'desc': 'Se derivaron `fecha_iso`, `anio`, `mes` y `dia` en formato ISO '
-                                          '8601.',
-                                  'alcance': 4995,
-                                  'resultado': 'Cobertura temporal 100% ISO'},
-                                 {'accion': 'Marcado taxonómico',
-                                  'desc': 'Se creó `nivel_taxonomico` para distinguir registros '
-                                          'identificados a especie de los de nivel superior.',
-                                  'alcance': 554,
-                                  'resultado': 'No se eliminan; se etiquetan para ponderación'},
-                                 {'accion': 'Integración con IUCN',
-                                  'desc': 'Cruce con las categorías de amenaza por nombre científico para '
-                                          'enriquecer cada observación.',
-                                  'alcance': 118,
-                                  'resultado': '118 observaciones enriquecidas con categoría IUCN (2.36%)'}],
+                 'tratamiento': [{'accion': 'Eliminación de duplicados',
+                                  'desc': 'Se eliminarán los registros duplicados por identificador y por similitud '
+                                          '(coordenadas + fecha + taxón), priorizando la fuente institucional.',
+                                  'alcance': '0',
+                                  'resultado': 'Meta: unicidad de identificador al 100%'},
+                                 {'accion': 'Tratamiento de valores nulos',
+                                  'desc': 'Se imputarán o marcarán los valores nulos de campos secundarios y se '
+                                          'conservarán los campos núcleo con un indicador de ausencia.',
+                                  'alcance': '41.423 celdas',
+                                  'resultado': 'Meta: completitud de campos núcleo ≥ 95%'},
+                                 {'accion': 'Corrección de tipos de datos',
+                                  'desc': 'Se corregirán los tipos de datos (numéricos, enteros y fechas) para '
+                                          'garantizar operaciones y agregaciones coherentes.',
+                                  'alcance': '5.112 observaciones',
+                                  'resultado': 'Meta: 100% de columnas con tipo correcto'},
+                                 {'accion': 'Estandarización de fechas y textos',
+                                  'desc': 'Se normalizarán las fechas a ISO 8601 y los textos (tildes, mayúsculas y '
+                                          'abreviaturas) para unificar la representación.',
+                                  'alcance': '113 sin fecha',
+                                  'resultado': 'Meta: 100% de fechas en ISO 8601'},
+                                 {'accion': 'Homologación de categorías',
+                                  'desc': 'Se unificarán las categorías taxonómicas y territoriales contra el listado '
+                                          'de referencia (GBIF Backbone / DANE).',
+                                  'alcance': '5.112 observaciones',
+                                  'resultado': 'Meta: vocabulario controlado coherente'},
+                                 {'accion': 'Validación de rangos',
+                                  'desc': 'Se auditará el dominio de coordenadas, fechas y recuentos, anulando los '
+                                          'valores fuera de rango.',
+                                  'alcance': '5.112 observaciones',
+                                  'resultado': 'Meta: 100% de valores dentro de dominio'},
+                                 {'accion': 'Tratamiento justificado de valores atípicos',
+                                  'desc': 'Se revisarán los valores atípicos con criterio documentado (asimetría, '
+                                          'co-ocurrencia biológica) y se decidirá su filtrado o conservación.',
+                                  'alcance': '162 coordenadas oscurecidas',
+                                  'resultado': 'Meta: mantener co-ocurrencias reales y eliminar errores'}],
                  'antes_despues': {'antes': {'registros': 5112,
                                              'completitud': 97.79,
                                              'unicidad': 100.0,
@@ -722,9 +729,7 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                                                'validez': 100.0,
                                                'exactitud': 100.0,
                                                'nulos_fecha': 0}},
-                 'integrado': [{'clave': 'Registros enriquecidos con categoría IUCN',
-                                'valor': '118',
-                                'pct': 2.36},
+                 'integrado': [{'clave': 'Registros enriquecidos con categoría IUCN', 'valor': '118', 'pct': 2.36},
                                {'clave': 'Registros sin categoría (se homologan a NE)',
                                 'valor': '4 877',
                                 'pct': 97.64}],
@@ -739,7 +744,9 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                               'top_user_n': 188,
                               'potencia_usuarios': 3,
                               'obscured': 162,
-                              'cuasi_duplicados': 406}},
+                              'cuasi_duplicados': 406},
+                 'proposito': 'Cuantificar el esfuerzo de observación humano (ciencia ciudadana) y su sesgo '
+                              'espacio-temporal frente a muestreos institucionales.'},
  'gbif': {'descripcion': {'titulo': 'GBIF · Observaciones de fauna',
                           'fuente': 'GBIF / GBIF Secretariat',
                           'cobertura': 'Registros de Animalia en Cundinamarca (Colombia)',
@@ -747,14 +754,12 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                           'formato': 'CSV (delimitador TAB) · Darwin Core · 27 columnas',
                           'consulta': '22/08/2026',
                           'restricciones': 'Licencias CC0 / CC-BY / CC-BY-NC',
-                          'resumen': 'El dataset GBIF reúne 2.128.550 registros de fauna (Animalia) de '
-                                     'Cundinamarca, con 27 variables. La enorme mayoría son observaciones '
-                                     'humanas (eBird/iNaturalist); los registros de museo y científicos son '
-                                     'minoritarios.'},
+                          'resumen': 'El dataset GBIF reúne 2.128.550 registros de fauna (Animalia) de Cundinamarca, '
+                                     'con 27 variables. La enorme mayoría son observaciones humanas '
+                                     '(eBird/iNaturalist); los registros de museo y científicos son minoritarios.'},
           'requisitos': [{'req': 'Identificador único (occurrenceID) no duplicado.',
                           'just': 'Evita inflar los conteos por publicaciones duplicadas entre GBIF y SiB.'},
-                         {'req': 'Coordenadas dentro del rango de Cundinamarca (lat 3.5 a 6.0, lon -75.5 a '
-                                 '-72.5).',
+                         {'req': 'Coordenadas dentro del rango de Cundinamarca (lat 3.5 a 6.0, lon -75.5 a -72.5).',
                           'just': 'Garantiza que la observación pertenece al departamento y es comparable '
                                   'espacialmente.'},
                          {'req': 'Fecha de ocurrencia en formato ISO 8601 dentro de 1990–2026.',
@@ -905,8 +910,7 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                            'estado': 'OK'},
                           {'dim': 'Consistencia',
                            'def': 'Homogeneidad en formatos temporales y geográficos.',
-                           'metrica': '% de registros con fecha ISO 8601 válida y longitud con signo '
-                                      'correcto',
+                           'metrica': '% de registros con fecha ISO 8601 válida y longitud con signo correcto',
                            'formula': '(registros que cumplen / registros totales) x 100',
                            'valor': 95.06,
                            'estado': 'OK'},
@@ -918,8 +922,8 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                            'estado': 'OK'},
                           {'dim': 'Validez',
                            'def': 'Cumplimiento de reglas de dominio definidas.',
-                           'metrica': '% de registros que cumplen todos los dominios (año, mes, día, '
-                                      'basisOfRecord, coordenadas)',
+                           'metrica': '% de registros que cumplen todos los dominios (año, mes, día, basisOfRecord, '
+                                      'coordenadas)',
                            'formula': '(registros que cumplen / registros totales) x 100',
                            'valor': 98.96,
                            'estado': 'OK'},
@@ -929,18 +933,9 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                            'formula': '(registros que cumplen / registros totales) x 100',
                            'valor': 95.06,
                            'estado': 'OK'}],
-          'distribucion': [{'code': 'HUMAN_OBSERVATION',
-                            'label': 'Human Observation',
-                            'n': 2068029,
-                            'pct': 97.2},
-                           {'code': 'PRESERVED_SPECIMEN',
-                            'label': 'Preserved Specimen',
-                            'n': 41002,
-                            'pct': 1.9},
-                           {'code': 'MACHINE_OBSERVATION',
-                            'label': 'Machine Observation',
-                            'n': 16832,
-                            'pct': 0.8},
+          'distribucion': [{'code': 'HUMAN_OBSERVATION', 'label': 'Human Observation', 'n': 2068029, 'pct': 97.2},
+                           {'code': 'PRESERVED_SPECIMEN', 'label': 'Preserved Specimen', 'n': 41002, 'pct': 1.9},
+                           {'code': 'MACHINE_OBSERVATION', 'label': 'Machine Observation', 'n': 16832, 'pct': 0.8},
                            {'code': 'MATERIAL_SAMPLE', 'label': 'Material Sample', 'n': 2269, 'pct': 0.1},
                            {'code': 'MATERIAL_CITATION', 'label': 'Material Citation', 'n': 402, 'pct': 0.0}],
           'problemas': [{'variable': 'individualCount',
@@ -1004,71 +999,64 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                          'impacto': 'Bajo',
                          'evidencia': '7 nulos (0.0%).'}],
           'causas': [{'causa': 'Coordenadas sin georreferenciar y fuera de rango',
-                      'detalle': 'Errores de captura / geocodificación no implementada en la fuente de '
-                                 'origen. Registros de colecciones antiguas sin datum de referencia (WGS84 '
-                                 'asumido, ver flag GEODETIC_DATUM_ASSUMED_WGS84). Datos administrativos mal '
-                                 'asignados al departamento.',
+                      'detalle': 'Errores de captura / geocodificación no implementada en la fuente de origen. '
+                                 'Registros de colecciones antiguas sin datum de referencia (WGS84 asumido, ver flag '
+                                 'GEODETIC_DATUM_ASSUMED_WGS84). Datos administrativos mal asignados al departamento.',
                       'relacion': 'Coordenadas sin georreferenciar y fuera de rango'},
                      {'causa': 'Fechas en formatos diferentes',
-                      'detalle': 'Falta de validación en el formulario de captura. Exportaciones que '
-                                 'conservan el datetime completo (hora, zona) en lugar de la fecha. Uso de '
-                                 'separadores ‘/’ y orden día/mes vs mes/día.',
+                      'detalle': 'Falta de validación en el formulario de captura. Exportaciones que conservan el '
+                                 'datetime completo (hora, zona) en lugar de la fecha. Uso de separadores ‘/’ y orden '
+                                 'día/mes vs mes/día.',
                       'relacion': 'Fechas en formatos diferentes'},
                      {'causa': 'Duplicidad de fuentes',
-                      'detalle': 'SiB Colombia publica hacia GBIF, por lo que el mismo evento de observación '
-                                 'aparece en ambas. Sin clave canónica compartida / falta de matching por '
-                                 'occurrenceID. Exportaciones parciales repetidas a lo largo del tiempo.',
+                      'detalle': 'SiB Colombia publica hacia GBIF, por lo que el mismo evento de observación aparece '
+                                 'en ambas. Sin clave canónica compartida / falta de matching por occurrenceID. '
+                                 'Exportaciones parciales repetidas a lo largo del tiempo.',
                       'relacion': 'Duplicidad de fuentes'},
                      {'causa': 'Ausencia de municipio y categoría territorial',
-                      'detalle': 'El campo municipality solo se completa en algunas fuentes '
-                                 '(iNaturalist/CAR). Falta de integración con el listado DANE de 116 '
-                                 'municipios. El texto no está normalizado (tildes, mayúsculas, '
-                                 'abreviaturas).',
+                      'detalle': 'El campo municipality solo se completa en algunas fuentes (iNaturalist/CAR). Falta '
+                                 'de integración con el listado DANE de 116 municipios. El texto no está normalizado '
+                                 '(tildes, mayúsculas, abreviaturas).',
                       'relacion': 'Ausencia de municipio y categoría territorial'},
                      {'causa': 'Valores nulos en campos núcleo y métrica individualCount',
-                      'detalle': 'Campos opcionales en el estándar Darwin Core. Metadatos de captura '
-                                 'incompletos (observador, método). Recolección con prioridad de presencia, '
-                                 'no de abundancia.',
+                      'detalle': 'Campos opcionales en el estándar Darwin Core. Metadatos de captura incompletos '
+                                 '(observador, método). Recolección con prioridad de presencia, no de abundancia.',
                       'relacion': 'Valores nulos en campos núcleo y métrica individualCount'}],
-          'tratamiento': [{'accion': 'Homologación e integración de fuentes',
-                           'desc': 'Unificación de GBIF y SiB a un esquema Darwin Core común (delimitador, '
-                                   'columnas, categorías).',
-                           'alcance': 2148650,
-                           'resultado': 'Aplicado'},
-                          {'accion': 'Estandarización de fechas a ISO 8601',
-                           'desc': 'Configuración de eventDate a YYYY-MM-DD (separación de hora/zona y '
-                                   'separadores).',
-                           'alcance': 2128107,
-                           'resultado': 'Aplicado'},
+          'tratamiento': [{'accion': 'Eliminación de duplicados',
+                           'desc': 'Se eliminarán los registros duplicados por identificador y por similitud '
+                                   '(coordenadas + fecha + taxón), priorizando la fuente institucional.',
+                           'alcance': '575 por id + solapamiento SiB',
+                           'resultado': 'Meta: unicidad de identificador al 100%'},
+                          {'accion': 'Tratamiento de valores nulos',
+                           'desc': 'Se imputarán o marcarán los valores nulos de campos secundarios y se conservarán '
+                                   'los campos núcleo con un indicador de ausencia.',
+                           'alcance': '597.517 celdas',
+                           'resultado': 'Meta: completitud de campos núcleo ≥ 95%'},
                           {'accion': 'Corrección de tipos de datos',
-                           'desc': 'Cast de coordenadas y recuentos a numéricos; año/mes/día a entero.',
-                           'alcance': 2128107,
-                           'resultado': 'Aplicado'},
-                          {'accion': 'Imputación conservadora de fechas parciales',
-                           'desc': 'Día=1 (y mes=1 cuando falta) para registros con fecha parcial, dado el '
-                                   'análisis de estacionalidad mensual.',
-                           'alcance': 892,
-                           'resultado': 'Aplicado'},
-                          {'accion': 'Limpieza de coordenadas no válidas',
-                           'desc': 'Coordenadas sin georreferenciar (vacías) y puntos fuera del rango de '
-                                   'Cundinamarca se anulan para evitar una ubicación errónea.',
-                           'alcance': 6186,
-                           'resultado': 'Aplicado'},
+                           'desc': 'Se corregirán los tipos de datos (numéricos, enteros y fechas) para garantizar '
+                                   'operaciones y agregaciones coherentes.',
+                           'alcance': '2.128.550 registros',
+                           'resultado': 'Meta: 100% de columnas con tipo correcto'},
+                          {'accion': 'Estandarización de fechas y textos',
+                           'desc': 'Se normalizarán las fechas a ISO 8601 y los textos (tildes, mayúsculas y '
+                                   'abreviaturas) para unificar la representación.',
+                           'alcance': '105.054 fechas no ISO',
+                           'resultado': 'Meta: 100% de fechas en ISO 8601'},
+                          {'accion': 'Homologación de categorías',
+                           'desc': 'Se unificarán las categorías taxonómicas y territoriales contra el listado de '
+                                   'referencia (GBIF Backbone / DANE).',
+                           'alcance': '2.128.550 registros',
+                           'resultado': 'Meta: vocabulario controlado coherente'},
                           {'accion': 'Validación de rangos',
-                           'desc': 'Meses (1–12), días (1–31) y años (1990–2026) fuera de dominio se anulan '
-                                   'como no válidos.',
-                           'alcance': 1784,
-                           'resultado': 'Aplicado'},
-                          {'accion': 'Deduplicación (occurrenceID y similitud)',
-                           'desc': 'Se eliminan duplicados exactos por identificador y cercas-duplicados por '
-                                   'coordenada+fecha+especie (predominan fuentes institucionales).',
-                           'alcance': 20543,
-                           'resultado': 'Aplicado'},
-                          {'accion': 'Tratamiento de valores atípicos',
-                           'desc': 'Fechas y coordenadas extremas anuladas; individualCount con recuentos no '
-                                   'realistas (IQR) conservados por presencia.',
-                           'alcance': 7078,
-                           'resultado': 'Aplicado'}],
+                           'desc': 'Se auditará el dominio de coordenadas, fechas y recuentos, anulando los valores '
+                                   'fuera de rango.',
+                           'alcance': '2.128.550 registros',
+                           'resultado': 'Meta: 100% de valores dentro de dominio'},
+                          {'accion': 'Tratamiento justificado de valores atípicos',
+                           'desc': 'Se revisarán los valores atípicos con criterio documentado (asimetría, '
+                                   'co-ocurrencia biológica) y se decidirá su filtrado o conservación.',
+                           'alcance': '5.980 sin georreferenciar',
+                           'resultado': 'Meta: mantener co-ocurrencias reales y eliminar errores'}],
           'antes_despues': {'antes': {'registros': 2148650,
                                       'completitud': 99.77,
                                       'fechas': 94.71,
@@ -1080,7 +1068,9 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                                         'coordenadas': 99.76,
                                         'duplicados': 0}},
           'integrado': [{'clave': 'Registros tras deduplicación', 'valor': 2128107, 'pct': 99.0},
-                        {'clave': 'Reducción por deduplicación', 'valor': 20543, 'pct': 1.0}]},
+                        {'clave': 'Reducción por deduplicación', 'valor': 20543, 'pct': 1.0}],
+          'proposito': 'Analizar la variación temporal y los patrones de observación de fauna entre entornos urbanos y '
+                       'rurales de Cundinamarca, controlando el sesgo de esfuerzo de muestreo.'},
  'sib-colombia': {'descripcion': {'titulo': 'SiB Colombia · Observaciones de fauna',
                                   'fuente': 'SiB Colombia / Instituto Humboldt',
                                   'cobertura': 'Registros de Animalia en Cundinamarca (Colombia)',
@@ -1088,18 +1078,16 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                                   'formato': 'CSV · Darwin Core · 31 columnas',
                                   'consulta': '23/08/2026',
                                   'restricciones': 'Términos de uso SiB (licencias CC)',
-                                  'resumen': 'El dataset SiB Colombia reúne 20.100 registros de fauna de '
-                                             'Cundinamarca (2024–2026), procedentes de iNaturalist, '
-                                             'monitoreos de la CAR e INS. Gran parte se publica también '
-                                             'hacia GBIF, por lo que la deduplicación evita el doble '
-                                             'conteo.'},
+                                  'resumen': 'El dataset SiB Colombia reúne 20.100 registros de fauna de Cundinamarca '
+                                             '(2024–2026), procedentes de iNaturalist, monitoreos de la CAR e INS. '
+                                             'Gran parte se publica también hacia GBIF, por lo que la deduplicación '
+                                             'evita el doble conteo.'},
                   'requisitos': [{'req': 'Identificador único (occurrenceID) no duplicado.',
-                                  'just': 'Evita inflar los conteos por publicaciones duplicadas entre GBIF '
-                                          'y SiB.'},
-                                 {'req': 'Coordenadas dentro del rango de Cundinamarca (lat 3.5 a 6.0, lon '
-                                         '-75.5 a -72.5).',
-                                  'just': 'Garantiza que la observación pertenece al departamento y es '
-                                          'comparable espacialmente.'},
+                                  'just': 'Evita inflar los conteos por publicaciones duplicadas entre GBIF y SiB.'},
+                                 {'req': 'Coordenadas dentro del rango de Cundinamarca (lat 3.5 a 6.0, lon -75.5 a '
+                                         '-72.5).',
+                                  'just': 'Garantiza que la observación pertenece al departamento y es comparable '
+                                          'espacialmente.'},
                                  {'req': 'Fecha de ocurrencia en formato ISO 8601 dentro de 1990–2026.',
                                   'just': 'Permite análisis temporal y estacional mensual consistentes.'},
                                  {'req': 'Nivel taxonómico al menos a clase, orden y familia.',
@@ -1250,15 +1238,14 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                                    'estado': 'Regular'},
                                   {'dim': 'Exactitud',
                                    'def': 'Georreferenciación correcta frente al rango de referencia.',
-                                   'metrica': '% de registros con coordenadas georreferenciadas dentro del '
-                                              'rango de Cundinamarca',
+                                   'metrica': '% de registros con coordenadas georreferenciadas dentro del rango de '
+                                              'Cundinamarca',
                                    'formula': '(registros que cumplen / registros totales) x 100',
                                    'valor': 94.16,
                                    'estado': 'Regular'},
                                   {'dim': 'Consistencia',
                                    'def': 'Homogeneidad en formatos temporales y geográficos.',
-                                   'metrica': '% de registros con fecha ISO 8601 válida y longitud con signo '
-                                              'correcto',
+                                   'metrica': '% de registros con fecha ISO 8601 válida y longitud con signo correcto',
                                    'formula': '(registros que cumplen / registros totales) x 100',
                                    'valor': 56.83,
                                    'estado': 'Regular'},
@@ -1277,19 +1264,12 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                                    'estado': 'Regular'},
                                   {'dim': 'Actualidad',
                                    'def': 'Vigencia dentro de la ventana temporal de análisis.',
-                                   'metrica': '% de registros con fecha interpretable dentro de la ventana '
-                                              '1990–2026',
+                                   'metrica': '% de registros con fecha interpretable dentro de la ventana 1990–2026',
                                    'formula': '(registros que cumplen / registros totales) x 100',
                                    'valor': 56.83,
                                    'estado': 'Regular'}],
-                  'distribucion': [{'code': 'HUMAN_OBSERVATION',
-                                    'label': 'Human Observation',
-                                    'n': 19809,
-                                    'pct': 98.6},
-                                   {'code': 'PRESERVED_SPECIMEN',
-                                    'label': 'Preserved Specimen',
-                                    'n': 201,
-                                    'pct': 1.0},
+                  'distribucion': [{'code': 'HUMAN_OBSERVATION', 'label': 'Human Observation', 'n': 19809, 'pct': 98.6},
+                                   {'code': 'PRESERVED_SPECIMEN', 'label': 'Preserved Specimen', 'n': 201, 'pct': 1.0},
                                    {'code': 'MACHINE_OBSERVATION',
                                     'label': 'Machine Observation',
                                     'n': 90,
@@ -1349,75 +1329,66 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                                  'impacto': 'Bajo',
                                  'evidencia': '29 nulos (0.14%).'}],
                   'causas': [{'causa': 'Coordenadas sin georreferenciar y fuera de rango',
-                              'detalle': 'Errores de captura / geocodificación no implementada en la fuente '
-                                         'de origen. Registros de colecciones antiguas sin datum de '
-                                         'referencia (WGS84 asumido, ver flag GEODETIC_DATUM_ASSUMED_WGS84). '
-                                         'Datos administrativos mal asignados al departamento.',
+                              'detalle': 'Errores de captura / geocodificación no implementada en la fuente de origen. '
+                                         'Registros de colecciones antiguas sin datum de referencia (WGS84 asumido, '
+                                         'ver flag GEODETIC_DATUM_ASSUMED_WGS84). Datos administrativos mal asignados '
+                                         'al departamento.',
                               'relacion': 'Coordenadas sin georreferenciar y fuera de rango'},
                              {'causa': 'Fechas en formatos diferentes',
-                              'detalle': 'Falta de validación en el formulario de captura. Exportaciones que '
-                                         'conservan el datetime completo (hora, zona) en lugar de la fecha. '
-                                         'Uso de separadores ‘/’ y orden día/mes vs mes/día.',
+                              'detalle': 'Falta de validación en el formulario de captura. Exportaciones que conservan '
+                                         'el datetime completo (hora, zona) en lugar de la fecha. Uso de separadores '
+                                         '‘/’ y orden día/mes vs mes/día.',
                               'relacion': 'Fechas en formatos diferentes'},
                              {'causa': 'Duplicidad de fuentes',
-                              'detalle': 'SiB Colombia publica hacia GBIF, por lo que el mismo evento de '
-                                         'observación aparece en ambas. Sin clave canónica compartida / '
-                                         'falta de matching por occurrenceID. Exportaciones parciales '
-                                         'repetidas a lo largo del tiempo.',
+                              'detalle': 'SiB Colombia publica hacia GBIF, por lo que el mismo evento de observación '
+                                         'aparece en ambas. Sin clave canónica compartida / falta de matching por '
+                                         'occurrenceID. Exportaciones parciales repetidas a lo largo del tiempo.',
                               'relacion': 'Duplicidad de fuentes'},
                              {'causa': 'Ausencia de municipio y categoría territorial',
-                              'detalle': 'El campo municipality solo se completa en algunas fuentes '
-                                         '(iNaturalist/CAR). Falta de integración con el listado DANE de 116 '
-                                         'municipios. El texto no está normalizado (tildes, mayúsculas, '
-                                         'abreviaturas).',
+                              'detalle': 'El campo municipality solo se completa en algunas fuentes (iNaturalist/CAR). '
+                                         'Falta de integración con el listado DANE de 116 municipios. El texto no está '
+                                         'normalizado (tildes, mayúsculas, abreviaturas).',
                               'relacion': 'Ausencia de municipio y categoría territorial'},
                              {'causa': 'Valores nulos en campos núcleo y métrica individualCount',
                               'detalle': 'Campos opcionales en el estándar Darwin Core. Metadatos de captura '
-                                         'incompletos (observador, método). Recolección con prioridad de '
-                                         'presencia, no de abundancia.',
+                                         'incompletos (observador, método). Recolección con prioridad de presencia, no '
+                                         'de abundancia.',
                               'relacion': 'Valores nulos en campos núcleo y métrica individualCount'}],
-                  'tratamiento': [{'accion': 'Homologación e integración de fuentes',
-                                   'desc': 'Unificación de GBIF y SiB a un esquema Darwin Core común '
-                                           '(delimitador, columnas, categorías).',
-                                   'alcance': 2148650,
-                                   'resultado': 'Aplicado'},
-                                  {'accion': 'Estandarización de fechas a ISO 8601',
-                                   'desc': 'Configuración de eventDate a YYYY-MM-DD (separación de hora/zona '
-                                           'y separadores).',
-                                   'alcance': 2128107,
-                                   'resultado': 'Aplicado'},
+                  'tratamiento': [{'accion': 'Eliminación de duplicados',
+                                   'desc': 'Se eliminarán los registros duplicados por identificador y por similitud '
+                                           '(coordenadas + fecha + taxón), priorizando la fuente institucional.',
+                                   'alcance': '0 internos; 19.969 en GBIF',
+                                   'resultado': 'Meta: unicidad de identificador al 100%'},
+                                  {'accion': 'Tratamiento de valores nulos',
+                                   'desc': 'Se imputarán o marcarán los valores nulos de campos secundarios y se '
+                                           'conservarán los campos núcleo con un indicador de ausencia.',
+                                   'alcance': '80.451 celdas',
+                                   'resultado': 'Meta: completitud de campos núcleo ≥ 95%'},
                                   {'accion': 'Corrección de tipos de datos',
-                                   'desc': 'Cast de coordenadas y recuentos a numéricos; año/mes/día a '
-                                           'entero.',
-                                   'alcance': 2128107,
-                                   'resultado': 'Aplicado'},
-                                  {'accion': 'Imputación conservadora de fechas parciales',
-                                   'desc': 'Día=1 (y mes=1 cuando falta) para registros con fecha parcial, '
-                                           'dado el análisis de estacionalidad mensual.',
-                                   'alcance': 892,
-                                   'resultado': 'Aplicado'},
-                                  {'accion': 'Limpieza de coordenadas no válidas',
-                                   'desc': 'Coordenadas sin georreferenciar (vacías) y puntos fuera del '
-                                           'rango de Cundinamarca se anulan para evitar una ubicación '
-                                           'errónea.',
-                                   'alcance': 6186,
-                                   'resultado': 'Aplicado'},
+                                   'desc': 'Se corregirán los tipos de datos (numéricos, enteros y fechas) para '
+                                           'garantizar operaciones y agregaciones coherentes.',
+                                   'alcance': '20.100 registros',
+                                   'resultado': 'Meta: 100% de columnas con tipo correcto'},
+                                  {'accion': 'Estandarización de fechas y textos',
+                                   'desc': 'Se normalizarán las fechas a ISO 8601 y los textos (tildes, mayúsculas y '
+                                           'abreviaturas) para unificar la representación.',
+                                   'alcance': '8.678 fechas no ISO',
+                                   'resultado': 'Meta: 100% de fechas en ISO 8601'},
+                                  {'accion': 'Homologación de categorías',
+                                   'desc': 'Se unificarán las categorías taxonómicas y territoriales contra el listado '
+                                           'de referencia (GBIF Backbone / DANE).',
+                                   'alcance': '20.100 registros',
+                                   'resultado': 'Meta: vocabulario controlado coherente'},
                                   {'accion': 'Validación de rangos',
-                                   'desc': 'Meses (1–12), días (1–31) y años (1990–2026) fuera de dominio se '
-                                           'anulan como no válidos.',
-                                   'alcance': 1784,
-                                   'resultado': 'Aplicado'},
-                                  {'accion': 'Deduplicación (occurrenceID y similitud)',
-                                   'desc': 'Se eliminan duplicados exactos por identificador y '
-                                           'cercas-duplicados por coordenada+fecha+especie (predominan '
-                                           'fuentes institucionales).',
-                                   'alcance': 20543,
-                                   'resultado': 'Aplicado'},
-                                  {'accion': 'Tratamiento de valores atípicos',
-                                   'desc': 'Fechas y coordenadas extremas anuladas; individualCount con '
-                                           'recuentos no realistas (IQR) conservados por presencia.',
-                                   'alcance': 7078,
-                                   'resultado': 'Aplicado'}],
+                                   'desc': 'Se auditará el dominio de coordenadas, fechas y recuentos, anulando los '
+                                           'valores fuera de rango.',
+                                   'alcance': '20.100 registros',
+                                   'resultado': 'Meta: 100% de valores dentro de dominio'},
+                                  {'accion': 'Tratamiento justificado de valores atípicos',
+                                   'desc': 'Se revisarán los valores atípicos con criterio documentado (asimetría, '
+                                           'co-ocurrencia biológica) y se decidirá su filtrado o conservación.',
+                                   'alcance': '1.174 sin georreferenciar',
+                                   'resultado': 'Meta: mantener co-ocurrencias reales y eliminar errores'}],
                   'antes_despues': {'antes': {'registros': 2148650,
                                               'completitud': 99.77,
                                               'fechas': 94.71,
@@ -1429,318 +1400,181 @@ RESULTADOS = {'iucn': {'descripcion': {'titulo': 'IUCN Red List - Referencia de 
                                                 'coordenadas': 99.76,
                                                 'duplicados': 0}},
                   'integrado': [{'clave': 'Registros tras deduplicación', 'valor': 2128107, 'pct': 99.0},
-                                {'clave': 'Reducción por deduplicación', 'valor': 20543, 'pct': 1.0}]},
- 'sibio-car': {'descripcion': {'titulo': 'SIBIO CAR · Registros de biodiversidad',
-                               'fuente': 'SIBIO CAR / SiB Colombia / iNaturalist',
-                               'cobertura': 'Observaciones de biodiversidad con coordenadas en el ámbito de Cundinamarca',
-                               'periodo': 'Enero de 2026',
-                               'formato': 'CSV delimitado por comas · 300 registros · 13 columnas',
-                               'consulta': 'Archivo sibio_car_extraido.csv entregado para el análisis',
-                               'restricciones': 'El municipio no puede imputarse con certeza únicamente desde este extracto',
-                               'resumen': 'El extracto contiene observaciones de ciencia ciudadana de iNaturalist '
-                                         'publicadas por SIBIO CAR / SiB Colombia. Todos los registros corresponden '
-                                         'a HUMAN_OBSERVATION, fueron capturados en enero de 2026 y tienen '
-                                         'coordenadas dentro del rango de referencia usado para Cundinamarca.'},
-                   'requisitos': [{'req': 'Identificador único',
-                                  'just': 'id_registro debe identificar un único evento para evitar doble conteo.'},
-                                 {'req': 'Georreferenciación válida',
-                                  'just': 'Latitud y longitud deben ser numéricas y estar dentro del rango '
-                                          'departamental de referencia (3.5–6.0; -75.5–-72.5).'},
-                                 {'req': 'Fecha interpretable',
-                                  'just': 'fecha_evento debe poder convertirse a ISO 8601 y coincidir con year y month.'},
-                                 {'req': 'Identidad taxonómica trazable',
-                                  'just': 'taxon y especie se conservan para diferenciar nombre con autoridad, '
-                                          'nombre específico y posibles sinónimos.'},
-                                 {'req': 'Proveniencia documentada',
-                                  'just': 'basisOfRecord, metodologia, institucion y fuente deben conservar el origen '
-                                          'de cada observación.'}],
-                   'kpi': {'registros': 300,
-                           'variables': 13,
-                           'duplicados': 0,
-                           'nulos_totales': 300,
-                           'completitud': 92.31,
-                           'exactitud': 100.0,
-                           'consistencia': 100.0,
-                           'unicidad': 100.0,
-                           'validez': 100.0,
-                           'actualidad': 100.0,
-                           'especies': 203,
-                           'taxonomia_revisar': 141},
-                   'perfil': [{'variable': 'id_registro', 'tipo': 'Texto/ID', 'unicos': 300, 'nulos': 0, 'pct_nulos': 0.0,
-                               'min': '-', 'max': '-', 'promedio': '-', 'atipicos': 0},
-                              {'variable': 'taxon', 'tipo': 'Texto taxonómico', 'unicos': 205, 'nulos': 0, 'pct_nulos': 0.0,
-                               'min': '-', 'max': '-', 'promedio': '-', 'atipicos': 141},
-                              {'variable': 'especie', 'tipo': 'Texto taxonómico', 'unicos': 203, 'nulos': 0, 'pct_nulos': 0.0,
-                               'min': '-', 'max': '-', 'promedio': '-', 'atipicos': 0},
-                              {'variable': 'latitud', 'tipo': 'Numérico', 'unicos': 247, 'nulos': 0, 'pct_nulos': 0.0,
-                               'min': 4.198336, 'max': 5.519664, 'promedio': 4.708177, 'atipicos': 0},
-                              {'variable': 'longitud', 'tipo': 'Numérico', 'unicos': 247, 'nulos': 0, 'pct_nulos': 0.0,
-                               'min': -74.788498, 'max': -73.302537, 'promedio': -74.223613, 'atipicos': 0},
-                              {'variable': 'fecha_evento', 'tipo': 'Fecha/hora ISO', 'unicos': 297, 'nulos': 0, 'pct_nulos': 0.0,
-                               'min': '2026-01-01', 'max': '2026-01-31', 'promedio': '-', 'atipicos': 0},
-                              {'variable': 'year', 'tipo': 'Entero', 'unicos': 1, 'nulos': 0, 'pct_nulos': 0.0,
-                               'min': 2026, 'max': 2026, 'promedio': 2026.0, 'atipicos': 0},
-                              {'variable': 'month', 'tipo': 'Entero', 'unicos': 1, 'nulos': 0, 'pct_nulos': 0.0,
-                               'min': 1, 'max': 1, 'promedio': 1.0, 'atipicos': 0},
-                              {'variable': 'basisOfRecord', 'tipo': 'Categórico', 'unicos': 1, 'nulos': 0, 'pct_nulos': 0.0,
-                               'min': '-', 'max': '-', 'promedio': '-', 'atipicos': 0},
-                              {'variable': 'municipio', 'tipo': 'Categórico', 'unicos': 1, 'nulos': 300, 'pct_nulos': 100.0,
-                               'min': '-', 'max': '-', 'promedio': '-', 'atipicos': 0},
-                              {'variable': 'metodologia', 'tipo': 'Categórico', 'unicos': 1, 'nulos': 0, 'pct_nulos': 0.0,
-                               'min': '-', 'max': '-', 'promedio': '-', 'atipicos': 0},
-                              {'variable': 'institucion', 'tipo': 'Categórico', 'unicos': 1, 'nulos': 0, 'pct_nulos': 0.0,
-                               'min': '-', 'max': '-', 'promedio': '-', 'atipicos': 0},
-                              {'variable': 'fuente', 'tipo': 'Categórico', 'unicos': 1, 'nulos': 0, 'pct_nulos': 0.0,
-                               'min': '-', 'max': '-', 'promedio': '-', 'atipicos': 0}],
-                   'dimensiones': [{'dim': 'Completitud',
-                                   'def': 'Disponibilidad de valores informativos en las 13 columnas, tratando '
-                                          'Sin Dato como ausencia.',
-                                   'metrica': 'Celdas informativas / celdas totales',
-                                   'formula': '(3900 - 300) / 3900 x 100',
-                                   'valor': 92.31,
-                                   'estado': 'Regular'},
-                                  {'dim': 'Exactitud espacial',
-                                   'def': 'Coordenadas numéricas dentro del rango de referencia de Cundinamarca.',
-                                   'metrica': 'Registros con latitud y longitud válidas',
-                                   'formula': '300 / 300 x 100',
-                                   'valor': 100.0,
-                                   'estado': 'OK'},
-                                  {'dim': 'Consistencia temporal',
-                                   'def': 'Fecha interpretable y coherente con los campos year y month.',
-                                   'metrica': 'Registros con fecha, año y mes concordantes',
-                                   'formula': '300 / 300 x 100',
-                                   'valor': 100.0,
-                                   'estado': 'OK'},
-                                  {'dim': 'Unicidad',
-                                   'def': 'Ausencia de identificadores repetidos en el extracto.',
-                                   'metrica': 'id_registro únicos / registros totales',
-                                   'formula': '300 / 300 x 100',
-                                   'valor': 100.0,
-                                   'estado': 'OK'},
-                                  {'dim': 'Validez de dominio',
-                                   'def': 'Cumplimiento de dominios numéricos, temporales y de proveniencia.',
-                                   'metrica': 'Registros que cumplen las reglas definidas',
-                                   'formula': '300 / 300 x 100',
-                                   'valor': 100.0,
-                                   'estado': 'OK'},
-                                  {'dim': 'Actualidad',
-                                   'def': 'Registros dentro de la ventana temporal del estudio (1990–2026).',
-                                   'metrica': 'Fechas dentro de la ventana analítica',
-                                   'formula': '300 / 300 x 100',
-                                   'valor': 100.0,
-                                   'estado': 'OK'}],
-                   'distribucion': [{'code': 'HUMAN_OBSERVATION',
-                                    'label': 'Observación humana',
-                                    'n': 300,
-                                    'pct': 100.0}],
-                   'problemas': [{'variable': 'municipio',
-                                 'desc': 'Todos los registros contienen el marcador Sin Dato; no es posible '
-                                         'analizar la distribución municipal desde este extracto.',
-                                 'cantidad': 300,
-                                 'dim': 'Completitud',
-                                 'impacto': 'Alto',
-                                 'evidencia': '300/300 (100.0%)'},
-                                {'variable': 'taxon / especie',
-                                 'desc': 'Se detectaron diferencias entre el nombre con autoridad o sinónimo '
-                                         'y el nombre específico; se conserva el valor original para revisión.',
-                                 'cantidad': 141,
-                                 'dim': 'Consistencia',
-                                 'impacto': 'Medio',
-                                 'evidencia': '141/300 (47.0%)'},
-                                {'variable': 'fecha_evento',
-                                 'desc': '297 representaciones textuales incluyen hora y 3 fechas se repiten; '
-                                         'requieren estandarización a fecha ISO para comparar días.',
-                                 'cantidad': 300,
-                                 'dim': 'Consistencia',
-                                 'impacto': 'Bajo',
-                                 'evidencia': '300/300 parseables'}],
-                   'causas': [{'causa': 'Municipio no diligenciado',
-                               'detalle': 'El extracto exportado conserva Sin Dato en lugar de una localidad. '
-                                         'La coordenada permite una futura geocodificación, pero no se debe '
-                                         'asignar un municipio sin una fuente territorial de referencia.',
-                               'relacion': 'Completitud'},
-                              {'causa': 'Nombres taxonómicos en niveles distintos',
-                               'detalle': 'taxon incluye autores y algunos sinónimos, mientras especie contiene '
-                                         'el nombre específico usado en el registro. La diferencia no prueba un '
-                                         'error, pero sí requiere homologación taxonómica antes de agrupar.',
-                               'relacion': 'Consistencia'},
-                              {'causa': 'Hora incluida en fecha_evento',
-                               'detalle': 'La fuente mezcla fechas con y sin hora. Todos los valores son parseables, '
-                                         'pero la normalización evita comparar cadenas con formatos diferentes.',
-                               'relacion': 'Consistencia temporal'}],
-                   'tratamiento': [{'accion': 'Normalización de texto',
-                                   'desc': 'Se recortan espacios y se convierte Sin Dato a valor nulo explícito; '
-                                           'no se imputa municipio sin evidencia territorial.',
-                                   'alcance': 300,
-                                   'resultado': 'Aplicado'},
-                                  {'accion': 'Estandarización temporal',
-                                   'desc': 'Se parsea fecha_evento como ISO 8601 y se conserva la fecha calendario '
-                                           'para análisis; year y month se validan contra ella.',
-                                   'alcance': 300,
-                                   'resultado': 'Aplicado'},
-                                  {'accion': 'Validación espacial',
-                                   'desc': 'Se convierten latitud y longitud a numérico y se validan contra '
-                                           '3.5–6.0 y -75.5–-72.5; no se eliminan registros.',
-                                   'alcance': 300,
-                                   'resultado': 'Aplicado'},
-                                  {'accion': 'Control de unicidad',
-                                   'desc': 'Se verifica id_registro como clave única. No fue necesario eliminar '
-                                           'duplicados.',
-                                   'alcance': 300,
-                                   'resultado': 'Sin cambios'},
-                                  {'accion': 'Marcación taxonómica',
-                                   'desc': 'Se marcan 141 diferencias taxon/especie para revisión en un catálogo '
-                                           'taxonómico; se conservan ambas columnas originales.',
-                                   'alcance': 141,
-                                   'resultado': 'Pendiente de validación externa'}],
-                   'antes_despues': {'antes': {'registros': 300,
-                                              'completitud': 92.31,
-                                              'fechas': 100.0,
-                                              'coordenadas': 100.0,
-                                              'duplicados': 0,
-                                              'municipios': 0},
-                                    'despues': {'registros': 300,
-                                                'completitud': 92.31,
-                                                'fechas': 100.0,
-                                                'coordenadas': 100.0,
-                                                'duplicados': 0,
-                                                'municipios': 0}},
-                   'integrado': [{'clave': 'Registros conservados', 'valor': 300, 'pct': 100.0},
-                                {'clave': 'Especies distintas', 'valor': 203, 'pct': 67.7},
-                                {'clave': 'Registros para revisión taxonómica', 'valor': 141, 'pct': 47.0}]},
- 'datos-abiertos': {'descripcion': {'titulo': 'Datos Abiertos Cundinamarca · Referencia municipal',
-                                   'fuente': 'Gobernación de Cundinamarca / DANE',
-                                   'cobertura': 'Muestra de 12 municipios; el archivo declara cobertura potencial de 116 municipios',
-                                   'periodo': 'Vigencia 2020–2026',
-                                   'formato': 'CSV delimitado por comas · 12 registros · 10 columnas',
-                                   'consulta': 'Archivo datos_abiertos_cundinamarca_api.csv entregado para el análisis',
-                                   'restricciones': 'La muestra no representa por sí sola los 116 municipios declarados',
-                                   'resumen': 'El conjunto funciona como catálogo territorial de referencia para '
-                                              'contextualizar observaciones de biodiversidad. Incluye código DANE, '
-                                              'municipio, tipología, provincia, categoría, área y población. La '
-                                              'muestra está completa y consistente, pero debe ampliarse antes de '
-                                              'generalizar resultados a todo Cundinamarca.'},
-                    'requisitos': [{'req': 'Código DANE único',
-                                   'just': 'Permite identificar y cruzar cada municipio con otras fuentes oficiales.'},
-                                  {'req': 'Valores territoriales válidos',
-                                   'just': 'Área, población y categoría deben ser numéricas y no negativas.'},
-                                  {'req': 'Cobertura y vigencia documentadas',
-                                   'just': 'La fuente debe indicar el ámbito territorial y el periodo de referencia.'},
-                                  {'req': 'Municipio y provincia informados',
-                                   'just': 'Permiten agregaciones espaciales y cruces con registros biológicos.'}],
-                    'kpi': {'registros': 12,
-                            'variables': 10,
-                            'duplicados': 0,
-                            'nulos_totales': 0,
-                            'completitud': 100.0,
-                            'exactitud': 100.0,
-                            'consistencia': 100.0,
-                            'unicidad': 100.0,
-                            'validez': 100.0,
-                            'actualidad': 100.0,
-                            'poblacion_total': 1378000,
-                            'area_total': 2005.4,
-                            'cobertura_municipios': 116},
-                    'perfil': [{'variable': 'codigo_dane', 'tipo': 'Texto/ID', 'unicos': 12, 'nulos': 0, 'pct_nulos': 0.0,
-                                'min': '-', 'max': '-', 'promedio': '-', 'atipicos': 0},
-                               {'variable': 'municipio', 'tipo': 'Texto', 'unicos': 12, 'nulos': 0, 'pct_nulos': 0.0,
-                                'min': '-', 'max': '-', 'promedio': '-', 'atipicos': 0},
-                               {'variable': 'tipologia_municipal', 'tipo': 'Categórico', 'unicos': 2, 'nulos': 0, 'pct_nulos': 0.0,
-                                'min': '-', 'max': '-', 'promedio': '-', 'atipicos': 0},
-                               {'variable': 'provincia', 'tipo': 'Categórico', 'unicos': 7, 'nulos': 0, 'pct_nulos': 0.0,
-                                'min': '-', 'max': '-', 'promedio': '-', 'atipicos': 0},
-                               {'variable': 'categoria_dane', 'tipo': 'Categórico/Ordinal', 'unicos': 6, 'nulos': 0, 'pct_nulos': 0.0,
-                                'min': 1, 'max': 6, 'promedio': 3.167, 'atipicos': 0},
-                               {'variable': 'area_km2', 'tipo': 'Numérico', 'unicos': 12, 'nulos': 0, 'pct_nulos': 0.0,
-                                'min': 51.6, 'max': 292.0, 'promedio': 167.117, 'atipicos': 0},
-                               {'variable': 'poblacion_total', 'tipo': 'Numérico', 'unicos': 12, 'nulos': 0, 'pct_nulos': 0.0,
-                                'min': 10000, 'max': 530000, 'promedio': 114833.333, 'atipicos': 0},
-                               {'variable': 'fuente', 'tipo': 'Texto', 'unicos': 1, 'nulos': 0, 'pct_nulos': 0.0,
-                                'min': '-', 'max': '-', 'promedio': '-', 'atipicos': 0},
-                               {'variable': 'cobertura', 'tipo': 'Texto', 'unicos': 1, 'nulos': 0, 'pct_nulos': 0.0,
-                                'min': '-', 'max': '-', 'promedio': '-', 'atipicos': 0},
-                               {'variable': 'periodo_vigente', 'tipo': 'Texto temporal', 'unicos': 1, 'nulos': 0, 'pct_nulos': 0.0,
-                                'min': '2020', 'max': '2026', 'promedio': '-', 'atipicos': 0}],
-                    'dimensiones': [{'dim': 'Completitud',
-                                    'def': 'Disponibilidad de valores en las 10 columnas.',
-                                    'metrica': 'Celdas informativas / celdas totales',
-                                    'formula': '120 / 120 x 100',
-                                    'valor': 100.0,
-                                    'estado': 'OK'},
-                                   {'dim': 'Unicidad',
-                                    'def': 'Ausencia de códigos DANE repetidos.',
-                                    'metrica': 'Códigos únicos / registros',
-                                    'formula': '12 / 12 x 100',
-                                    'valor': 100.0,
-                                    'estado': 'OK'},
-                                   {'dim': 'Validez numérica',
-                                    'def': 'Área, población y categoría con valores numéricos dentro de dominio.',
-                                    'metrica': 'Registros con valores positivos y categoría 1–6',
-                                    'formula': '12 / 12 x 100',
-                                    'valor': 100.0,
-                                    'estado': 'OK'},
-                                   {'dim': 'Consistencia categórica',
-                                    'def': 'Tipologías, provincias y cobertura con valores normalizados.',
-                                    'metrica': 'Registros sin categorías vacías o contradictorias',
-                                    'formula': '12 / 12 x 100',
-                                    'valor': 100.0,
-                                    'estado': 'OK'},
-                                   {'dim': 'Actualidad',
-                                    'def': 'Vigencia declarada compatible con la ventana 2020–2026.',
-                                    'metrica': 'Registros con periodo_vigente interpretable',
-                                    'formula': '12 / 12 x 100',
-                                    'valor': 100.0,
-                                    'estado': 'OK'},
-                                   {'dim': 'Representatividad',
-                                    'def': 'Proporción de municipios observados frente a los 116 declarados.',
-                                    'metrica': 'Municipios de la muestra / cobertura declarada',
-                                    'formula': '12 / 116 x 100',
-                                    'valor': 10.34,
-                                    'estado': 'Limitada'}],
-                    'distribucion': [{'code': 'Urbano', 'label': 'Tipología urbana', 'n': 6, 'pct': 50.0},
-                                    {'code': 'Rural', 'label': 'Tipología rural', 'n': 6, 'pct': 50.0}],
-                    'problemas': [{'variable': 'cobertura', 'desc': 'La cobertura declara 116 municipios, pero el extracto contiene solo 12.',
-                                  'cantidad': 104, 'dim': 'Representatividad', 'impacto': 'Alto',
-                                  'evidencia': '12/116 municipios (10.34%).'},
-                                 {'variable': 'poblacion_total', 'desc': 'La población está disponible como total municipal, sin año base explícito por registro.',
-                                  'cantidad': 12, 'dim': 'Actualidad', 'impacto': 'Medio',
-                                  'evidencia': '12/12 registros dependen de la vigencia 2020–2026.'},
-                                 {'variable': 'categoria_dane', 'desc': 'La categoría está codificada numéricamente sin diccionario incluido en el archivo.',
-                                  'cantidad': 6, 'dim': 'Interpretabilidad', 'impacto': 'Medio',
-                                  'evidencia': '6 códigos distintos (1–6).'}],
-                    'causas': [{'causa': 'Extracto parcial de API',
-                                'detalle': 'El archivo recibido es una muestra de 12 municipios, aunque conserva el metadato de cobertura de 116.',
-                                'relacion': 'Representatividad'},
-                               {'causa': 'Metadatos temporales agregados',
-                                'detalle': 'periodo_vigente informa un intervalo común y no un año de estimación por variable.',
-                                'relacion': 'Actualidad'},
-                               {'causa': 'Catálogo DANE externo',
-                                'detalle': 'categoria_dane requiere consultar el diccionario DANE para interpretar cada código.',
-                                'relacion': 'Interpretabilidad'}],
-                    'tratamiento': [{'accion': 'Normalización de tipos',
-                                    'desc': 'Se convierten código y categoría a dominios numéricos y área/población a valores cuantitativos.',
-                                    'alcance': 12,
-                                    'resultado': 'Aplicado'},
-                                   {'accion': 'Control de unicidad',
-                                    'desc': 'Se valida codigo_dane como clave única; no fue necesario eliminar registros.',
-                                    'alcance': 12,
-                                    'resultado': 'Sin cambios'},
-                                   {'accion': 'Validación de rangos',
-                                    'desc': 'Se comprueba área y población positivas y categoria_dane entre 1 y 6.',
-                                    'alcance': 12,
-                                    'resultado': 'Aplicado'},
-                                   {'accion': 'Homologación categórica',
-                                    'desc': 'Se estandarizan tipología, provincia, fuente, cobertura y periodo para facilitar cruces.',
-                                    'alcance': 12,
-                                    'resultado': 'Aplicado'},
-                                   {'accion': 'Marcación de cobertura',
-                                    'desc': 'Se documenta que la muestra representa 10.34% de los 116 municipios declarados; no se imputan los faltantes.',
-                                    'alcance': 104,
-                                    'resultado': 'Pendiente de ampliar extracción'}],
-                    'antes_despues': {'antes': {'registros': 12, 'completitud': 100.0, 'duplicados': 0,
-                                               'validez': 100.0, 'representatividad': 10.34},
-                                     'despues': {'registros': 12, 'completitud': 100.0, 'duplicados': 0,
-                                                 'validez': 100.0, 'representatividad': 10.34}},
-                    'integrado': [{'clave': 'Municipios en la muestra', 'valor': 12, 'pct': 10.34},
-                                 {'clave': 'Población total de la muestra', 'valor': 1378000, 'pct': 100.0},
-                                 {'clave': 'Área total de la muestra (km²)', 'valor': 2005.4, 'pct': 100.0}]}}
+                                {'clave': 'Reducción por deduplicación', 'valor': 20543, 'pct': 1.0}],
+                  'proposito': 'Complementar y validar taxonómicamente los registros biológicos de Cundinamarca '
+                               'aportados por el nodo nacional, junto con GBIF.'},
+ 'sibio-car': {'descripcion': {'titulo': 'Sibio Car',
+                               'fuente': 'CAR Cundinamarca',
+                               'cobertura': 'Región de cuencas hidrográficas de la CAR (Cundinamarca)',
+                               'periodo': '2000 - 2026',
+                               'formato': 'Darwin Core Archive (IPT) / Tablas geográficas',
+                               'consulta': '23/08/2026',
+                               'restricciones': 'Atribución a la CAR con fines académicos',
+                               'resumen': 'Monitoreos sistemáticos de fauna (censos, fototrampeo, muestreos) en las '
+                                          'cuencas de Cundinamarca, respuesta institucional de campo frente al sesgo '
+                                          'de la ciencia ciudadana.'},
+               'proposito': 'Aportar registros de monitoreo estructurado de fauna en las cuencas de Cundinamarca, como '
+                            'contraste libre del sesgo recreativo urbano.',
+               'requisitos': [{'req': 'Registros con georreferenciación asignable',
+                               'just': 'Permiten el cruce espacial con la tipología territorial.'},
+                              {'req': 'Fechas de observación válidas',
+                               'just': 'Necesarias para el análisis temporal y estacional.'},
+                              {'req': 'Identificación taxonómica mínima',
+                               'just': 'Permite medir riqueza y cruzar con la referencia de amenaza.'},
+                              {'req': 'Cobertura territorial completa',
+                               'just': 'Evita vacíos que sesguen la comparación urbano/rural.'},
+                              {'req': 'Ausencia de duplicados', 'just': 'Evita inflar los conteos de biodiversidad.'}],
+               'kpi': {'registros': 'Por dimensionar',
+                       'variables': 'taxon, coordenadas, fecha, metodologia',
+                       'especies': 'Por dimensionar',
+                       'duplicados': 'Por verificar',
+                       'taxonomia_revisar': 'Por revisar'},
+               'perfil': [],
+               'dimensiones': [],
+               'distribucion': [],
+               'integrado': [],
+               'problemas': [],
+               'causas': [{'causa': 'Cobertura parcial del dataset',
+                           'detalle': 'Se ultimará la descarga y perfilamiento del conjunto para cuantificar '
+                                      'registros, nulos y duplicados.',
+                           'relacion': 'Completitud, Unicidad'}],
+               'tratamiento': [{'accion': 'Eliminación de duplicados',
+                                'desc': 'Se eliminarán los registros duplicados por identificador y por similitud '
+                                        '(coordenadas + fecha + taxón), priorizando la fuente institucional.',
+                                'alcance': 'Monitoreos de fauna',
+                                'resultado': 'Meta: unicidad de identificador al 100%'},
+                               {'accion': 'Tratamiento de valores nulos',
+                                'desc': 'Se imputarán o marcarán los valores nulos de campos secundarios y se '
+                                        'conservarán los campos núcleo con un indicador de ausencia.',
+                                'alcance': 'Por cuantificar',
+                                'resultado': 'Meta: completitud de campos núcleo ≥ 95%'},
+                               {'accion': 'Corrección de tipos de datos',
+                                'desc': 'Se corregirán los tipos de datos (numéricos, enteros y fechas) para '
+                                        'garantizar operaciones y agregaciones coherentes.',
+                                'alcance': 'Monitoreos de fauna',
+                                'resultado': 'Meta: 100% de columnas con tipo correcto'},
+                               {'accion': 'Estandarización de fechas y textos',
+                                'desc': 'Se normalizarán las fechas a ISO 8601 y los textos (tildes, mayúsculas y '
+                                        'abreviaturas) para unificar la representación.',
+                                'alcance': 'Monitoreos de fauna',
+                                'resultado': 'Meta: 100% de fechas en ISO 8601'},
+                               {'accion': 'Homologación de categorías',
+                                'desc': 'Se unificarán las categorías taxonómicas y territoriales contra el listado de '
+                                        'referencia (GBIF Backbone / DANE).',
+                                'alcance': 'nombres contra GBIF Backbone',
+                                'resultado': 'Meta: vocabulario controlado coherente'},
+                               {'accion': 'Validación de rangos',
+                                'desc': 'Se auditará el dominio de coordenadas, fechas y recuentos, anulando los '
+                                        'valores fuera de rango.',
+                                'alcance': 'Monitoreos de fauna',
+                                'resultado': 'Meta: 100% de valores dentro de dominio'},
+                               {'accion': 'Tratamiento justificado de valores atípicos',
+                                'desc': 'Se revisarán los valores atípicos con criterio documentado (asimetría, '
+                                        'co-ocurrencia biológica) y se decidirá su filtrado o conservación.',
+                                'alcance': 'Monitoreos de fauna',
+                                'resultado': 'Meta: mantener co-ocurrencias reales y eliminar errores'}],
+               'antes_despues': {'antes': {'registros': 'Por dimensionar',
+                                           'completitud': 'Por medir',
+                                           'fechas': 'Por medir',
+                                           'coordenadas': 'Por medir',
+                                           'validez': 'Por medir',
+                                           'duplicados': 'Por verificar',
+                                           'representatividad': 'Por medir',
+                                           'municipios': 'Por medir'},
+                                 'despues': {'registros': 'Objetivo del plan',
+                                             'completitud': '≥ 95%',
+                                             'fechas': '100% ISO',
+                                             'coordenadas': '100% válidas',
+                                             'validez': '100%',
+                                             'duplicados': '0',
+                                             'representatividad': '≥ 90%',
+                                             'municipios': '100%'}},
+               'pendiente': True},
+ 'datos-abiertos': {'descripcion': {'titulo': 'Datos Abiertos',
+                                    'fuente': 'Gobernación de Cundinamarca / DANE',
+                                    'cobertura': '116 municipios de Cundinamarca',
+                                    'periodo': 'Vigente (2020 - 2026)',
+                                    'formato': 'CSV / GeoJSON / Shapefile',
+                                    'consulta': '23/08/2026',
+                                    'restricciones': 'Acceso público abierto de la Gobernación de Cundinamarca',
+                                    'resumen': 'Conjunto de división político-administrativa y tipología territorial '
+                                               '(urbano/rural, población y área) de los 116 municipios de '
+                                               'Cundinamarca, usado para el cruce con los registros biológicos.'},
+                    'proposito': 'Proveer la clasificación territorial oficial (urbano/rural, población y área) de los '
+                                 '116 municipios para el cruce con los registros biológicos.',
+                    'requisitos': [{'req': 'Registros con georreferenciación asignable',
+                                    'just': 'Permiten el cruce espacial con la tipología territorial.'},
+                                   {'req': 'Fechas de observación válidas',
+                                    'just': 'Necesarias para el análisis temporal y estacional.'},
+                                   {'req': 'Identificación taxonómica mínima',
+                                    'just': 'Permite medir riqueza y cruzar con la referencia de amenaza.'},
+                                   {'req': 'Cobertura territorial completa',
+                                    'just': 'Evita vacíos que sesguen la comparación urbano/rural.'},
+                                   {'req': 'Ausencia de duplicados',
+                                    'just': 'Evita inflar los conteos de biodiversidad.'}],
+                    'kpi': {'registros': '116 municipios',
+                            'variables': 'codigo, nombre, tipologia, area',
+                            'poblacion_total': 'Por dimensionar',
+                            'area_total': 'Por dimensionar',
+                            'duplicados': 'Por verificar'},
+                    'perfil': [],
+                    'dimensiones': [],
+                    'distribucion': [],
+                    'integrado': [],
+                    'problemas': [],
+                    'causas': [{'causa': 'Cobertura parcial del dataset',
+                                'detalle': 'Se ultimará la descarga y perfilamiento del conjunto para cuantificar '
+                                           'registros, nulos y duplicados.',
+                                'relacion': 'Completitud, Unicidad'}],
+                    'tratamiento': [{'accion': 'Eliminación de duplicados',
+                                     'desc': 'Se eliminarán los registros duplicados por identificador y por similitud '
+                                             '(coordenadas + fecha + taxón), priorizando la fuente institucional.',
+                                     'alcance': '116 municipios',
+                                     'resultado': 'Meta: unicidad de identificador al 100%'},
+                                    {'accion': 'Tratamiento de valores nulos',
+                                     'desc': 'Se imputarán o marcarán los valores nulos de campos secundarios y se '
+                                             'conservarán los campos núcleo con un indicador de ausencia.',
+                                     'alcance': 'Por cuantificar',
+                                     'resultado': 'Meta: completitud de campos núcleo ≥ 95%'},
+                                    {'accion': 'Corrección de tipos de datos',
+                                     'desc': 'Se corregirán los tipos de datos (numéricos, enteros y fechas) para '
+                                             'garantizar operaciones y agregaciones coherentes.',
+                                     'alcance': '116 municipios',
+                                     'resultado': 'Meta: 100% de columnas con tipo correcto'},
+                                    {'accion': 'Estandarización de fechas y textos',
+                                     'desc': 'Se normalizarán las fechas a ISO 8601 y los textos (tildes, mayúsculas y '
+                                             'abreviaturas) para unificar la representación.',
+                                     'alcance': '116 municipios',
+                                     'resultado': 'Meta: 100% de fechas en ISO 8601'},
+                                    {'accion': 'Homologación de categorías',
+                                     'desc': 'Se unificarán las categorías taxonómicas y territoriales contra el '
+                                             'listado de referencia (GBIF Backbone / DANE).',
+                                     'alcance': 'códigos y nombres DANE',
+                                     'resultado': 'Meta: vocabulario controlado coherente'},
+                                    {'accion': 'Validación de rangos',
+                                     'desc': 'Se auditará el dominio de coordenadas, fechas y recuentos, anulando los '
+                                             'valores fuera de rango.',
+                                     'alcance': '116 municipios',
+                                     'resultado': 'Meta: 100% de valores dentro de dominio'},
+                                    {'accion': 'Tratamiento justificado de valores atípicos',
+                                     'desc': 'Se revisarán los valores atípicos con criterio documentado (asimetría, '
+                                             'co-ocurrencia biológica) y se decidirá su filtrado o conservación.',
+                                     'alcance': '116 municipios',
+                                     'resultado': 'Meta: mantener co-ocurrencias reales y eliminar errores'}],
+                    'antes_despues': {'antes': {'registros': 'Por dimensionar',
+                                                'completitud': 'Por medir',
+                                                'fechas': 'Por medir',
+                                                'coordenadas': 'Por medir',
+                                                'validez': 'Por medir',
+                                                'duplicados': 'Por verificar',
+                                                'representatividad': 'Por medir',
+                                                'municipios': 'Por medir'},
+                                      'despues': {'registros': 'Objetivo del plan',
+                                                  'completitud': '≥ 95%',
+                                                  'fechas': '100% ISO',
+                                                  'coordenadas': '100% válidas',
+                                                  'validez': '100%',
+                                                  'duplicados': '0',
+                                                  'representatividad': '≥ 90%',
+                                                  'municipios': '100%'}},
+                    'pendiente': True}}
