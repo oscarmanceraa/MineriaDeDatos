@@ -128,16 +128,213 @@ a {
 /* ---------- Header ---------- */
 .site-header {
   position: relative;
-  z-index: 10;
+  z-index: 100;
   width: 100%;
   max-width: var(--maxw);
   margin-inline: auto;
   padding: 20px clamp(18px, 4vw, 44px);
   display: flex;
   align-items: center;
+  justify-content: flex-start;
+}
+
+.header-nav-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ---------- Hamburger Button ---------- */
+.hamburger-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+  position: relative;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.hamburger-btn:hover {
+  background: rgba(63, 216, 232, 0.08);
+  border-color: var(--cyan);
+  box-shadow: 0 0 16px var(--glow-cyan);
+}
+
+.hamburger-btn:active {
+  transform: scale(0.94);
+}
+
+.hamburger-bar {
+  width: 20px;
+  height: 2px;
+  background-color: var(--text);
+  border-radius: 2px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, background-color 0.25s ease;
+  transform-origin: center;
+}
+
+.hamburger-btn:hover .hamburger-bar {
+  background-color: var(--cyan);
+}
+
+.hamburger-btn.is-active {
+  background: rgba(91, 229, 138, 0.1);
+  border-color: var(--green);
+  box-shadow: 0 0 18px var(--glow-green);
+}
+
+.hamburger-btn.is-active .hamburger-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+  background-color: var(--green-soft);
+}
+
+.hamburger-btn.is-active .hamburger-bar:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.hamburger-btn.is-active .hamburger-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+  background-color: var(--green-soft);
+}
+
+/* ---------- Dropdown Navigation ---------- */
+.nav-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  min-width: 270px;
+  background: rgba(4, 21, 26, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 16px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7), 0 0 24px rgba(63, 216, 232, 0.12);
+  padding: 12px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px) scale(0.96);
+  transform-origin: top left;
+  transition: opacity 0.24s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.24s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.24s ease;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.nav-dropdown.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
+  padding: 6px 10px 10px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  margin-bottom: 8px;
+}
+
+.dropdown-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+
+.dropdown-tag {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--cyan);
+  background: rgba(63, 216, 232, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(63, 216, 232, 0.2);
+}
+
+.dropdown-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-dropdown-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  position: relative;
+}
+
+.nav-dropdown-link svg {
+  color: var(--text-mute);
+  transition: color 0.2s ease, transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.nav-dropdown-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  transform: translateX(3px);
+}
+
+.nav-dropdown-link:hover svg {
+  color: var(--cyan);
+}
+
+.nav-dropdown-link.is-active {
+  background: rgba(91, 229, 138, 0.12);
+  color: var(--green-soft);
+  font-weight: 600;
+}
+
+.nav-dropdown-link.is-active svg {
+  color: var(--green-soft);
+}
+
+.nav-dropdown-link--accent {
+  color: var(--green-soft);
+}
+
+.nav-dropdown-link--external {
+  color: var(--text-dim);
+}
+
+.nav-dropdown-link .external-arrow {
+  margin-left: auto;
+  opacity: 0.6;
+}
+
+.nav-dropdown-link:hover .external-arrow {
+  opacity: 1;
+  transform: translate(2px, -2px);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: rgba(148, 163, 184, 0.08);
+  margin: 4px 6px;
 }
 
 .brand {
@@ -169,70 +366,6 @@ a {
   font-size: 14px;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-}
-
-.nav {
-  display: flex;
-  align-items: center;
-  gap: clamp(14px, 3vw, 32px);
-}
-
-.nav-link {
-  position: relative;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  padding: 6px 2px;
-  transition: color 0.3s ease;
-}
-
-.nav-link::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 2px;
-  width: 0;
-  border-radius: 2px;
-  background: var(--green);
-  box-shadow: 0 0 10px var(--glow-green);
-  transition: width 0.3s ease;
-}
-
-.nav-link:hover {
-  color: var(--text);
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}
-
-.nav-link.is-active {
-  color: var(--text);
-}
-
-.nav-link.is-active::after {
-  width: 100%;
-}
-
-.nav-link--accent {
-  color: var(--green-soft);
-}
-
-.nav-link--external {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.nav-link--external svg {
-  transition: transform 0.3s ease;
-}
-
-.nav-link--external:hover svg {
-  transform: translate(2px, -2px);
 }
 
 /* ---------- Hero ---------- */
@@ -1369,6 +1502,25 @@ a {
   transform: translateY(-3px);
   background: var(--cyan-2);
   box-shadow: 0 0 8px var(--glow-cyan);
+}
+
+/* ---------- Charts (Etapa 2) ---------- */
+.chart {
+  margin: 0;
+}
+.chart svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.chart-caption {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--text-mute);
+  line-height: 1.55;
+}
+.chart-caption code {
+  color: var(--green-soft);
 }
 
 /* ---------- Footer ---------- */
