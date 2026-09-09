@@ -1,6 +1,128 @@
 <div class="doc-prose">
+    {% if not res %}
     <div class="callout">
-        <div class="callout__label">Contenido pendiente</div>
-        <div class="callout__text">Este apartado se completará en la siguiente iteración.</div>
+        <div class="callout__label">Sin resultados</div>
+        <div class="callout__text">No se encontraron resultados de perfilamiento para este dataset.</div>
     </div>
+    {% else %}
+
+    <h3 class="doc-prose__title">Descripción del conjunto de datos</h3>
+    <div class="info-grid">
+        <article class="info-card"><span class="info-card__label">Fuente</span><div class="info-card__body"><p>{{ res.descripcion.fuente }}</p></div></article>
+        <article class="info-card"><span class="info-card__label">Cobertura</span><div class="info-card__body"><p>{{ res.descripcion.cobertura }}</p></div></article>
+        <article class="info-card"><span class="info-card__label">Período</span><div class="info-card__body"><p>{{ res.descripcion.periodo }}</p></div></article>
+        <article class="info-card"><span class="info-card__label">Formato</span><div class="info-card__body"><p>{{ res.descripcion.formato }}</p></div></article>
+        <article class="info-card"><span class="info-card__label">Consulta</span><div class="info-card__body"><p>{{ res.descripcion.consulta }}</p></div></article>
+        <article class="info-card"><span class="info-card__label">Restricción</span><div class="info-card__body"><p>{{ res.descripcion.restricciones }}</p></div></article>
+    </div>
+    <p>{{ res.descripcion.resumen }}</p>
+
+    <h3 class="doc-prose__title">Resultados del perfilamiento</h3>
+    <div class="info-grid">
+        <article class="info-card"><span class="info-card__label">Registros</span><div class="info-card__body"><p>{{ res.kpi.registros }}</p></div></article>
+        <article class="info-card"><span class="info-card__label">Variables</span><div class="info-card__body"><p>{{ res.kpi.variables }} columnas</p></div></article>
+        <article class="info-card"><span class="info-card__label">Especies</span><div class="info-card__body"><p>{{ res.kpi.especies }} distintas</p></div></article>
+        <article class="info-card"><span class="info-card__label">Duplicados por ID</span><div class="info-card__body"><p>{{ res.kpi.duplicados }}</p></div></article>
+        <article class="info-card"><span class="info-card__label">Ausencias semánticas</span><div class="info-card__body"><p>{{ res.kpi.nulos_totales }} en municipio</p></div></article>
+        <article class="info-card"><span class="info-card__label">Revisión taxonómica</span><div class="info-card__body"><p>{{ res.kpi.taxonomia_revisar }} registros</p></div></article>
+    </div>
+
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead><tr><th>Variable</th><th>Tipo</th><th>Únicos</th><th>Nulos</th><th>% nulos</th><th>Mín</th><th>Máx</th><th>Promedio</th><th>Atípicos/revisión</th></tr></thead>
+            <tbody>
+            {% for v in res.perfil %}
+                <tr>
+                    <td><code>{{ v.variable }}</code></td><td>{{ v.tipo }}</td><td>{{ v.unicos }}</td><td>{{ v.nulos }}</td>
+                    <td>{{ v.pct_nulos }}%</td><td>{{ v.min }}</td><td>{{ v.max }}</td><td>{{ v.promedio }}</td><td>{{ v.atipicos }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Dimensiones y métricas evaluadas</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead><tr><th>Dimensión</th><th>Definición</th><th>Métrica</th><th>Resultado</th><th>Estado</th></tr></thead>
+            <tbody>
+            {% for d in res.dimensiones %}
+                <tr>
+                    <td><strong>{{ d.dim }}</strong></td><td>{{ d.def }}</td><td>{{ d.metrica }}</td>
+                    <td><strong>{{ d.valor }}%</strong><br><small>{{ d.formula }}</small></td>
+                    <td>{% if d.estado == 'OK' %}<span class="badge badge--primaria">OK</span>{% else %}<span class="badge badge--terciaria">{{ d.estado }}</span>{% endif %}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Indicadores relevantes</h3>
+    {% for c in res.distribucion %}
+    <div class="scale-row">
+        <span class="scale-row__level">{{ c.code }} · {{ c.label }}</span>
+        <div class="progress-track"><div class="progress-fill" style="width: {{ c.pct }}%"></div></div>
+        <span class="scale-row__text">{{ c.n }} registros · {{ c.pct }}%</span>
+    </div>
+    {% endfor %}
+    <div class="scale-rows">
+        {% for i in res.integrado %}
+        <div class="scale-row">
+            <span class="scale-row__level">{{ i.clave }}</span>
+            <div class="progress-track"><div class="progress-fill" style="width: {{ i.pct }}%"></div></div>
+            <span class="scale-row__text">{{ i.valor }} · {{ i.pct }}%</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h3 class="doc-prose__title">Problemas identificados</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead><tr><th>Variable</th><th>Problema</th><th>Cantidad</th><th>Dimensión</th><th>Impacto</th><th>Evidencia</th></tr></thead>
+            <tbody>
+            {% for p in res.problemas %}
+                <tr>
+                    <td><code>{{ p.variable }}</code></td><td>{{ p.desc }}</td><td>{{ p.cantidad }}</td><td>{{ p.dim }}</td>
+                    <td>{% if p.impacto == 'Alto' %}<span class="badge badge--secundaria">Alto</span>{% elif p.impacto == 'Medio' %}<span class="badge badge--terciaria">Medio</span>{% else %}<span class="badge badge--primaria">Bajo</span>{% endif %}</td>
+                    <td><code>{{ p.evidencia }}</code></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Acciones de tratamiento aplicadas</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead><tr><th>Acción</th><th>Tratamiento</th><th>Alcance</th><th>Resultado</th></tr></thead>
+            <tbody>
+            {% for t in res.tratamiento %}
+                <tr><td><strong>{{ t.accion }}</strong></td><td>{{ t.desc }}</td><td>{{ t.alcance }}</td><td>{{ t.resultado }}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Comparación antes y después</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead><tr><th>Indicador</th><th>Antes</th><th>Después</th><th>Lectura</th></tr></thead>
+            <tbody>
+                <tr><td>Registros</td><td>{{ res.antes_despues.antes.registros }}</td><td>{{ res.antes_despues.despues.registros }}</td><td>Se conservaron todos los registros.</td></tr>
+                <tr><td>Completitud</td><td>{{ res.antes_despues.antes.completitud }}%</td><td>{{ res.antes_despues.despues.completitud }}%</td><td>Municipio sigue pendiente de geocodificación.</td></tr>
+                <tr><td>Fechas válidas</td><td>{{ res.antes_despues.antes.fechas }}%</td><td>{{ res.antes_despues.despues.fechas }}%</td><td>Se homogeneizó la representación temporal.</td></tr>
+                <tr><td>Coordenadas válidas</td><td>{{ res.antes_despues.antes.coordenadas }}%</td><td>{{ res.antes_despues.despues.coordenadas }}%</td><td>No había coordenadas que corregir.</td></tr>
+                <tr><td>Duplicados</td><td>{{ res.antes_despues.antes.duplicados }}</td><td>{{ res.antes_despues.despues.duplicados }}</td><td>No fue necesario eliminar registros.</td></tr>
+                <tr><td>Municipios informados</td><td>{{ res.antes_despues.antes.municipios }}%</td><td>{{ res.antes_despues.despues.municipios }}%</td><td>No se imputó información no respaldada.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Criterios de calidad</h3>
+    <div class="scale-rows">
+        {% for r in res.requisitos %}
+        <div class="scale-row"><span class="scale-row__level">{{ r.req }}</span><span class="scale-row__text">{{ r.just }}</span></div>
+        {% endfor %}
+    </div>
+    {% endif %}
 </div>
