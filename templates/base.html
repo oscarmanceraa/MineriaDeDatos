@@ -14,23 +14,62 @@
     </div>
 
     <header class="site-header">
-        <a class="brand" href="{{ url_for('main.index') }}" aria-label="Inicio">
-            <span class="brand-mark" aria-hidden="true"></span>
-            <span class="brand-name">Biodiversidad&nbsp;Mineria&nbsp;De&nbsp;Datos</span>
-        </a>
+        <div class="header-nav-wrapper">
+            <!-- Botón Hamburguesa -->
+            <button class="hamburger-btn" id="menu-toggle" aria-label="Menú de navegación" aria-expanded="false" aria-controls="dropdown-nav">
+                <span class="hamburger-bar"></span>
+                <span class="hamburger-bar"></span>
+                <span class="hamburger-bar"></span>
+            </button>
 
-        <nav class="nav" aria-label="Navegación principal">
-            <a class="nav-link {% block nav_inicio %}{% endblock %}" href="{{ url_for('main.index') }}">Inicio</a>
-            <a class="nav-link nav-link--accent {% block nav_etapa1 %}{% endblock %}" href="{{ url_for('main.etapa1') }}">Etapa 1</a>
-            <a class="nav-link {% block nav_acerca %}{% endblock %}" href="#proyecto">Acerca del proyecto</a>
-            <a class="nav-link nav-link--external" href="https://github.com/oscarmanceraa/MineriaDeDatos" target="_blank" rel="noopener">
-                GitHub
-                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M7 17 17 7"></path>
-                    <path d="M7 7h10v10"></path>
-                </svg>
+            <!-- Menú Desplegable (Dropdown) -->
+            <nav class="nav-dropdown" id="dropdown-nav" aria-label="Navegación principal">
+                <div class="dropdown-header">
+                    <span class="dropdown-title">Menú de Navegación</span>
+                    <span class="dropdown-tag">Minería de Datos</span>
+                </div>
+                <div class="dropdown-items">
+                    <a class="nav-dropdown-link {% block nav_inicio %}{% endblock %}" href="{{ url_for('main.index') }}">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        <span>Inicio</span>
+                    </a>
+                    <a class="nav-dropdown-link nav-dropdown-link--accent {% block nav_etapa1 %}{% endblock %}" href="{{ url_for('main.etapa1') }}">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span>Etapa 1 · Formulación</span>
+                    </a>
+                    <a class="nav-dropdown-link {% block nav_acerca %}{% endblock %}" href="{{ url_for('main.index') }}#proyecto">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <span>Acerca del proyecto</span>
+                    </a>
+                    <div class="dropdown-divider" role="separator"></div>
+                    <a class="nav-dropdown-link nav-dropdown-link--external" href="https://github.com/oscarmanceraa/MineriaDeDatos" target="_blank" rel="noopener">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                        <span>GitHub</span>
+                        <svg class="external-arrow" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M7 17 17 7"></path>
+                            <path d="M7 7h10v10"></path>
+                        </svg>
+                    </a>
+                </div>
+            </nav>
+
+            <a class="brand" href="{{ url_for('main.index') }}" aria-label="Inicio">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <span class="brand-name">Biodiversidad&nbsp;Mineria&nbsp;De&nbsp;Datos</span>
             </a>
-        </nav>
+        </div>
     </header>
 
     <main>
@@ -43,5 +82,44 @@
         </p>
         <p class="footer-sub">GLOBAL&nbsp;→&nbsp;COLOMBIA&nbsp;→&nbsp;CUNDINAMARCA</p>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggle = document.getElementById('menu-toggle');
+            const dropdown = document.getElementById('dropdown-nav');
+            if (!toggle || !dropdown) return;
+
+            const toggleMenu = (forceState) => {
+                const isOpen = typeof forceState === 'boolean' ? forceState : !dropdown.classList.contains('is-open');
+                dropdown.classList.toggle('is-open', isOpen);
+                toggle.classList.toggle('is-active', isOpen);
+                toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            };
+
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleMenu();
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!dropdown.contains(e.target) && !toggle.contains(e.target)) {
+                    toggleMenu(false);
+                }
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && dropdown.classList.contains('is-open')) {
+                    toggleMenu(false);
+                    toggle.focus();
+                }
+            });
+
+            dropdown.querySelectorAll('.nav-dropdown-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    toggleMenu(false);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
