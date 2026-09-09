@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for
 
+from app.calidad_data import RESULTADOS
+
 main = Blueprint('main', __name__)
 
 APARTADOS = [
@@ -57,4 +59,5 @@ def dataset(slug):
 
     idx = DATASETS.index(item)
     nxt = next((d for d in DATASETS[idx + 1:] if d['disponible']), None)
-    return render_template('etapa2/r2-calidad-datos.html', apartado=item, next=nxt, datasets=DATASETS)
+    results = RESULTADOS.get(item['slug'], {})
+    return render_template('etapa2/r2-calidad-datos.html', apartado=item, next=nxt, datasets=DATASETS, res=results)

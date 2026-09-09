@@ -1,6 +1,274 @@
 <div class="doc-prose">
-    <div class="callout">
-        <div class="callout__label">Contenido pendiente</div>
-        <div class="callout__text">Este apartado se completará en la siguiente iteración.</div>
+
+    {% if not res %}
+        <div class="callout">
+            <div class="callout__label">Contenido pendiente</div>
+            <div class="callout__text">Ejecute <code>scripts/data_quality.py</code> para generar los resultados de calidad.</div>
+        </div>
+    {% else %}
+
+    <h3 class="doc-prose__title">Descripción del dataset</h3>
+    <div class="info-grid">
+        <article class="info-card">
+            <span class="info-card__label">Fuente</span>
+            <div class="info-card__body"><p>{{ res.descripcion.fuente }}</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Cobertura</span>
+            <div class="info-card__body"><p>{{ res.descripcion.cobertura }}</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Período</span>
+            <div class="info-card__body"><p>{{ res.descripcion.periodo }}</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Consulta</span>
+            <div class="info-card__body"><p>{{ res.descripcion.consulta }}</p></div>
+        </article>
     </div>
+    <p>{{ res.descripcion.resumen }}</p>
+
+    <h3 class="doc-prose__title">Requisitos de calidad</h3>
+    <div class="scale-rows">
+        {% for r in res.requisitos %}
+        <div class="scale-row">
+            <span class="scale-row__level">{{ r.req }}</span>
+            <span class="scale-row__text">{{ r.just }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h3 class="doc-prose__title">Perfilamiento (profiling)</h3>
+    <div class="info-grid">
+        <article class="info-card">
+            <span class="info-card__label">Registros</span>
+            <div class="info-card__body"><p>{{ res.kpi.registros }} especies únicas</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Variables</span>
+            <div class="info-card__body"><p>{{ res.kpi.variables }} columnas</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Duplicados</span>
+            <div class="info-card__body"><p>{{ res.kpi.duplicados }} (unicidad del 100%)</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Valores nulos</span>
+            <div class="info-card__body"><p>{{ res.kpi.nulos_totales }} en total</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Especies amenazadas</span>
+            <div class="info-card__body"><p>{{ res.kpi.especies_amenazadas }} (VU, EN, CR)</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Categorización</span>
+            <div class="info-card__body"><p>{{ res.kpi.pct_categorizado }}% de registros con categoría IUCN</p></div>
+        </article>
+    </div>
+
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Variable</th>
+                    <th>Tipo</th>
+                    <th>Únicos</th>
+                    <th>Nulos</th>
+                    <th>% Nulos</th>
+                    <th>Mín</th>
+                    <th>Máx</th>
+                    <th>Atípicos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in res.perfil %}
+                <tr>
+                    <td><code>{{ v.variable }}</code></td>
+                    <td>{{ v.tipo }}</td>
+                    <td>{{ v.unicos }}</td>
+                    <td>{{ v.nulos }}</td>
+                    <td>{{ v.pct_nulos }}%</td>
+                    <td>{{ v.min }}</td>
+                    <td>{{ v.max }}</td>
+                    <td>{{ v.atipicos }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Dimensiones de calidad</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Dimensión</th>
+                    <th>Definición</th>
+                    <th>Métrica</th>
+                    <th>Valor</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in res.dimensiones %}
+                <tr>
+                    <td><strong>{{ d.dim }}</strong></td>
+                    <td>{{ d.def }}</td>
+                    <td>{{ d.metrica }}</td>
+                    <td><strong>{{ d.valor }}%</strong></td>
+                    <td>
+                        {% if d.estado == 'OK' %}
+                            <span class="badge badge--primaria">OK</span>
+                        {% elif d.estado == 'Regular' %}
+                            <span class="badge badge--terciaria">Regular</span>
+                        {% else %}
+                            <span class="badge badge--secundaria">{{ d.estado }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Distribución por categoría de amenaza</h3>
+    {% for c in res.distribucion %}
+    <div class="scale-row">
+        <span class="scale-row__level">{{ c.code }} · {{ c.label }}</span>
+        <div class="progress-track"><div class="progress-fill" style="width: {{ c.pct }}%"></div></div>
+        <span class="scale-row__text">{{ c.n }} especies · {{ c.pct }}%</span>
+    </div>
+    {% endfor %}
+    <p class="chart-caption">
+        La categoría <code>LC</code> (Preocupación menor) domina con el 94% de las especies; solo 20 especies
+        (2.8%) presentan riesgo de amenaza (VU, EN o CR).
+    </p>
+
+    <h3 class="doc-prose__title">Inventario de problemas</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Variable</th>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th>Dimensión</th>
+                    <th>Impacto</th>
+                    <th>Evidencia</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in res.problemas %}
+                <tr>
+                    <td><code>{{ p.variable }}</code></td>
+                    <td>{{ p.desc }}</td>
+                    <td>{{ p.cantidad }}</td>
+                    <td>{{ p.dim }}</td>
+                    <td>
+                        {% if p.impacto == 'Alto' %}
+                            <span class="badge badge--secundaria">Alto</span>
+                        {% elif p.impacto == 'Medio' %}
+                            <span class="badge badge--terciaria">Medio</span>
+                        {% else %}
+                            <span class="badge badge--primaria">Bajo</span>
+                        {% endif %}
+                    </td>
+                    <td><code>{{ p.evidencia }}</code></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Análisis de causas</h3>
+    <div class="info-grid">
+        {% for c in res.causas %}
+        <article class="info-card">
+            <span class="info-card__label">{{ c.causa }}</span>
+            <div class="info-card__body">
+                <p>{{ c.detalle }}</p>
+                <p><strong>Relacionada con:</strong> {{ c.relacion }}</p>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    <h3 class="doc-prose__title">Integración y homologación</h3>
+    <div class="scale-rows">
+        {% for i in res.integrado %}
+        <div class="scale-row">
+            <span class="scale-row__level">{{ i.clave }}</span>
+            <div class="progress-track"><div class="progress-fill" style="width: {{ i.pct }}%"></div></div>
+            <span class="scale-row__text">{{ i.valor }} registros · {{ i.pct }}%</span>
+        </div>
+        {% endfor %}
+    </div>
+    <p>
+        Los nombres científicos se homologaron a <code>name_key</code> (sin autoría, minúsculas) para
+        permitir el cruce con NaturaLista y SiB Colombia; los nombres identificados se estandarizaron
+        contra el GBIF Backbone Taxonomy.
+    </p>
+
+    <h3 class="doc-prose__title">Plan de tratamiento</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Acción</th>
+                    <th>Descripción</th>
+                    <th>Alcance</th>
+                    <th>Resultado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in res.tratamiento %}
+                <tr>
+                    <td><strong>{{ t.accion }}</strong></td>
+                    <td>{{ t.desc }}</td>
+                    <td>{{ t.alcance }}</td>
+                    <td>{{ t.resultado }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Comparación antes / después</h3>
+    <div class="info-grid">
+        <article class="info-card">
+            <span class="info-card__label">Antes</span>
+            <div class="info-card__body">
+                <p>Registros: <strong>{{ res.antes_despues.antes.registros }}</strong></p>
+                <p>Completitud: <strong>{{ res.antes_despues.antes.completitud }}%</strong></p>
+                <p>Unicidad: <strong>{{ res.antes_despues.antes.unicidad }}%</strong></p>
+                <p>Validez: <strong>{{ res.antes_despues.antes.validez }}%</strong></p>
+                <p>Exactitud: <strong>{{ res.antes_despues.antes.exactitud }}%</strong></p>
+                <p>Órdenes nulos: <strong>{{ res.antes_despues.antes.nulos_order }}</strong></p>
+            </div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Después</span>
+            <div class="info-card__body">
+                <p>Registros: <strong>{{ res.antes_despues.despues.registros }}</strong></p>
+                <p>Completitud: <strong>{{ res.antes_despues.despues.completitud }}%</strong></p>
+                <p>Unicidad: <strong>{{ res.antes_despues.despues.unicidad }}%</strong></p>
+                <p>Validez: <strong>{{ res.antes_despues.despues.validez }}%</strong></p>
+                <p>Exactitud: <strong>{{ res.antes_despues.despues.exactitud }}%</strong></p>
+                <p>Órdenes nulos: <strong>{{ res.antes_despues.despues.nulos_order }}</strong></p>
+            </div>
+        </article>
+    </div>
+
+    <div class="callout">
+        <div class="callout__label">Conclusión</div>
+        <div class="callout__text">
+            El dataset IUCN es altamente limpio como referencia de amenaza: unicidad y validez del 100%.
+            El único problema material (jerarquías incompletas en 3–66 especies) se resolvió por imputación
+            desde la familia y clasificación residual, alcanzando completitud del 100%. Su integración con
+            NaturaLista es limitada (2.4%) porque la referencia cubre mayoritariamente aves y mamíferos,
+            mientras la ciencia ciudadana registra sobre todo invertebrados.
+        </div>
+    </div>
+
+    {% endif %}
 </div>

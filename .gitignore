@@ -40,3 +40,5 @@ Thumbs.db
 
 # ---- Datasets ----
 Datasets/
+data/
+scripts/
