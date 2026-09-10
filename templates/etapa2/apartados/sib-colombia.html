@@ -1,0 +1,248 @@
+<div class="doc-prose">
+
+    {% if not res %}
+        <div class="callout">
+            <div class="callout__label">Contenido pendiente</div>
+            <div class="callout__text">Ejecute <code>scripts/perfilamiento.py</code> y <code>scripts/tratamiento.py</code> para generar los resultados de calidad.</div>
+        </div>
+    {% else %}
+
+    <h3 class="doc-prose__title">Descripción del dataset</h3>
+    <div class="info-grid">
+        <article class="info-card">
+            <span class="info-card__label">Fuente</span>
+            <div class="info-card__body"><p>{{ res.descripcion.fuente }}</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Cobertura</span>
+            <div class="info-card__body"><p>{{ res.descripcion.cobertura }}</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Período</span>
+            <div class="info-card__body"><p>{{ res.descripcion.periodo }}</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Formato</span>
+            <div class="info-card__body"><p>{{ res.descripcion.formato }}</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Consulta</span>
+            <div class="info-card__body"><p>{{ res.descripcion.consulta }}</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Restricciones</span>
+            <div class="info-card__body"><p>{{ res.descripcion.restricciones }}</p></div>
+        </article>
+    </div>
+    <p>{{ res.descripcion.resumen }}</p>
+
+    <div class="callout">
+        <div class="callout__label">Propósito del conjunto de datos</div>
+        <div class="callout__text">{{ res.proposito }}</div>
+    </div>
+
+    <h3 class="doc-prose__title">Requisitos de calidad</h3>
+    <div class="scale-rows">
+        {% for r in res.requisitos %}
+        <div class="scale-row">
+            <span class="scale-row__level">{{ r.req }}</span>
+            <span class="scale-row__text">{{ r.just }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h3 class="doc-prose__title">Perfilamiento (profiling)</h3>
+    <div class="info-grid">
+        <article class="info-card">
+            <span class="info-card__label">Registros</span>
+            <div class="info-card__body"><p>{{ res.kpi.registros }} registros</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Variables</span>
+            <div class="info-card__body"><p>{{ res.kpi.variables }} columnas</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Duplicados</span>
+            <div class="info-card__body"><p>{{ res.kpi.duplicados }} por identificador</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Valores nulos</span>
+            <div class="info-card__body"><p>{{ res.kpi.nulos_totales }} en total</p></div>
+        </article>
+    </div>
+
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Variable</th>
+                    <th>Tipo</th>
+                    <th>Únicos</th>
+                    <th>Nulos</th>
+                    <th>% Nulos</th>
+                    <th>Mín</th>
+                    <th>Máx</th>
+                    <th>Promedio</th>
+                    <th>Atípicos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in res.perfil %}
+                <tr>
+                    <td><code>{{ v.variable }}</code></td>
+                    <td>{{ v.tipo }}</td>
+                    <td>{{ v.unicos }}</td>
+                    <td>{{ v.nulos }}</td>
+                    <td>{{ v.pct_nulos }}%</td>
+                    <td>{{ v.min }}</td>
+                    <td>{{ v.max }}</td>
+                    <td>{{ v.promedio }}</td>
+                    <td>{{ v.atipicos }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Dimensiones de calidad</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Dimensión</th>
+                    <th>Definición</th>
+                    <th>Métrica</th>
+                    <th>Valor</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in res.dimensiones %}
+                <tr>
+                    <td><strong>{{ d.dim }}</strong></td>
+                    <td>{{ d.def }}</td>
+                    <td>{{ d.metrica }}</td>
+                    <td><strong>{{ d.valor }}%</strong></td>
+                    <td>
+                        {% if d.estado == 'OK' %}
+                            <span class="badge badge--primaria">OK</span>
+                        {% elif d.estado == 'Regular' %}
+                            <span class="badge badge--terciaria">Regular</span>
+                        {% else %}
+                            <span class="badge badge--secundaria">{{ d.estado }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Origen de la evidencia (basisOfRecord)</h3>
+    {% for c in res.distribucion %}
+    <div class="scale-row">
+        <span class="scale-row__level">{{ c.code }} · {{ c.label }}</span>
+        <div class="progress-track"><div class="progress-fill" style="width: {{ c.pct }}%"></div></div>
+        <span class="scale-row__text">{{ c.n }} registros · {{ c.pct }}%</span>
+    </div>
+    {% endfor %}
+
+    <h3 class="doc-prose__title">Inventario de problemas</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Variable</th>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th>Dimensión</th>
+                    <th>Impacto</th>
+                    <th>Evidencia</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in res.problemas %}
+                <tr>
+                    <td><code>{{ p.variable }}</code></td>
+                    <td>{{ p.desc }}</td>
+                    <td>{{ p.cantidad }}</td>
+                    <td>{{ p.dim }}</td>
+                    <td>
+                        {% if p.impacto == 'Alto' %}
+                            <span class="badge badge--secundaria">Alto</span>
+                        {% elif p.impacto == 'Medio' %}
+                            <span class="badge badge--terciaria">Medio</span>
+                        {% else %}
+                            <span class="badge badge--primaria">Bajo</span>
+                        {% endif %}
+                    </td>
+                    <td><code>{{ p.evidencia }}</code></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Análisis de causas</h3>
+    <div class="info-grid">
+        {% for c in res.causas %}
+        <article class="info-card">
+            <span class="info-card__label">{{ c.causa }}</span>
+            <div class="info-card__body">
+                <p>{{ c.detalle }}</p>
+                <p><strong>Relacionada con:</strong> {{ c.relacion }}</p>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    <h3 class="doc-prose__title">Integración y homologación</h3>
+    <div class="scale-rows">
+        {% for i in res.integrado %}
+        <div class="scale-row">
+            <span class="scale-row__level">{{ i.clave }}</span>
+            <div class="progress-track"><div class="progress-fill" style="width: {{ i.pct }}%"></div></div>
+            <span class="scale-row__text">{{ i.valor }} registros · {{ i.pct }}%</span>
+        </div>
+        {% endfor %}
+    </div>
+    <p>
+        Como parte del plan, los registros de GBIF y SiB Colombia <strong>se integrarán</strong>
+        bajo el estándar Darwin Core, <strong>se estandarizarán</strong> las fechas a ISO 8601 y
+        <strong>se homogeneizará</strong> la composición taxonómica. La deduplicación (por
+        identificador y por similitud coordenada+fecha+especie) evitará el doble conteo derivado de
+        que SiB Colombia publica hacia GBIF.
+    </p>
+
+    <h3 class="doc-prose__title">Plan de tratamiento</h3>
+    <p>
+        Acciones planificadas para corregir o controlar los problemas identificados. Se
+        documentan como medidas <strong>por ejecutar</strong> en la etapa de tratamiento; los
+        valores de alcance indican la población afectada y la columna de resultado esperado
+        define la meta a alcanzar.
+    </p>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Acción</th>
+                    <th>Descripción</th>
+                    <th>Alcance</th>
+                    <th>Resultado esperado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in res.tratamiento %}
+                <tr>
+                    <td><strong>{{ t.accion }}</strong></td>
+                    <td>{{ t.desc }}</td>
+                    <td>{{ t.alcance }}</td>
+                    <td>{{ t.resultado }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% endif %}
+</div>

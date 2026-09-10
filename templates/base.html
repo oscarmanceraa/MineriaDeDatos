@@ -43,6 +43,15 @@
                         </svg>
                         <span>Etapa 1 · Formulación</span>
                     </a>
+                    <a class="nav-dropdown-link {% block nav_etapa2 %}{% endblock %}" href="{{ url_for('main.etapa2') }}">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="10" y1="12" x2="10" y2="8"></line>
+                            <line x1="14" y1="12" x2="14" y2="8"></line>
+                            <line x1="7" y1="16" x2="17" y2="16"></line>
+                        </svg>
+                        <span>Etapa 2 · Calidad de datos</span>
+                    </a>
                     <a class="nav-dropdown-link {% block nav_acerca %}{% endblock %}" href="{{ url_for('main.index') }}#proyecto">
                         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <circle cx="12" cy="12" r="10"></circle>

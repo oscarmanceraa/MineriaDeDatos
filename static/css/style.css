@@ -1504,6 +1504,25 @@ a {
   box-shadow: 0 0 8px var(--glow-cyan);
 }
 
+/* ---------- Charts (Etapa 2) ---------- */
+.chart {
+  margin: 0;
+}
+.chart svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.chart-caption {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--text-mute);
+  line-height: 1.55;
+}
+.chart-caption code {
+  color: var(--green-soft);
+}
+
 /* ---------- Footer ---------- */
 .site-footer {
   position: relative;
