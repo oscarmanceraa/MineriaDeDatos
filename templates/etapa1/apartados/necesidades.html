@@ -2,37 +2,35 @@
     <article class="info-card">
         <span class="info-card__label">Entidades involucradas</span>
         <p class="info-card__body">
-            Registros biológicos de fauna animal, grupos taxonómicos (Clase, Orden,
-            Familia, Especie), entidades territoriales (municipios de Cundinamarca) e
-            instituciones o plataformas registradoras (iNaturalist, museos,
-            universidades).
+            Registros biológicos de fauna animal (<em>Animalia</em>), jerarquías taxonómicas (Clase, Orden,
+            Familia, Especie), entidades territoriales (116 municipios de Cundinamarca) e
+            instituciones o plataformas registradoras (GBIF, SiB Colombia, iNaturalist, CAR Cundinamarca, DANE).
         </p>
     </article>
 
     <article class="info-card">
         <span class="info-card__label">Unidad de análisis</span>
         <p class="info-card__body">
-            Registro u ocurrencia biológica individual georreferenciada (puntos de
-            latitud/longitud) enriquecida con marcas de tiempo precisas
-            (<code>eventDate</code>, <code>year</code>, <code>month</code>,
-            <code>day</code>) y la tipología del municipio (Urbano / Rural).
+            Registro u ocurrencia biológica individual georreferenciada (puntos de latitud/longitud en WGS84)
+            enriquecida con marcas temporales normalizadas (<code>eventDate</code>, <code>year</code>, <code>month</code>,
+            <code>day</code>) y la tipología territorial asignada (<code>urbanRuralCategory</code>: Urbano / Rural).
         </p>
     </article>
 
     <article class="info-card info-card--span2">
-        <span class="info-card__label">Cobertura geográfica</span>
+        <span class="info-card__label">Cobertura geográfica en tres escalas</span>
         <div class="scale-rows">
             <div class="scale-row">
                 <span class="scale-row__level">Global</span>
-                <span class="scale-row__text">Registros referenciales en GBIF e IUCN. Permite formular tendencias de observación a escala mundial.</span>
+                <span class="scale-row__text">Registros referenciales y metadatos agregados en GBIF e IUCN Red List para contextualizar el comportamiento macro de la ciencia ciudadana a nivel mundial.</span>
             </div>
             <div class="scale-row">
                 <span class="scale-row__level scale-row__level--nacional">Nacional</span>
-                <span class="scale-row__text">Cobertura de Colombia a través de SiB Colombia y NaturaLista, el contexto nacional del fenómeno.</span>
+                <span class="scale-row__text">Cobertura de Colombia consolidada a través de SiB Colombia y NaturaLista, permitiendo contrastar la representatividad regional de Cundinamarca frente a la megadiversidad del país.</span>
             </div>
             <div class="scale-row">
                 <span class="scale-row__level scale-row__level--regional">Regional</span>
-                <span class="scale-row__text">Recorte intensivo en los 116 municipios de Cundinamarca, unidad focal del análisis.</span>
+                <span class="scale-row__text">Recorte intensivo en los 116 municipios de Cundinamarca y cuencas de la CAR, unidad focal experimental del análisis de minería de datos.</span>
             </div>
         </div>
     </article>
@@ -40,130 +38,144 @@
     <article class="info-card">
         <span class="info-card__label">Periodo de análisis</span>
         <p class="info-card__body">
-            Periodo histórico 1990–2026, que permite comparar la era pre-fase digital
-            (1990–2010) frente a la era de masificación de la ciencia ciudadana
-            (2011–2026) y analizar los ciclos de 12 meses.
+            Periodo histórico <strong>1990&ndash;2026</strong>, que permite contrastar la era pre-digital
+            (1990&ndash;2010, dominada por especímenes de museo) frente a la era digital de ciencia ciudadana
+            (2011&ndash;2026, masificación de smartphones), además de explorar los ciclos estacionales de 12 meses.
         </p>
     </article>
 
     <article class="info-card">
         <span class="info-card__label">Granularidad requerida</span>
         <p class="info-card__body">
-            Grano fino a nivel de punto geográfico individual con timestamp
-            diario/mensual, evitando trabajar de forma exclusiva con datos altamente
-            agregados por país o año.
+            Grano fino a nivel de punto geográfico individual con timestamp diario/mensual, garantizando
+            que no se trabaje únicamente con datos macro-agregados y permitiendo la ejecución precisa de algoritmos de clustering y clasificación.
         </p>
     </article>
 </div>
 
-<h3 class="doc-prose__title">Variables relevantes y su razón de análisis</h3>
+<h3 class="doc-prose__title">Variables relevantes, niveles de aplicación y correspondencia con preguntas</h3>
 <p class="doc-prose__p">
-    Cada variable se incluye con una razón explícita para formar parte del análisis,
-    incluyendo las que permiten comparar las escalas global, nacional y regional.
+    Cada variable seleccionada cumple una función metodológica concreta y está directamente vinculada
+    a las preguntas de investigación y a los niveles de comparación territorial:
 </p>
+
 <div class="source-table-wrap">
     <table class="source-table">
         <thead>
             <tr>
                 <th>Variable</th>
                 <th>Tipo</th>
-                <th>Unidad</th>
-                <th>Dominio</th>
-                <th>Razón para el análisis</th>
+                <th>Unidad / Dominio</th>
+                <th>Preguntas Vinculadas</th>
+                <th>Nivel Territorial</th>
+                <th>Razón Metodológica para el Análisis</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>decimalLatitude</td>
-                <td>Numérica</td>
-                <td>Grados decimales</td>
-                <td>4.0 – 5.8</td>
-                <td>Fija la posición del registro y permite cartografiar y enlazar la división municipal.</td>
+                <td><code>decimalLatitude</code></td>
+                <td><span class="badge badge--primaria">Numérica</span></td>
+                <td>Grados decimales<br>(4.0 a 5.8)</td>
+                <td>Principal, Sec 01</td>
+                <td><span class="badge badge--regional">Regional</span></td>
+                <td>Fija la posición geográfica exacta y permite el cruce espacial con las geometrías municipales del DANE.</td>
             </tr>
             <tr>
-                <td>decimalLongitude</td>
-                <td>Numérica</td>
-                <td>Grados decimales</td>
-                <td>-74.8 – -73.0</td>
-                <td>Completa la localización geográfica del punto de avistamiento.</td>
+                <td><code>decimalLongitude</code></td>
+                <td><span class="badge badge--primaria">Numérica</span></td>
+                <td>Grados decimales<br>(-74.8 a -73.0)</td>
+                <td>Principal, Sec 01</td>
+                <td><span class="badge badge--regional">Regional</span></td>
+                <td>Completa las coordenadas geoespaciales WGS84 para cartografía y análisis de proximidad urbana.</td>
             </tr>
             <tr>
-                <td>year</td>
-                <td>Numérica</td>
-                <td>Año</td>
-                <td>1990 – 2026</td>
-                <td>Habilita el análisis multianual y la comparación entre eras de registro.</td>
+                <td><code>year</code></td>
+                <td><span class="badge badge--primaria">Numérica</span></td>
+                <td>Año<br>(1990 – 2026)</td>
+                <td>Principal, Sec 01, Sec 03</td>
+                <td><span class="badge badge--global">Global</span> <span class="badge badge--nacional">Nac</span> <span class="badge badge--regional">Reg</span></td>
+                <td>Permite el análisis multianual y contrastar la era pre-digital (1990–2010) frente a la de smartphones (2011–2026).</td>
             </tr>
             <tr>
-                <td>month</td>
-                <td>Temporal</td>
-                <td>Mes</td>
-                <td>1 – 12</td>
-                <td>Base del análisis estacional y de las variaciones urbanas vs. rurales.</td>
+                <td><code>month</code></td>
+                <td><span class="badge badge--global">Temporal</span></td>
+                <td>Mes<br>(1 a 12)</td>
+                <td>Principal, Sec 01, Sec 02, Sec 03</td>
+                <td><span class="badge badge--global">Global</span> <span class="badge badge--nacional">Nac</span> <span class="badge badge--regional">Reg</span></td>
+                <td>Eje fundamental del análisis de estacionalidad, meses pico de observación y ciclos climáticos.</td>
             </tr>
             <tr>
-                <td>day</td>
-                <td>Temporal</td>
-                <td>Día</td>
-                <td>1 – 31</td>
-                <td>Aporta exactitud temporal diaria del evento de registro.</td>
+                <td><code>day</code></td>
+                <td><span class="badge badge--global">Temporal</span></td>
+                <td>Día<br>(1 a 31)</td>
+                <td>Secundaria 02</td>
+                <td><span class="badge badge--regional">Regional</span></td>
+                <td>Aporta granularidad diaria para evaluar el sesgo de muestreo en fines de semana y festivos.</td>
             </tr>
             <tr>
-                <td>eventDate</td>
-                <td>Temporal</td>
-                <td>Fecha (ISO 8601)</td>
-                <td>Cadena YYYY-MM-DD</td>
-                <td>Clave de ordenamiento cronológico e integración entre fuentes; una sola fecha normalizada.</td>
+                <td><code>eventDate</code></td>
+                <td><span class="badge badge--global">Temporal</span></td>
+                <td>Cadena ISO 8601<br>(YYYY-MM-DD)</td>
+                <td>Principal, Sec 01, Sec 03</td>
+                <td><span class="badge badge--global">Global</span> <span class="badge badge--nacional">Nac</span> <span class="badge badge--regional">Reg</span></td>
+                <td>Clave cronológica unificada para estandarizar registros de múltiples fuentes (GBIF, SiB, CAR, NaturaLista).</td>
             </tr>
             <tr>
-                <td>class</td>
-                <td>Categórica</td>
-                <td>N/A</td>
+                <td><code>class</code></td>
+                <td><span class="badge badge--secundaria">Categórica</span></td>
                 <td>Aves, Mammalia, Amphibia, Reptilia</td>
-                <td>Permite evaluar la composición y la riqueza por grupo biológico.</td>
+                <td>Principal, Sec 02, Sec 03</td>
+                <td><span class="badge badge--global">Global</span> <span class="badge badge--nacional">Nac</span> <span class="badge badge--regional">Reg</span></td>
+                <td>Permite evaluar la selectividad de observación hacia especies carismáticas (aves vs. herpetofauna).</td>
             </tr>
             <tr>
-                <td>order</td>
-                <td>Categórica</td>
-                <td>N/A</td>
-                <td>Órdenes taxonómicos</td>
-                <td>Aporta granularidad taxonómica intermedia para análisis de comunidades.</td>
+                <td><code>order</code></td>
+                <td><span class="badge badge--secundaria">Categórica</span></td>
+                <td>Órdenes taxonómicos zoológicos</td>
+                <td>Secundaria 02, Sec 03</td>
+                <td><span class="badge badge--nacional">Nacional</span> <span class="badge badge--regional">Reg</span></td>
+                <td>Granularidad taxonómica intermedia para análisis de comunidades faunísticas y modelos predictivos.</td>
             </tr>
             <tr>
-                <td>family</td>
-                <td>Categórica</td>
-                <td>N/A</td>
-                <td>Familias taxonómicas</td>
-                <td>Complementa la taxonomía para el análisis de asociaciones y co-ocurrencias.</td>
+                <td><code>family</code></td>
+                <td><span class="badge badge--secundaria">Categórica</span></td>
+                <td>Familias taxonómicas zoológicas</td>
+                <td>Secundaria 02, Sec 03</td>
+                <td><span class="badge badge--regional">Regional</span></td>
+                <td>Aporta especificidad ecológica para reglas de asociación y clasificación detallada de hábitats.</td>
             </tr>
             <tr>
-                <td>basisOfRecord</td>
-                <td>Categórica</td>
-                <td>N/A</td>
+                <td><code>basisOfRecord</code></td>
+                <td><span class="badge badge--secundaria">Categórica</span></td>
                 <td>HUMAN_OBSERVATION, PRESERVED_SPECIMEN</td>
-                <td>Distingue el origen humano vs. colección/museo; clave para medir el sesgo de observación.</td>
+                <td>Principal, Sec 02, Sec 03</td>
+                <td><span class="badge badge--global">Global</span> <span class="badge badge--nacional">Nac</span> <span class="badge badge--regional">Reg</span></td>
+                <td>Diferencia la ciencia ciudadana del muestreo de museo/campo; métrica clave del sesgo de observador.</td>
             </tr>
             <tr>
-                <td>municipality</td>
-                <td>Geográfica</td>
-                <td>N/A</td>
-                <td>Nombres oficiales DANE</td>
-                <td>Coloca cada registro en un municipio de Cundinamarca; variable puente entre escalas.</td>
+                <td><code>municipality</code></td>
+                <td><span class="badge badge--regional">Geográfica</span></td>
+                <td>116 Nombres oficiales DANE</td>
+                <td>Principal, Sec 01</td>
+                <td><span class="badge badge--regional">Regional</span></td>
+                <td>Unidad de agregación territorial en Cundinamarca y enlace de cruce con la base del DANE.</td>
             </tr>
             <tr>
-                <td>urbanRuralCategory</td>
-                <td>Categórica</td>
-                <td>N/A</td>
+                <td><code>urbanRuralCategory</code></td>
+                <td><span class="badge badge--nacional">Categórica</span></td>
                 <td>Urbano, Rural</td>
-                <td>Variable comparativa central para contrastar ambos entornos y armonizar escalas.</td>
+                <td>Principal, Sec 01, Sec 02, Sec 03</td>
+                <td><span class="badge badge--regional">Regional</span></td>
+                <td>Variable objetivo y comparativa central para contrastar ambos entornos en todas las técnicas de minería.</td>
             </tr>
         </tbody>
     </table>
 </div>
+
 <p class="doc-prose__p">
-    Las variables <strong class="highlight">municipality</strong> y
-    <strong class="highlight">urbanRuralCategory</strong> permiten integrar y comparar
-    los niveles global, nacional y regional mediante el agrupamiento territorial;
-    <strong class="highlight">year</strong> y <strong class="highlight">month</strong>
-    hacen lo propio en la dimensión temporal.
+    Las variables <strong class="highlight">municipality</strong> y <strong class="highlight">urbanRuralCategory</strong>
+    permiten articular los tres niveles de análisis al trasladar las tendencias macroscópicas al contexto
+    territorial específico de Cundinamarca, mientras que <strong class="highlight">year</strong>,
+    <strong class="highlight">month</strong> y <strong class="highlight">basisOfRecord</strong>
+    permiten aislar el componente de sesgo humano del patrón ecológico real.
 </p>

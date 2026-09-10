@@ -1,98 +1,143 @@
 <div class="question-main">
-    <span class="question-main__label">Pregunta principal</span>
+    <span class="question-main__label">Pregunta principal de investigación</span>
     <p class="question-main__text">
-        ¿Cómo varían los patrones temporales y taxonómicos de los registros de fauna entre municipios urbanos y rurales de Cundinamarca en comparación con Colombia y el contexto global?
+        ¿De qué manera difieren la dinámica temporal (multianual y estacional) y la composición taxonómica
+        de los registros de fauna animal entre municipios urbanos y rurales de Cundinamarca, y en qué medida
+        estos patrones regionales reflejan las tendencias de observación observadas a escala nacional y global?
     </p>
 </div>
 
 <h3 class="doc-prose__title">Preguntas secundarias · orientadas a Minería de Datos</h3>
 <div class="question-grid">
     <article class="question-card">
-        <span class="question-card__tag">Clustering · Agrupamiento</span>
+        <span class="question-card__tag">Clustering · Agrupamiento Temporal</span>
         <span class="question-card__num">Secundaria 01</span>
         <p class="question-card__text">
-            ¿Es posible agrupar los municipios de Cundinamarca en conglomerados
-            (clusters) homogéneos según su perfil de registro temporal (meses pico
-            de observación, volumen histórico de datos) y su clasificación territorial
-            (Urbano vs. Rural)?
+            ¿Es posible agrupar los 116 municipios de Cundinamarca en conglomerados (clusters) homogéneos
+            según su perfil de registro temporal (meses pico de observación, volumen histórico de datos)
+            y su clasificación territorial (Urbano vs. Rural)?
         </p>
     </article>
 
     <article class="question-card">
-        <span class="question-card__tag">Reglas de asociación</span>
+        <span class="question-card__tag">Reglas de asociación · Co-ocurrencia</span>
         <span class="question-card__num">Secundaria 02</span>
         <p class="question-card__text">
-            ¿Qué patrones de co-ocurrencia o asociación existen entre la tipología
-            territorial (Urbano vs. Rural), la época del año (trimestre o mes), la
-            fuente del registro (HUMAN_OBSERVATION vs. PRESERVED_SPECIMEN) y la
-            clase o grupo del animal registrado?
+            ¿Qué patrones de co-ocurrencia o asociación existen entre la tipología territorial (Urbano vs. Rural),
+            la época del año (trimestre o mes), la fuente del registro (HUMAN_OBSERVATION vs. PRESERVED_SPECIMEN)
+            y la clase o grupo taxonómico del animal registrado?
         </p>
     </article>
 
     <article class="question-card">
-        <span class="question-card__tag">Clasificación · Predicción</span>
+        <span class="question-card__tag">Clasificación · Predicción Supervisada</span>
         <span class="question-card__num">Secundaria 03</span>
         <p class="question-card__text">
-            ¿Se puede predecir con alta precisión si una observación biológica dada
-            fue realizada en un entorno urbano o rural basándose exclusivamente en el
-            grupo taxonómico del animal, el mes del año, el año de registro y la
-            fuente del observador?
+            ¿Se puede predecir con alta precisión si una observación biológica dada fue realizada en un entorno
+            urbano o rural basándose exclusivamente en el grupo taxonómico del animal, el mes del año,
+            el año de registro y la fuente del observador?
         </p>
     </article>
+</div>
+
+<h3 class="doc-prose__title">Matriz integral de correspondencia metodológica</h3>
+<p class="doc-prose__p">
+    La siguiente matriz formaliza la correspondencia directa entre cada pregunta, las técnicas de minería
+    de datos seleccionadas, las variables utilizadas, la comparación explícita en cada nivel de análisis
+    y las fuentes de datos involucradas:
+</p>
+
+<div class="source-table-wrap">
+    <table class="source-table">
+        <thead>
+            <tr>
+                <th>Pregunta / Objetivo</th>
+                <th>Técnica / Algoritmo</th>
+                <th>Variables Clave</th>
+                <th>Comparación Nivel Global</th>
+                <th>Comparación Nivel Nacional</th>
+                <th>Comparación Nivel Regional</th>
+                <th>Fuentes</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Pregunta Principal</strong><br>Variación temporal y taxonómica urbano vs. rural</td>
+                <td><span class="badge badge--terciaria">Series Temporales y Análisis Multinivel</span></td>
+                <td><code>municipality</code>, <code>urbanRuralCategory</code>, <code>year</code>, <code>month</code>, <code>class</code>, <code>basisOfRecord</code></td>
+                <td>Línea base global: sesgo hacia áreas urbanas y especies carismáticas a nivel mundial.</td>
+                <td>Contexto nacional: concentración de registros en la región Andina y vías principales de Colombia.</td>
+                <td><strong>Foco de estudio:</strong> Contraste Sabana de Bogotá (urbano) vs. municipios rurales de Cundinamarca.</td>
+                <td>GBIF, SiB Colombia, CAR, DANE</td>
+            </tr>
+            <tr>
+                <td><strong>Secundaria 01</strong><br>Clustering temporal de municipios</td>
+                <td><span class="badge badge--global">Clustering</span><br>(K-Means / DBSCAN / Jerárquico)</td>
+                <td><code>municipality</code>, <code>year</code>, <code>month</code>, <code>urbanRuralCategory</code>, densidad mensual</td>
+                <td>Patrones globales de estacionalidad por estaciones climáticas en el hemisferio.</td>
+                <td>Comportamiento estacional bimodal de lluvias y vacaciones en Colombia.</td>
+                <td><strong>Conglomerados municipales:</strong> Agrupar municipios con perfiles de avistamiento recreativo vs. constante.</td>
+                <td>SiB Colombia, DANE, GBIF</td>
+            </tr>
+            <tr>
+                <td><strong>Secundaria 02</strong><br>Asociaciones y co-ocurrencias</td>
+                <td><span class="badge badge--nacional">Reglas de Asociación</span><br>(Apriori / FP-Growth)</td>
+                <td><code>urbanRuralCategory</code>, <code>month</code>, <code>basisOfRecord</code>, <code>class</code>, <code>order</code>, <code>family</code></td>
+                <td>Reglas globales de selectividad según tipo de evidencia y clase zoológica.</td>
+                <td>Asociación entre época climática nacional y registros de fauna silvestre.</td>
+                <td><strong>Reglas territoriales:</strong> <code>[Urbano, Fin de Semana, Human_Obs] =&gt; [Aves]</code> frente a <code>[Rural, Especimen] =&gt; [Mammalia]</code>.</td>
+                <td>SiB Colombia, NaturaLista, CAR</td>
+            </tr>
+            <tr>
+                <td><strong>Secundaria 03</strong><br>Predicción del entorno</td>
+                <td><span class="badge badge--regional">Clasificación</span><br>(Árboles de Decisión / Random Forest)</td>
+                <td><em>Target:</em> <code>urbanRuralCategory</code><br><em>Predictoras:</em> <code>class</code>, <code>order</code>, <code>family</code>, <code>month</code>, <code>year</code>, <code>basisOfRecord</code></td>
+                <td>Poder predictivo de sesgos antropogénicos en datasets biológicos abiertos globales.</td>
+                <td>Validación del modelo frente a la distribución geográfica general del país.</td>
+                <td><strong>Modelo predictivo:</strong> Estimar con exactitud si un registro es urbano o rural según fecha, taxón y método.</td>
+                <td>Dataset Consolidado (116 municipios)</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<h3 class="doc-prose__title">Función metodológica de los tres niveles de análisis</h3>
+<div class="scale-rows">
+    <div class="scale-row">
+        <span class="scale-row__level">Nivel Global</span>
+        <span class="scale-row__text">
+            <strong>Línea base teórica:</strong> Permite determinar si el sesgo de muestreo observado en Cundinamarca es un fenómeno exclusivo local o si responde a la dinámica internacional de la ciencia ciudadana digital (mayor volumen de aves y concentración urbana en fines de semana).
+        </span>
+    </div>
+
+    <div class="scale-row">
+        <span class="scale-row__level scale-row__level--nacional">Nivel Nacional</span>
+        <span class="scale-row__text">
+            <strong>Contexto biogeográfico y metodológico:</strong> Sitúa a Cundinamarca en el marco de la megadiversidad de Colombia, aislando los efectos de la infraestructura vial nacional y el régimen bimodal de lluvias sobre el esfuerzo de observación.
+        </span>
+    </div>
+
+    <div class="scale-row">
+        <span class="scale-row__level scale-row__level--regional">Nivel Regional</span>
+        <span class="scale-row__text">
+            <strong>Unidad focal experimental (116 municipios de Cundinamarca):</strong> Es la escala donde se aplican directamente los algoritmos de minería de datos sobre el dataset integrado de &gt;50.000 registros para responder a las preguntas de investigación.
+        </span>
+    </div>
 </div>
 
 <h3 class="doc-prose__title">Conocimiento esperado a partir de los datos</h3>
 <div class="callout">
     <span class="callout__label">Qué se espera descubrir</span>
     <p class="callout__text">
-        A partir del análisis de los registros de fauna, el proyecto busca distinguir
-        si la mayor riqueza aparente de zonas urbanas refleja una mayor biodiversidad
-        real o un mayor esfuerzo de observación humana, para así interpretar de forma
-        honesta los patrones observados.
+        El análisis busca desentrañar si la mayor riqueza aparente en municipios urbanos de Cundinamarca refleja
+        biodiversidad real o un mayor esfuerzo humano de observación, permitiendo interpretar con honestidad
+        los patrones ecológicos frente a los sesgos del comportamiento humano.
     </p>
     <ul class="callout-list">
         <li>Identificar patrones temporales diferenciados entre entornos urbanos y rurales.</li>
         <li>Cuantificar el efecto del sesgo de observación sobre la riqueza registrada.</li>
-        <li>Agrupar municipios con perfiles de registro similares (clusters).</li>
-        <li>Detectar asociaciones entre la fuente del registro, la época del año y el grupo taxonómico.</li>
-        <li>Construir un modelo predictivo sencillo que estime el entorno (urbano o rural) a partir de variables biológicas y temporales.</li>
+        <li>Agrupar municipios con perfiles de registro similares (clusters homogéneos).</li>
+        <li>Detectar asociaciones sistemáticas entre la fuente del registro, la época del año y el grupo taxonómico.</li>
+        <li>Construir un modelo predictivo capaz de estimar el entorno (urbano o rural) a partir de variables biológicas y temporales.</li>
     </ul>
-</div>
-
-<h3 class="doc-prose__title">Orientación de las preguntas hacia los datos</h3>
-<p class="doc-prose__p">
-    Cada pregunta orienta variables, periodos y relaciones concretas que se explotan
-    en etapas posteriores de minería de datos.
-</p>
-<div class="source-table-wrap">
-    <table class="source-table">
-        <thead>
-            <tr>
-                <th>Pregunta</th>
-                <th>Variables clave</th>
-                <th>Periodo</th>
-                <th>Relación / patrón a analizar</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Secundaria 01 · Clustering</td>
-                <td>municipality, year, month, urbanRuralCategory</td>
-                <td>1990–2026</td>
-                <td>Agrupar municipios por perfil temporal de registro y clasificación territorial.</td>
-            </tr>
-            <tr>
-                <td>Secundaria 02 · Asociación</td>
-                <td>urbanRuralCategory, month, basisOfRecord, class / order / family</td>
-                <td>Estacional (12 meses)</td>
-                <td>Co-ocurrencia entre tipología territorial, época, fuente y grupo taxonómico.</td>
-            </tr>
-            <tr>
-                <td>Secundaria 03 · Clasificación</td>
-                <td>class / order / family, month, year, basisOfRecord</td>
-                <td>2000–2026</td>
-                <td>Predecir entorno urbano vs. rural a partir de variables biológicas y temporales.</td>
-            </tr>
-        </tbody>
-    </table>
 </div>
