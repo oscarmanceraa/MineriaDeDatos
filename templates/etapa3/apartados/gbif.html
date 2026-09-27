@@ -1,9 +1,230 @@
 <div class="doc-prose">
+
+    <h3 class="doc-prose__title">Descripción del proceso (ETL con SSIS)</h3>
+    <p>
+        El tratamiento de calidad de GBIF se implementó como un proceso ETL en
+        <strong>SQL Server Integration Services (SSIS)</strong>. El conjunto de datos crudos
+        (2.129.220 registros y 50 variables) se cargó primero a una zona de
+        <strong>staging</strong> para conservar el dato original y permitir reproducir el proceso;
+        luego, mediante un <em>Data Flow</em>, se aplicaron las reglas de limpieza y se separaron
+        los registros válidos de los que requieren revisión.
+    </p>
     <div class="callout">
-        <div class="callout__label">Contenido pendiente</div>
+        <div class="callout__label">Objetivo</div>
         <div class="callout__text">
-            Este apartado se completará con el proceso ETL en SSIS, las reglas de tratamiento
-            y los resultados de las iteraciones de limpieza de datos.
+            Corregir y controlar los problemas de calidad identificados en la Etapa 02
+            (coordenadas sin georreferenciar o fuera de rango, valores nulos, formatos y duplicados),
+            conservando la trazabilidad del dato original y separando los registros dudosos.
+        </div>
+    </div>
+
+    <h3 class="doc-prose__title">Reglas de tratamiento</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr><th>Campo</th><th>Problema</th><th>Acción</th><th>Componente SSIS</th><th>Justificación</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>decimalLatitude</code> / <code>decimalLongitude</code></td>
+                    <td>Sin coordenadas o fuera del rango de Cundinamarca</td>
+                    <td>Convertir a número y enviar a revisión lo inválido</td>
+                    <td><span class="badge badge--secundaria">Data Conversion + Conditional Split</span></td>
+                    <td>Evitar georreferenciación errónea</td>
+                </tr>
+                <tr>
+                    <td><code>year</code>, <code>month</code>, <code>day</code>, <code>individualCount</code></td>
+                    <td>Tipos de dato como texto</td>
+                    <td>Corregir el tipo a entero</td>
+                    <td><span class="badge badge--secundaria">Data Conversion</span></td>
+                    <td>Permitir agregaciones y comparaciones</td>
+                </tr>
+                <tr>
+                    <td><code>occurrenceID</code></td>
+                    <td>Duplicados</td>
+                    <td>Eliminar duplicados conservando uno</td>
+                    <td><span class="badge badge--secundaria">Sort (intento) → dedup SQL</span></td>
+                    <td>Evitar doble conteo</td>
+                </tr>
+                <tr>
+                    <td>Coordenadas / fecha</td>
+                    <td>Registros dudosos</td>
+                    <td>Separar a tabla de revisión con motivo</td>
+                    <td><span class="badge badge--secundaria">Derived Column + Conditional Split</span></td>
+                    <td>Trazabilidad del dato dudoso</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Diseño del paquete (Control Flow y Data Flow)</h3>
+    <p>
+        El primer intento usó un <strong>Origen de archivo plano</strong> (Flat File) que leyó el
+        archivo como texto y lo cargo en la DB luego se implemento en el data flow
+    </p>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/gbif/FlowCSV-DB.png') }}"
+             alt="Intento inicial con Origen de archivo plano" loading="lazy"
+             style="width:100%;max-width:520px;display:block;margin:0 auto;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">Intento inicial con Origen de archivo plano (Flat File)</p>
+    </div>
+    <p>
+        La carga a la zona de staging se completó correctamente.
+        El tratamiento se implementó en el <em>Data Flow</em> con la cadena
+        <code>Origen de OLE DB → Conversión de datos → Columna derivada → División condicional</code>
+        y dos destinos.
+    </p>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/gbif/data-flow.png') }}"
+             alt="Data Flow final del tratamiento" loading="lazy"
+             style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">Data Flow final: origen OLE DB, conversión de tipos, columna derivada y división condicional hacia limpio y revisión.</p>
+    </div>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/gbif/DerivedColumn.png') }}"
+             alt="Configuración de la Columna derivada" loading="lazy"
+             style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">Columna derivada: se calculan <code>motivo</code>, <code>campo_afectado</code>, <code>valor_original</code> e <code>iteracion_rev</code>.</p>
+    </div>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/gbif/DivisionCondicional.png') }}"
+             alt="Configuración de la División condicional" loading="lazy"
+             style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">División condicional: la condición <code>motivo == ""</code> dirige a "Validos"; el resto cae en la salida predeterminada "Revision".</p>
+    </div>
+
+    <h3 class="doc-prose__title">Componentes utilizados</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr><th>Componente</th><th>Función en el proceso</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Origen de OLE DB</td><td>Extrae los datos de la tabla de staging <code>Primero.GBIF_Original</code>.</td></tr>
+                <tr><td>Conversión de datos (Data Conversion)</td><td>Convierte latitud/longitud a número (DT_R8) y año/mes/día/individuo a entero (DT_I4).</td></tr>
+                <tr><td>Columna derivada (Derived Column)</td><td>Calcula el <code>motivo</code> de revisión, el campo afectado y el valor original.</td></tr>
+                <tr><td>División condicional (Conditional Split)</td><td>Separa los registros válidos de los que van a revisión.</td></tr>
+                <tr><td>Destino de OLE DB</td><td>Carga los resultados en <code>limpio.GBIF</code> y <code>revision.GBIF_Revision</code>.</td></tr>
+                <tr><td>Ordenar (Sort)</td><td>Se intentó para deduplicar, pero se descartó por consumo de memoria (ver abajo).</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Resultados — Iteración 1</h3>
+    <div class="info-grid">
+        <article class="info-card"><span class="info-card__label">Recibidos</span><div class="info-card__body"><p>2.129.220</p></div></article>
+        <article class="info-card"><span class="info-card__label">Aceptados (limpios)</span><div class="info-card__body"><p>2.123.558</p></div></article>
+        <article class="info-card"><span class="info-card__label">Duplicados eliminados</span><div class="info-card__body"><p>568</p></div></article>
+        <article class="info-card"><span class="info-card__label">Enviados a revisión</span><div class="info-card__body"><p>5.094</p></div></article>
+    </div>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr><th>Métrica</th><th>Valor</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Registros recibidos</td><td>2.129.220</td></tr>
+                <tr><td>Válidos (antes de deduplicar)</td><td>2.124.126</td></tr>
+                <tr><td>Aceptados (limpios tras deduplicar)</td><td>2.123.558</td></tr>
+                <tr><td>Duplicados eliminados (<code>occurrenceID</code>)</td><td>568</td></tr>
+                <tr><td>Enviados a revisión</td><td>5.094</td></tr>
+                <tr><td>Rechazados</td><td>0</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p>
+        Reconciliación: <code>2.123.558 + 568 + 5.094 = 2.129.220</code> (sin pérdidas sin explicar).
+        La revisión se compone de <strong>4.888</strong> registros sin coordenadas y <strong>206</strong>
+        fuera de rango.
+    </p>
+
+    <h3 class="doc-prose__title">Eliminación de duplicados</h3>
+    <p>
+        La transformación <strong>Sort</strong> de SSIS se descartó porque, al ser un componente de
+        bloqueo, reservó toda la tabla en memoria. La deduplicación se realizó en SQL con
+        <code>ROW_NUMBER()</code>, mucho más eficiente para 2,1 millones de filas.
+    </p>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/gbif/EliminacionDuplicados.png') }}"
+             alt="Deduplicación en SQL" loading="lazy"
+             style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">Deduplicación por <code>occurrenceID</code>: 568 duplicados eliminados (2.124.126 → 2.123.558).</p>
+    </div>
+
+    <h3 class="doc-prose__title">Comparación antes / después</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr><th>Indicador</th><th>Antes (staging)</th><th>Después (limpio)</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Registros</td><td>2.129.220</td><td>2.123.558</td></tr>
+                <tr><td>Sin latitud</td><td>4.888</td><td>0</td></tr>
+                <tr><td>Sin longitud</td><td>4.888</td><td>0</td></tr>
+                <tr><td>Sin fecha</td><td>0</td><td>0</td></tr>
+                <tr><td>Sin nombre científico</td><td>0</td><td>0</td></tr>
+                <tr><td>Duplicados</td><td>568</td><td>0</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="info-grid">
+        <article class="info-card">
+            <span class="info-card__label">Antes</span>
+            <div class="info-card__body">
+                <img src="{{ url_for('static', filename='img/etapa3/gbif/CoordsAntes.png') }}" alt="Calidad antes" loading="lazy" style="width:100%;border-radius:8px;">
+                <p class="chart-caption">Staging: 4.888 registros sin coordenadas.</p>
+            </div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Después</span>
+            <div class="info-card__body">
+                <img src="{{ url_for('static', filename='img/etapa3/gbif/CoordsDespues.png') }}" alt="Calidad después" loading="lazy" style="width:100%;border-radius:8px;">
+                <p class="chart-caption">Limpio: 0 registros sin coordenadas.</p>
+            </div>
+        </article>
+    </div>
+
+    <h3 class="doc-prose__title">Intento con el componente Sort (hallazgo)</h3>
+    <p>
+        Al usar el componente <strong>Ordenar (Sort)</strong> para eliminar duplicados, SSIS intentó
+        cargar la tabla completa en memoria y agotó los recursos del equipo
+        (<em>“insufficient disk space”</em>, con ~8,3 GB reservados por el componente). Este hallazgo
+        justificó cambiar a la deduplicación en SQL.
+    </p>
+    <div class="info-grid">
+        <article class="info-card">
+            <span class="info-card__label">Sort en el Data Flow</span>
+            <div class="info-card__body">
+                <img src="{{ url_for('static', filename='img/etapa3/gbif/IntentoSort.png') }}" alt="Intento con Sort" loading="lazy" style="width:100%;border-radius:8px;">
+                <p class="chart-caption">El componente "Ordenar" entra al flujo y falla la ejecución.</p>
+            </div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Error por memoria</span>
+            <div class="info-card__body">
+                <img src="{{ url_for('static', filename='img/etapa3/gbif/IntentoSort1.png') }}" alt="Error de memoria del Sort" loading="lazy" style="width:100%;border-radius:8px;">
+                <p class="chart-caption">“Insufficient disk space”: el Sort reservó ~8,3 GB.</p>
+            </div>
+        </article>
+    </div>
+
+    <h3 class="doc-prose__title">Idempotencia y re-ejecución</h3>
+    <p>
+        Antes de cada ejecución se limpian las tablas destino (<code>TRUNCATE</code> de
+        <code>limpio.GBIF</code> y <code>revision.GBIF_Revision</code>), de modo que volver a correr
+        el mismo lote (<code>id_lote</code>) no genera registros duplicados. La deduplicación por
+        <code>occurrenceID</code> refuerza la unicidad del resultado.
+    </p>
+
+    <h3 class="doc-prose__title">Iteraciones 2 y 3 (plan documentado)</h3>
+    <div class="callout">
+        <div class="callout__label">Justificación de alcance</div>
+        <div class="callout__text">
+            Cada iteración implica recomputar todo el pipeline (extracción desde el staging,
+            conversión, derivación, división y deduplicación) sobre 2,1 millones de filas. El consumo
+            de memoria y el tiempo de ejecución superan los recursos del equipo de trabajo (el intento
+            con Sort llegó a reservar ~8,3 GB y agotó el disco temporal). Por limitaciones de hardware,
+            las Iteraciones 2 y 3 se presentan como <strong>plan diseñado</strong> sin ejecutar.
         </div>
     </div>
 </div>

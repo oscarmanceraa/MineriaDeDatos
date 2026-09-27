@@ -1,0 +1,12 @@
+codigo,descripcion,valido
+HUMAN_OBSERVATION,Observación humana,SI
+PRESERVED_SPECIMEN,Espécimen preservado,SI
+MACHINE_OBSERVATION,Observación automática,SI
+MATERIAL_SAMPLE,Muestra de material,SI
+MATERIAL_CITATION,Cita de material,SI
+FOSSIL_SPECIMEN,Espécimen fósil,SI
+OCCURRENCE,Registro de ocurrencia,SI
+OBSERVATION,Observación,SI
+LITERATURE,Literatura,SI
+LIVING_SPECIMEN,Espécimen vivo,SI
+UNKNOWN,Desconocido,SI
