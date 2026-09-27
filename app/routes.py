@@ -24,6 +24,15 @@ DATASETS = [
     {'slug': 'datos-abiertos', 'num': '06', 'titulo': 'Datos Abiertos Cundinamarca', 'inst': 'Gobernación / DANE', 'disponible': True},
 ]
 
+DATASETS_3 = [
+    {'slug': 'gbif', 'num': '01', 'titulo': 'GBIF', 'inst': 'Global Biodiversity Information Facility', 'disponible': True},
+    {'slug': 'iucn', 'num': '02', 'titulo': 'IUCN Red List', 'inst': 'International Union for Conservation of Nature', 'disponible': True},
+    {'slug': 'sib-colombia', 'num': '03', 'titulo': 'SiB Colombia', 'inst': 'Instituto Humboldt', 'disponible': True},
+    {'slug': 'naturalista', 'num': '04', 'titulo': 'NaturaLista Colombia', 'inst': 'iNaturalist / Instituto Humboldt', 'disponible': True},
+    {'slug': 'sibio-car', 'num': '05', 'titulo': 'SIBIO CAR Cundinamarca', 'inst': 'CAR Cundinamarca', 'disponible': True},
+    {'slug': 'datos-abiertos', 'num': '06', 'titulo': 'Datos Abiertos Cundinamarca', 'inst': 'Gobernación / DANE', 'disponible': True},
+]
+
 
 @main.route('/')
 def index():
@@ -61,3 +70,19 @@ def dataset(slug):
     nxt = next((d for d in DATASETS[idx + 1:] if d['disponible']), None)
     results = RESULTADOS.get(item['slug'], {})
     return render_template('etapa2/r2-calidad-datos.html', apartado=item, next=nxt, datasets=DATASETS, res=results)
+
+
+@main.route('/etapa-3')
+def etapa3():
+    return render_template('etapa3/index.html', datasets=DATASETS_3)
+
+
+@main.route('/etapa-3/<slug>')
+def limpieza(slug):
+    item = next((d for d in DATASETS_3 if d['slug'] == slug), None)
+    if not item or not item['disponible']:
+        return redirect(url_for('main.etapa3'))
+
+    idx = DATASETS_3.index(item)
+    nxt = next((d for d in DATASETS_3[idx + 1:] if d['disponible']), None)
+    return render_template('etapa3/r3-limpieza-datos.html', apartado=item, next=nxt, datasets=DATASETS_3)

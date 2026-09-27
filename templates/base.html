@@ -52,6 +52,14 @@
                         </svg>
                         <span>Etapa 2 · Calidad de datos</span>
                     </a>
+                    <a class="nav-dropdown-link {% block nav_etapa3 %}{% endblock %}" href="{{ url_for('main.etapa3') }}">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 6h18"></path>
+                            <path d="M3 12h18"></path>
+                            <path d="M3 18h18"></path>
+                        </svg>
+                        <span>Etapa 3 · Limpieza de datos</span>
+                    </a>
                     <a class="nav-dropdown-link {% block nav_acerca %}{% endblock %}" href="{{ url_for('main.index') }}#proyecto">
                         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <circle cx="12" cy="12" r="10"></circle>
