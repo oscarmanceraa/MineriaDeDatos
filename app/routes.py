@@ -29,7 +29,7 @@ DATASETS_3 = [
     {'slug': 'iucn', 'num': '02', 'titulo': 'IUCN Red List', 'inst': 'International Union for Conservation of Nature', 'disponible': True},
     {'slug': 'sib-colombia', 'num': '03', 'titulo': 'SiB Colombia', 'inst': 'Instituto Humboldt', 'disponible': True},
     {'slug': 'naturalista', 'num': '04', 'titulo': 'NaturaLista Colombia', 'inst': 'iNaturalist / Instituto Humboldt', 'disponible': True},
-    {'slug': 'sibio-car', 'num': '05', 'titulo': 'SIBIO CAR Cundinamarca', 'inst': 'CAR Cundinamarca', 'disponible': True},
+    {'slug': 'sibio-car', 'num': '05', 'titulo': 'SIBIO CAR', 'inst': 'Sistema de Información sobre Biodiversidad de la CAR', 'disponible': True},
     {'slug': 'datos-abiertos', 'num': '06', 'titulo': 'Datos Abiertos Cundinamarca', 'inst': 'Gobernación / DANE', 'disponible': True},
 ]
 

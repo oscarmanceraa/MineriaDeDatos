@@ -1,9 +1,88 @@
 <div class="doc-prose">
+
+    <h3 class="doc-prose__title">Alcance del tratamiento</h3>
+    <p>
+        El archivo <code>datos_abiertos_cundinamarca_api.csv</code> contiene <strong>12 registros</strong>
+        y 10 columnas. Por su tamaño reducido y su estructura tabular sencilla, no fue necesario
+        implementar el procedimiento ETL completo en SSIS (carga a staging, Data Flow con múltiples
+        transformaciones y separación de salidas). Hacerlo habría añadido complejidad sin un beneficio
+        proporcional para este conjunto de datos.
+    </p>
     <div class="callout">
-        <div class="callout__label">Contenido pendiente</div>
+        <div class="callout__label">Decisión de limpieza</div>
         <div class="callout__text">
-            Este apartado se completará con el proceso ETL en SSIS, las reglas de tratamiento
-            y los resultados de las iteraciones de limpieza de datos.
+            Se conserva el CSV como fuente de trabajo y se limita el tratamiento a revisar su estructura,
+            los tipos de datos y los campos necesarios para el análisis. Si se incorporan más registros
+            o aparecen problemas de calidad que requieran transformaciones repetibles, se podrá ampliar
+            el proceso con SSIS.
         </div>
     </div>
+
+    <h3 class="doc-prose__title">Resumen del conjunto evaluado</h3>
+    <div class="info-grid">
+        <article class="info-card">
+            <span class="info-card__label">Registros del archivo</span>
+            <div class="info-card__body"><p>12 municipios</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Columnas</span>
+            <div class="info-card__body"><p>10 variables</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Fuente indicada</span>
+            <div class="info-card__body"><p>Gobernación de Cundinamarca / DANE</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Período indicado</span>
+            <div class="info-card__body"><p>2020–2026</p></div>
+        </article>
+    </div>
+
+    <h3 class="doc-prose__title">Revisión aplicada</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr><th>Aspecto</th><th>Tratamiento</th><th>Motivo</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Estructura del CSV</td>
+                    <td>Lectura directa del archivo y revisión de sus 10 columnas y 12 filas de datos.</td>
+                    <td>El volumen permite inspección sencilla sin un flujo ETL dedicado.</td>
+                </tr>
+                <tr>
+                    <td><code>codigo_dane</code></td>
+                    <td>Conservar como identificador del municipio.</td>
+                    <td>Permite reconocer cada municipio sin aplicar transformaciones innecesarias.</td>
+                </tr>
+                <tr>
+                    <td><code>area_km2</code> / <code>poblacion_total</code> / <code>categoria_dane</code></td>
+                    <td>Usar como campos numéricos para agregaciones y comparaciones.</td>
+                    <td>Los valores del archivo ya se encuentran representados como números.</td>
+                </tr>
+                <tr>
+                    <td><code>municipio</code>, <code>provincia</code>, <code>fuente</code>, <code>cobertura</code> y <code>periodo_vigente</code></td>
+                    <td>Conservar como atributos descriptivos del registro.</td>
+                    <td>No se justifica normalización adicional para un conjunto de este tamaño.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="callout">
+        <div class="callout__label">Nota de cobertura</div>
+        <div class="callout__text">
+            Aunque el campo <code>cobertura</code> menciona los 116 municipios de Cundinamarca, el
+            archivo revisado contiene 12 registros. Por tanto, la cobertura declarada en ese campo no
+            debe interpretarse como evidencia de que el CSV incluya los 116 municipios.
+        </div>
+    </div>
+
+    <h3 class="doc-prose__title">Conclusión</h3>
+    <p>
+        Para este extracto pequeño, el costo operativo de montar y mantener el paquete completo de
+        SSIS superaría la utilidad de automatizar sus transformaciones. Se documenta esta decisión
+        como una simplificación deliberada del proceso, no como una omisión de la limpieza: el alcance
+        se ajusta al volumen y a la estructura del archivo disponible.
+    </p>
 </div>

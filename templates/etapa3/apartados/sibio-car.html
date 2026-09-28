@@ -1,9 +1,202 @@
 <div class="doc-prose">
+
+    <h3 class="doc-prose__title">Descripción del proceso (ETL con SSIS)</h3>
+    <p>
+        El archivo <code>sibio_car_extraido.csv</code>, con <strong>300 registros</strong>, se cargó
+        primero en una zona de <strong>staging</strong> para conservar los valores de origen. En el
+        <em>Data Flow</em> de <strong>SQL Server Integration Services (SSIS)</strong> se derivaron
+        columnas normalizadas, se convirtieron las coordenadas a números y se aplicaron reglas de
+        validación. La salida se divide entre los registros válidos de Cundinamarca y los que deben
+        enviarse a revisión.
+    </p>
     <div class="callout">
-        <div class="callout__label">Contenido pendiente</div>
+        <div class="callout__label">Objetivo</div>
         <div class="callout__text">
-            Este apartado se completará con el proceso ETL en SSIS, las reglas de tratamiento
-            y los resultados de las iteraciones de limpieza de datos.
+            Tratar los problemas de calidad detectados en la Etapa 02 —coordenadas numéricas
+            almacenadas como texto, separadores decimales desalineados, valores «Sin Dato», formatos
+            de fecha y comas internas en los taxa— sin perder el valor original ni la trazabilidad de
+            cada registro.
         </div>
     </div>
+
+    <h3 class="doc-prose__title">Reglas de tratamiento</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    <th>Problema</th>
+                    <th>Acción</th>
+                    <th>Componente SSIS</th>
+                    <th>Justificación</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>latitud</code> / <code>longitud</code></td>
+                    <td>Coordenadas como texto y separador decimal inconsistente</td>
+                    <td>Convertir a <code>DT_R8</code> con Locale US y validar el rango de Cundinamarca</td>
+                    <td><span class="badge badge--secundaria">Data Conversion + Conditional Split</span></td>
+                    <td>Evitar georreferenciación errónea</td>
+                </tr>
+                <tr>
+                    <td><code>fecha_evento</code></td>
+                    <td>Formato de fecha inconsistente</td>
+                    <td>Extraer los primeros 10 caracteres y normalizar a ISO (<code>YYYY-MM-DD</code>)</td>
+                    <td><span class="badge badge--secundaria">Derived Column</span></td>
+                    <td>Permitir filtrado por fechas estándar</td>
+                </tr>
+                <tr>
+                    <td><code>taxon</code></td>
+                    <td>Inconsistencia de texto y comas internas</td>
+                    <td>Estandarizar a minúsculas y quitar espacios con <code>LOWER(TRIM())</code></td>
+                    <td><span class="badge badge--secundaria">Derived Column</span></td>
+                    <td>Evitar errores en nombres científicos</td>
+                </tr>
+                <tr>
+                    <td><code>municipio</code> / datos faltantes</td>
+                    <td>Valores «Sin Dato» o nulos</td>
+                    <td>Separar los registros a la salida de revisión</td>
+                    <td><span class="badge badge--secundaria">Conditional Split</span></td>
+                    <td>Evitar datos incompletos en el análisis final</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Diseño del paquete (Control Flow y Data Flow)</h3>
+    <p>
+        El paquete lee el CSV mediante <strong>Origen de archivo plano</strong>, con el calificador
+        de texto <code>"</code> y Locale US. A continuación, la columna derivada limpia el taxón y
+        prepara el texto de fecha; <strong>Conversión de datos</strong> convierte las coordenadas a
+        <code>DT_R8</code>. La <strong>División condicional</strong> enruta cada fila a
+        <code>OK_Cundinamarca</code> (destino de Excel) o a <code>Rechazados_Geografia</code>
+        (destino de revisión).
+    </p>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/sibio-car/flujo-ssis.png') }}"
+             alt="Data Flow SSIS de SIBIO CAR desde el archivo plano hasta los destinos de aceptados y rechazados"
+             loading="lazy"
+             style="width:100%;max-width:720px;display:block;margin:0 auto;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">
+            Flujo completo: Origen de archivo plano → Columna derivada → Conversión de datos →
+            División condicional → destinos de Excel para OK_Cundinamarca y Rechazados_Geografia.
+        </p>
+    </div>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/sibio-car/columnas-derivadas.png') }}"
+             alt="Expresiones configuradas en el editor de columnas derivadas de SSIS"
+             loading="lazy"
+             style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">
+            Columna derivada: <code>especie_clean</code> con <code>LOWER(TRIM(taxon))</code> y
+            <code>fecha_limpia_texto</code> con <code>SUBSTRING(TRIM(fecha_evento),1,10)</code>.
+        </p>
+    </div>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/sibio-car/division-condicional.png') }}"
+             alt="Condición de salida OK_Cundinamarca configurada en Conditional Split"
+             loading="lazy"
+             style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">
+            Conditional Split: la salida <code>OK_Cundinamarca</code> exige coordenadas convertidas
+            y válidas; las filas que no cumplen la regla quedan en la salida predeterminada de revisión.
+        </p>
+    </div>
+
+    <h3 class="doc-prose__title">Componentes utilizados</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr><th>Componente</th><th>Función en el proceso</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Origen de archivo plano (Flat File)</td>
+                    <td>Lee los 300 registros del CSV con calificador de texto <code>"</code> y Locale US.</td>
+                </tr>
+                <tr>
+                    <td>Columna derivada (Derived Column)</td>
+                    <td>Crea <code>especie_clean</code> y <code>fecha_limpia_texto</code> sin alterar el dato de origen.</td>
+                </tr>
+                <tr>
+                    <td>Conversión de datos (Data Conversion)</td>
+                    <td>Convierte latitud y longitud de texto a <code>DT_R8</code> para validarlas numéricamente.</td>
+                </tr>
+                <tr>
+                    <td>División condicional (Conditional Split)</td>
+                    <td>Enruta coordenadas válidas dentro del rango a aceptados y valores faltantes o fuera del rango a revisión.</td>
+                </tr>
+                <tr>
+                    <td>Destino de Excel (Aceptados/Rechazados)</td>
+                    <td>Escribe <code>OK_Cundinamarca</code> y <code>Rechazados_Geografia</code> en salidas separadas.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Resultados — Iteraciones 1, 2 y 3</h3>
+    <p>
+        Las métricas finales de la <strong>Iteración 3</strong> reconcilian los 300 registros
+        recibidos: 222 cumplen los criterios de aceptación y 78 se derivan a revisión. No hay
+        pérdida de registros sin explicar.
+    </p>
+    <div class="info-grid">
+        <article class="info-card">
+            <span class="info-card__label">Recibidos · Iteración 3</span>
+            <div class="info-card__body"><p>300</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Aceptados / limpios · OK_Cundinamarca</span>
+            <div class="info-card__body"><p>222</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Rechazados / revisión · Rechazados_Geografia</span>
+            <div class="info-card__body"><p>78</p></div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Pérdida no explicada</span>
+            <div class="info-card__body"><p>0</p></div>
+        </article>
+    </div>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr><th>Métrica</th><th>Valor</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Registros recibidos · Iteración 3</td><td>300</td></tr>
+                <tr><td>Aceptados (limpios · OK_Cundinamarca)</td><td>222; coordenadas válidas en Cundinamarca, fecha ISO, taxa estandarizada y municipio válido</td></tr>
+                <tr><td>Rechazados / a revisión (Rechazados_Geografia)</td><td>78; valor «Sin Dato» en municipio o coordenadas/campos incompletos</td></tr>
+                <tr><td>Pérdida no explicada</td><td>0</td></tr>
+                <tr><td>Reconciliación · Iteración 3</td><td><code>300 recibidos = 222 aceptados + 78 rechazados</code> (100% trazable)</td></tr>
+                <tr><td>Resultado de Iteración 1</td><td>0 aceptados y 300 rechazados; el fallo inicial de casteo se corrigió en las iteraciones posteriores.</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="callout">
+        <div class="callout__label">Iteraciones</div>
+        <div class="callout__text">
+            <ul class="callout-list">
+                <li><strong>Iteración 1:</strong> el casteo falló por el conflicto del separador decimal y las comas internas del texto; el resultado fue 0 aceptados y 300 rechazados.</li>
+                <li><strong>Iteración 2:</strong> se ajustaron el Text Qualifier (<code>"</code>) y Locale US en Flat File Connection y se configuró el casteo a <code>DT_R8</code>.</li>
+                <li><strong>Iteración 3:</strong> el filtro estricto de «Sin Dato», coordenadas y campos incompletos en Conditional Split produjo <strong>222 aceptados</strong> en <code>OK_Cundinamarca</code> y <strong>78 rechazados/a revisión</strong> en <code>Rechazados_Geografia</code>. La reconciliación es <code>222 + 78 = 300</code>, con <strong>0 pérdidas no explicadas</strong> y trazabilidad del 100%.</li>
+            </ul>
+        </div>
+    </div>
+    <p>
+        <a class="btn-next" href="{{ url_for('static', filename='descargas/registros_en_revision_R.xlsx') }}"
+           download="registros_en_revision_R.xlsx">
+            Descargar Excel de registros en revisión
+            <span class="btn-next__arrow" aria-hidden="true">↓</span>
+        </a>
+    </p>
+
+    <h3 class="doc-prose__title">Idempotencia y re-ejecución</h3>
+    <p>
+        En cada ejecución se recrean o sobrescriben las hojas de los destinos de Excel
+        (<code>OK_Cundinamarca</code> y <code>Rechazados_Geografia</code>) en lugar de anexar las
+        filas al contenido anterior. Así, volver a ejecutar el paquete no duplica los registros en
+        los archivos finales y conserva separadas las salidas de aceptados y revisión.
+    </p>
 </div>
