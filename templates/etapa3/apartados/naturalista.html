@@ -1,9 +1,270 @@
 <div class="doc-prose">
+
+    <h3 class="doc-prose__title">Descripción del proceso (ETL con SSIS)</h3>
+    <p>
+        El tratamiento de calidad de NaturaLista se implementó como un proceso ETL en
+        <strong>SQL Server Integration Services (SSIS)</strong> con componentes estándar.
+        La fuente de partida, <code>naturalista_cundinamarca.csv</code>, reúne 5.112 observaciones
+        de fauna (<em>Animalia</em>) en Cundinamarca. Antes de entrar al paquete, la información fue
+        preparada en dos referencias auxiliares: la jerarquía taxonómica (400 taxones únicos resueltos
+        contra el API de iNaturalist con coincidencia del 100 %) y el listado municipal del DANE
+        (116 municipios). El paquete integra todo esto en una sola fuente de 57 columnas y aplica las
+        reglas de limpieza mediante un <em>Data Flow</em> de cinco transformaciones.
+    </p>
     <div class="callout">
-        <div class="callout__label">Contenido pendiente</div>
+        <div class="callout__label">Objetivo</div>
         <div class="callout__text">
-            Este apartado se completará con el proceso ETL en SSIS, las reglas de tratamiento
-            y los resultados de las iteraciones de limpieza de datos.
+            Construir la tabla de hechos de ocurrencias (5.112 filas) y la dimensión taxonómica
+            (400 taxones) corrigiendo los problemas de calidad identificados en la Etapa 02: fechas
+            faltantes, coordenadas sin precisión, identificaciones de baja certeza y municipio no
+            resuelto para el alcance de Bogotá.
         </div>
     </div>
+
+    <h3 class="doc-prose__title">Reglas de tratamiento</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr><th>Campo</th><th>Problema</th><th>Acción</th><th>Componente SSIS</th><th>Justificación</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>id</code></td>
+                    <td>Identificadores de hasta 398 millones truncados con ancho 9</td>
+                    <td>Definir ancho 20 en el Connection Manager y cast a <code>DT_I4</code></td>
+                    <td><span class="badge badge--secundaria">Flat File Source + Derived Column</span></td>
+                    <td>Garantizar unicidad del grano de la tabla de hechos</td>
+                </tr>
+                <tr>
+                    <td><code>observed_on</code></td>
+                    <td>113 observaciones sin fecha</td>
+                    <td>Bandera <code>sin_fecha</code> y año/mes/día en <code>-1</code></td>
+                    <td><span class="badge badge--secundaria">Derived Column</span></td>
+                    <td>No excluir registros; permitir filtrar después</td>
+                </tr>
+                <tr>
+                    <td><code>latitude</code> / <code>longitude</code></td>
+                    <td>772 observaciones sin precisión posicional</td>
+                    <td>Bandera <code>sin_coordenadas</code> y <code>-999</code> en coordenadas</td>
+                    <td><span class="badge badge--secundaria">Derived Column</span></td>
+                    <td>Nunca dejar NULL ambiguo en columna numérica</td>
+                </tr>
+                <tr>
+                    <td><code>quality_grade</code></td>
+                    <td>Identificaciones <code>needs_id</code> (78,44 %)</td>
+                    <td>Conservar con banderas <code>flag_research</code>, <code>flag_needs_id</code>, <code>flag_casual</code></td>
+                    <td><span class="badge badge--secundaria">Derived Column</span></td>
+                    <td>Cuantificar calidad sin perder observaciones</td>
+                </tr>
+                <tr>
+                    <td><code>captive_cultivated</code></td>
+                    <td>77 observaciones en cautiverio/cultivo</td>
+                    <td>Clasificar como <code>HUMAN_OBSERVATION_CAPTIVE</code></td>
+                    <td><span class="badge badge--secundaria">Derived Column</span></td>
+                    <td>Distinguir registros silvestres de cautivos</td>
+                </tr>
+                <tr>
+                    <td><code>dane_municipio</code></td>
+                    <td>2.783 observaciones sin municipio candidato</td>
+                    <td><code>municipality_resuelta = 0</code> y valor <code>Sin clasificar</code></td>
+                    <td><span class="badge badge--secundaria">Derived Column</span></td>
+                    <td>Trazabilidad del dato territorial no resuelto</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Diseño del paquete (Control Flow y Data Flow)</h3>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/naturalista/ControlFlowNaturalista.png') }}"
+             alt="Control Flow del paquete NaturaLista" loading="lazy"
+             style="width:100%;max-width:520px;display:block;margin:0 auto;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">Control Flow: preparación de la variable de lote y orden de ejecución de las tareas.</p>
+    </div>
+    <p>
+        El <em>Data Flow</em> se organiza en ramas de propósito único: una cadena principal de
+        derivación de columnas, un repartidor (<em>Multicast</em>) que evita releer la fuente, y dos
+        destinos independientes: facturas y dimensión.
+    </p>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/naturalista/DataFlowNaturalista.png') }}"
+             alt="Data Flow del tratamiento NaturaLista" loading="lazy"
+             style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">Data Flow: <code>FLS_joined → DC_hecho → Multicast → (DC_geo → DFF_ocurrencias | AGG_taxon → DC_dim → DFF_taxon)</code>.</p>
+    </div>
+
+    <h3 class="doc-prose__title">Componentes utilizados</h3>
+    <p>
+        El paquete usa cinco transformaciones estándar y dos destinos. La integración de la
+        jerarquía taxonómica y del municipio se resuelve antes del paquete, dejando al Data Flow el
+        trabajo de derivación y agregación, que es el núcleo del proceso.
+    </p>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/naturalista/FlatFileSource.png') }}"
+             alt="Configuración del Flat File Source" loading="lazy"
+             style="width:100%;max-width:520px;display:block;margin:0 auto;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">Flat File Source: 57 columnas <code>DT_WSTR</code> con las longitudes del máximo real observado.</p>
+    </div>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr><th>Componente</th><th>Función en el proceso</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Origen de archivo plano (Flat File Source)</td><td>Lee la fuente integrada de 57 columnas y 5.112 filas.</td></tr>
+                <tr><td>Columna derivada <code>DC_hecho</code></td><td>Genera las 36 columnas de negocio: identificador, jerarquía, fechas, coordenadas, banderas de calidad y tipo de registro.</td></tr>
+                <tr><td>Multicast <code>MC_hecho</code></td><td>Reparte cada fila a las ramas de hechos y dimensión sin duplicar la lectura.</td></tr>
+                <tr><td>Columna derivada <code>DC_geo</code></td><td>Resuelve municipio, código DANE, alcance territorial y categoría urbano/rural.</td></tr>
+                <tr><td>Agregado <code>AGG_taxon</code></td><td>Colapsa las 5.112 observaciones en 400 taxones con su conteo de ocurrencias.</td></tr>
+                <tr><td>Columna derivada <code>DC_dim</code></td><td>Clasifica si el taxón es especie (<code>taxon_es_especie</code>).</td></tr>
+                <tr><td>Destino de archivo plano (x2)</td><td>Escribe las salidas <code>naturalista_ocurrencias.csv</code> y <code>naturalista_taxon.csv</code>.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Paso a paso de la configuración</h3>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/naturalista/DerivedColumnHechos.png') }}"
+             alt="Configuración de la columna derivada de hechos" loading="lazy"
+             style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">DC_hecho: 36 columnas derivadas con las reglas de fecha, coordenadas y calidad.</p>
+    </div>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/naturalista/Multicast.png') }}"
+             alt="Configuración del Multicast" loading="lazy"
+             style="width:100%;max-width:520px;display:block;margin:0 auto;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">Multicast: salidas <code>Ocurrencias</code> y <code>Taxones</code>. No requiere expresiones.</p>
+    </div>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/naturalista/DerivedColumnGeo.png') }}"
+             alt="Configuración de la columna derivada geográfica" loading="lazy"
+             style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">DC_geo: <code>municipality</code>, <code>codigo_dane</code>, <code>municipality_resuelta</code>, <code>urbanRuralCategory</code> y alcance territorial.</p>
+    </div>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/naturalista/AggregateTaxon.png') }}"
+             alt="Configuración del Aggregate de taxones" loading="lazy"
+             style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">AGG_taxon: agrupación por <code>taxon_id</code> y atributos, con <code>n_ocurrencias</code> por Count.</p>
+    </div>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/naturalista/DerivedColumnDimension.png') }}"
+             alt="Configuración de la columna derivada de la dimensión" loading="lazy"
+             style="width:100%;max-width:520px;display:block;margin:0 auto;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">DC_dim: <code>taxon_es_especie = taxon_rank == "SPECIES" ? 1 : 0</code>.</p>
+    </div>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/naturalista/Destinos.png') }}"
+             alt="Configuración de los destinos de archivo plano" loading="lazy"
+             style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">Destinos: <code>naturalista_ocurrencias.csv</code> (41 columnas) y <code>naturalista_taxon.csv</code> (15 columnas).</p>
+    </div>
+
+    <h3 class="doc-prose__title">Resultados — iteraciones</h3>
+    <div class="info-grid">
+        <article class="info-card"><span class="info-card__label">Observaciones recibidas</span><div class="info-card__body"><p>5.112</p></div></article>
+        <article class="info-card"><span class="info-card__label">Hechos de ocurrencia</span><div class="info-card__body"><p>5.112</p></div></article>
+        <article class="info-card"><span class="info-card__label">Taxones en dimensión</span><div class="info-card__body"><p>400</p></div></article>
+        <article class="info-card"><span class="info-card__label">Taxones a especie</span><div class="info-card__body"><p>101</p></div></article>
+    </div>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr><th>Iteración</th><th>Ajuste</th><th>Resultado</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1 · Staging</td>
+                    <td>Preparación inicial con campos derivados de municipio candidato, alcance territorial y presencia de fecha.</td>
+                    <td>40 columnas; <strong>municipio candidato en 2.329/5.112</strong> (45,56 %).</td>
+                </tr>
+                <tr>
+                    <td>2 · Taxonomía</td>
+                    <td>Resolución de la jerarquía contra el API de iNaturalist con caché local.</td>
+                    <td><strong>400/400</strong> taxones con nombre coincidente.</td>
+                </tr>
+                <tr>
+                    <td>3 · Integración y simplificación</td>
+                    <td>Unión de taxonomía y geografía en una sola fuente de entrada; simplificación del Data Flow de ocho a cinco transformaciones.</td>
+                    <td>57 columnas; <strong>5.112 filas íntegras</strong>; join taxonómico 100 %.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <p>
+        Reconciliación de hechos: <code>5.112 observaciones = 5.112 hechos</code>, sin pérdidas ni
+        duplicados. Reconciliación de dimensión: <code>SUM(n_ocurrencias) = 5.112</code> y
+        <code>SUM(taxon_es_especie) = 101</code>.
+    </p>
+
+    <h3 class="doc-prose__title">Manejo de errores y registros enviados a revisión</h3>
+    <p>
+        Todos los Connection Managers usan longitudes verificadas contra el máximo real de cada
+        campo y truncamiento en modo de advertencia. El error más relevante se presentó en la columna
+        <code>id</code> con ancho 9, que truncaba identificadores de hasta 398 millones; se corrigió
+        fijando ancho 20. Ninguna observación se descarta por calidad: las de menor certeza se
+        conservan con sus banderas, y las 2.783 sin municipio resuelto quedan registradas con
+        <code>Sin clasificar</code> y la bandera <code>municipality_resuelta = 0</code>, listas para
+        ser reprocesadas cuando se integre la referencia municipal de Bogotá.
+    </p>
+
+    <h3 class="doc-prose__title">Comparación antes / después</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr><th>Indicador</th><th>Antes (fuente)</th><th>Después (salida)</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Columnas</td><td>37</td><td>41 en hechos · 15 en dimensión</td></tr>
+                <tr><td>Observaciones sin fecha</td><td>113</td><td>0 (marcadas con <code>-1</code> + bandera)</td></tr>
+                <tr><td>Sin precisión posicional</td><td>772</td><td>0 (marcadas con <code>-999</code> + bandera)</td></tr>
+                <tr><td>Municipio resuelto</td><td>—</td><td>2.329 (45,56 %)</td></tr>
+                <tr><td>Duplicados de <code>id</code></td><td>0</td><td>0</td></tr>
+                <tr><td>Filas en hechos</td><td>—</td><td>5.112</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="info-grid">
+        <article class="info-card">
+            <span class="info-card__label">Cobertura taxonómica (dimensión)</span>
+            <div class="info-card__body">
+                <p>
+                    Reino 100 % · Filo 95,6 % · Clase 76,6 % · Orden 72,8 % · Familia 58,4 % ·
+                    Género 34,7 % · Nombre común 75,0 %. El rango <code>SPECIES</code> representa solo
+                    el 23,36 % de las observaciones, lo que justifica la dimensión por <code>taxon_id</code>.
+                </p>
+            </div>
+        </article>
+        <article class="info-card">
+            <span class="info-card__label">Calidad de identificaciones</span>
+            <div class="info-card__body">
+                <p>
+                    <code>research</code> 807 · <code>needs_id</code> 4.010 · <code>casual</code> 295;
+                    las 77 en cautiverio/cultivo son todas <code>casual</code>, validando el tratamiento.
+                </p>
+            </div>
+        </article>
+    </div>
+
+    <h3 class="doc-prose__title">Idempotencia y re-ejecución</h3>
+    <p>
+        Los archivos destino se sobreescriben en cada ejecución, por lo que un lote repetido no
+        acumula registros. La unicidad del identificador de ocurrencia (5.112 valores únicos) y del
+        <code>taxon_id</code> en la dimensión (400 valores únicos) refuerza la idempotencia: volver a
+        correr el mismo lote produce exactamente las mismas 5.112 y 400 filas, sin duplicados.
+    </p>
+
+    <h3 class="doc-prose__title">Fuentes y descarga de los datos</h3>
+    <div class="callout">
+        <div class="callout__label">Obtención de las fuentes</div>
+        <div class="callout__text">
+            La información original se descarga de los portales oficiales: observaciones de
+            <strong>NaturaLista Colombia</strong> (iNaturalist / Instituto Humboldt), jerarquía
+            taxonómica del <strong>API de iNaturalist</strong> y listado municipal del
+            <strong>DANE</strong>. Los archivos de entrada no se incluyen en el repositorio por
+            tamaño; se documenta su descarga desde las fuentes institucionales para reproducir el
+            proceso.
+        </div>
+    </div>
+
 </div>

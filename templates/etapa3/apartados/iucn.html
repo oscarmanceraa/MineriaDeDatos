@@ -1,9 +1,220 @@
 <div class="doc-prose">
+
+    <h3 class="doc-prose__title">Descripción del proceso (ETL con SSIS)</h3>
+    <p>
+        El tratamiento de calidad de la <strong>Lista Roja de IUCN</strong> se implementó como un
+        proceso ETL en <strong>SQL Server Integration Services (SSIS)</strong> con componentes
+        estándar. La fuente de partida es el registro de especies consultado para Colombia
+        (20.100 registros con 24 variables: taxonomía y ocurrencia). El paquete identifica las
+        especies con categoría de amenaza, separa las que requieren revisión de las aceptadas y
+        genera los agregados por especie.
+    </p>
     <div class="callout">
-        <div class="callout__label">Contenido pendiente</div>
+        <div class="callout__label">Objetivo</div>
         <div class="callout__text">
-            Este apartado se completará con el proceso ETL en SSIS, las reglas de tratamiento
-            y los resultados de las iteraciones de limpieza de datos.
+            Construir la referencia de especies amenazadas con su categoría IUCN oficial,
+            separando la población aceptada (648 especies en cada lote) de la que requiere revisión,
+            para enriquecer posteriormente las observaciones de NaturaLista y GBIF.
         </div>
     </div>
+
+    <h3 class="doc-prose__title">Reglas de tratamiento</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr><th>Campo</th><th>Problema</th><th>Acción</th><th>Componente SSIS</th><th>Justificación</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>key</code> (identificador)</td>
+                    <td>Valores de hasta 6.500 millones; desborda <code>DT_I4</code></td>
+                    <td>Tratar como <code>DT_I8</code> o texto en los Connection Managers</td>
+                    <td><span class="badge badge--secundaria">Flat File Source + Derived Column</span></td>
+                    <td>Evitar errores de desbordamiento en la carga</td>
+                </tr>
+                <tr>
+                    <td><code>iucnRedListCategory</code></td>
+                    <td>Especies sin categoría o fuera de las evaluadas (NE)</td>
+                    <td>Filtrar la población evaluada y enviar el resto a la rama de sin evaluar</td>
+                    <td><span class="badge badge--secundaria">Conditional Split</span></td>
+                    <td>Solo las categorías oficiales definen la referencia</td>
+                </tr>
+                <tr>
+                    <td><code>class</code> / <code>order</code></td>
+                    <td>Jerarquía incompleta en especies poco resueltas</td>
+                    <td>Marcar <code>sin_clase</code> y <code>sin_orden</code> para auditoría</td>
+                    <td><span class="badge badge--secundaria">Derived Column</span></td>
+                    <td>No descartar; dejar trazabilidad del faltante</td>
+                </tr>
+                <tr>
+                    <td><code>acceptedScientificName</code></td>
+                    <td>Nomenclatura cambiante entre sobrerreferencias</td>
+                    <td>Normalizar la clave <code>name_key</code> en minúsculas y sin espacios</td>
+                    <td><span class="badge badge--secundaria">Derived Column</span></td>
+                    <td>Permitir el cruce posterior con las observaciones</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Diseño del paquete (Control Flow y Data Flow)</h3>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/iucn/ControlFlowIucn.png') }}"
+             alt="Control Flow del paquete IUCN" loading="lazy"
+             style="width:100%;max-width:520px;display:block;margin:0 auto;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">Control Flow: variable de lote y ejecución del Data Flow de especies IUCN.</p>
+    </div>
+    <p>
+        El <em>Data Flow</em> encadena dos etapas: una de derivación y filtrado que aísla la
+        población evaluada, y otra de revisión que separa lo aceptado de lo que debe auditarse antes
+        del agregado por especie.
+    </p>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/iucn/DataFlowIucn.png') }}"
+             alt="Data Flow del tratamiento IUCN" loading="lazy"
+             style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">
+            Data Flow: <code>DC1_derivadas → CS_filtro_iucn → (RC_sin_evaluar | RC_evaluadas) → AGG_especie → DC2_revision → CS2_revision → DFF_iucn_aceptados / DFF_iucn_sin_revisar</code>.
+        </p>
+    </div>
+
+    <h3 class="doc-prose__title">Componentes utilizados</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr><th>Componente</th><th>Función en el proceso</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>DC1_derivadas</code> (Derived Column)</td><td>Normaliza <code>name_key</code> y marca <code>sin_clase</code> / <code>sin_orden</code>.</td></tr>
+                <tr><td><code>CS_filtro_iucn</code> (Conditional Split)</td><td>Filtra las especies con categoría IUCN oficial evaluada.</td></tr>
+                <tr><td><code>RC_sin_evaluar</code></td><td>Registra las especies sin categoría que no entran a la referencia.</td></tr>
+                <tr><td><code>AGG_especie</code> (Aggregate)</td><td>Colapsa por <code>scientificName</code> / <code>name_key</code> y agrega <code>n_ocurrencias</code>.</td></tr>
+                <tr><td><code>DC2_revision</code> (Derived Column)</td><td>Define <code>requiere_revision</code> y el <code>motivo_revision</code> por regla de completitud.</td></tr>
+                <tr><td><code>CS2_revision</code> (Conditional Split)</td><td>Separa las especies aceptadas de las que van a revisión.</td></tr>
+                <tr><td><code>DFF_iucn_aceptados</code> / <code>DFF_iucn_sin_revisar</code></td><td>Destinos de archivo plano con las dos poblaciones.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Paso a paso de la configuración</h3>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/iucn/DC1_derivadas.png') }}"
+             alt="Configuración de las columnas derivadas" loading="lazy"
+             style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">DC1: normalización de <code>name_key</code> y banderas <code>sin_clase</code> / <code>sin_orden</code>.</p>
+    </div>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/iucn/CS_filtro_iucn.png') }}"
+             alt="Configuración del filtro de categoría IUCN" loading="lazy"
+             style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">CS_filtro_iucn: condición sobre <code>iucnRedListCategory</code> para la población evaluada.</p>
+    </div>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/iucn/RC_sin_evaluar.png') }}"
+             alt="Registros sin evaluar" loading="lazy"
+             style="width:100%;max-width:520px;display:block;margin:0 auto;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">RC_sin_evaluar: salida con las especies que no entran a la referencia por no tener categoría.</p>
+    </div>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/iucn/AGG_especie.png') }}"
+             alt="Configuración del agregado por especie" loading="lazy"
+             style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">AGG_especie: agrupación por especie con <code>n_ocurrencias</code> por Count.</p>
+    </div>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/iucn/DC2_revision.png') }}"
+             alt="Configuración del motivo de revisión" loading="lazy"
+             style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">DC2_revision: <code>requiere_revision</code> y <code>motivo_revision</code> según la regla de completitud.</p>
+    </div>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/iucn/CS2_revision.png') }}"
+             alt="Configuración de la separación de revisión" loading="lazy"
+             style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">CS2_revision: dirige a <code>DFF_iucn_aceptados</code> lo válido y a <code>DFF_iucn_sin_revisar</code> lo dudoso.</p>
+    </div>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/iucn/DFF_iucn_aceptados.png') }}"
+             alt="Destino de especies aceptadas" loading="lazy"
+             style="width:100%;max-width:520px;display:block;margin:0 auto;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">DFF_iucn_aceptados: 17 columnas con la referencia de especies aceptadas.</p>
+    </div>
+    <div style="margin:18px 0;">
+        <img src="{{ url_for('static', filename='img/etapa3/iucn/DFF_iucn_sin_revisar.png') }}"
+             alt="Destino de especies sin revisar" loading="lazy"
+             style="width:100%;max-width:520px;display:block;margin:0 auto;border-radius:10px;border:1px solid rgba(148,163,184,0.14);">
+        <p class="chart-caption">DFF_iucn_sin_revisar: estructura lista para las especies pendientes de auditoría.</p>
+    </div>
+
+    <h3 class="doc-prose__title">Resultados — iteraciones</h3>
+    <div class="info-grid">
+        <article class="info-card"><span class="info-card__label">Registros de origen</span><div class="info-card__body"><p>20.100</p></div></article>
+        <article class="info-card"><span class="info-card__label">Especies aceptadas por lote</span><div class="info-card__body"><p>648</p></div></article>
+        <article class="info-card"><span class="info-card__label">Lotes ejecutados</span><div class="info-card__body"><p>I1 · I2 · I3</p></div></article>
+        <article class="info-card"><span class="info-card__label">Categorías IUCN</span><div class="info-card__body"><p>LC · NT · VU · EN · DD · CR</p></div></article>
+    </div>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr><th>Lote</th><th>Especies aceptadas</th><th>Estado</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>I1</td><td>648</td><td>Consolidado</td></tr>
+                <tr><td>I2</td><td>648</td><td>Consolidado</td></tr>
+                <tr><td>I3</td><td>648</td><td>Consolidado</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p>
+        Los tres lotes producen <strong>el mismo conteo (648 especies)</strong> sobre la población
+        evaluada, lo que evidencia consistencia entre ejecuciones. El detalle por categoría
+        (<code>LC</code>, <code>NT</code>, <code>VU</code>, <code>EN</code>, <code>DD</code>,
+        <code>CR</code>) queda disponible en el archivo de salida para el análisis de amenaza.
+    </p>
+
+    <h3 class="doc-prose__title">Manejo de errores y registros enviados a revisión</h3>
+    <p>
+        Las especies sin categoría IUCN oficial se envían a la rama de <strong>sin evaluar</strong>
+        y no contaminan la referencia. Dentro de la población evaluada, las especies con
+        ambigüedad taxonómica o de completitud se marcan en <code>DC2_revision</code> con un
+        <code>motivo_revision</code> explícito y se separan en <code>CS2_revision</code> hacia el
+        destino <code>DFF_iucn_sin_revisar</code>, conservando la trazabilidad del dato dudoso sin
+        mezclarlo con el aceptado.
+    </p>
+
+    <h3 class="doc-prose__title">Comparación antes / después</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr><th>Indicador</th><th>Antes (fuente)</th><th>Después (salida)</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Columnas</td><td>24</td><td>17 en la referencia de especies</td></tr>
+                <tr><td>Categoría sin dominio</td><td>Especies NE incluidas</td><td>Filtradas a <code>sin evaluar</code></td></tr>
+                <tr><td>Jerarquía sin clase/orden</td><td>Sin marcar</td><td>Marcada con <code>sin_clase</code> / <code>sin_orden</code></td></tr>
+                <tr><td>Clave de cruce</td><td>Sin normalizar</td><td><code>name_key</code> en minúsculas</td></tr>
+                <tr><td>Especies aceptadas</td><td>—</td><td>648 por lote</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Idempotencia y re-ejecución</h3>
+    <p>
+        Cada lote (I1, I2, I3) escribe su propio identificador y la ejecución se prueba de forma
+        aislada. Re-ejecutar el mismo lote produce el mismo conteo de 648 especies aceptadas, sin
+        acumular filas, porque el agregado por especie y la clave <code>name_key</code> garantizan
+        unicidad dentro de la referencia.
+    </p>
+
+    <h3 class="doc-prose__title">Fuentes y descarga de los datos</h3>
+    <div class="callout">
+        <div class="callout__label">Obtención de las fuentes</div>
+        <div class="callout__text">
+            La información original proviene de los portales oficiales: registros de biodiversidad
+            de <strong>GBIF Colombia</strong> / <strong>SiB Colombia</strong> y categorías de
+            amenaza de la <strong>IUCN Red List</strong>. Los archivos de entrada no se incluyen en
+            el repositorio por tamaño; se documenta su descarga desde las fuentes institucionales.
+        </div>
+    </div>
+
 </div>
