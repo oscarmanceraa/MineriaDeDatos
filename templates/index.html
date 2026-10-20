@@ -69,12 +69,25 @@
             </span>
         </a>
 
-        <!-- ETAPA 03 -->
-        <div class="stage stage--3 stage--soon" data-tip="Disponible en próximas etapas del proyecto">
-            <span class="stage__state stage__state--soon">Próximamente</span>
+        <!-- ETAPA 03 · ACTIVA -->
+        <a class="stage stage--3 stage--active" href="{{ url_for('main.etapa3') }}">
+            <span class="stage__state">Activa</span>
             <span class="stage__num">Etapa 03</span>
-            <span class="stage__title">En preparación</span>
-        </div>
+            <span class="stage__title">Limpieza de datos</span>
+            <span class="stage__desc">
+                Proceso ETL con SQL Server Integration Services (SSIS): tratamiento de nulos,
+                duplicados, formatos y valores atípicos por iteraciones.
+            </span>
+            <span class="stage__cta">
+                Explorar etapa
+                <span class="stage__arrow" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </span>
+            </span>
+        </a>
 
         <!-- ETAPA 04 -->
         <div class="stage stage--4 stage--soon" data-tip="Disponible en próximas etapas del proyecto">
@@ -96,8 +109,8 @@
     <div class="project-progress" role="status" aria-label="Progreso del proyecto">
         <span class="progress-label">Progreso del proyecto</span>
         <div class="progress-meta">
-            <span class="progress-step">Etapa 02 de 04</span>
-            <span class="progress-percent">50%</span>
+            <span class="progress-step">Etapa 03 de 04</span>
+            <span class="progress-percent">75%</span>
         </div>
         <div class="progress-track"><div class="progress-fill"></div></div>
     </div>
