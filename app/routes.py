@@ -32,6 +32,13 @@ DATASETS_3 = [
     {'slug': 'datos-abiertos', 'num': '05', 'titulo': 'Datos Abiertos Cundinamarca', 'inst': 'Gobernación / DANE', 'disponible': True},
 ]
 
+CONOCIMIENTOS = [
+    {'slug': 'poblacional', 'num': '01', 'titulo': 'Poblacional', 'inst': 'Composición y distribución de la población de registros.', 'disponible': True},
+    {'slug': 'territorial', 'num': '02', 'titulo': 'Territorial', 'inst': 'Comparación entre territorios y concentración de registros.', 'disponible': True},
+    {'slug': 'temporal', 'num': '03', 'titulo': 'Temporal', 'inst': 'Evolución y cambios a lo largo del periodo analizado.', 'disponible': True},
+    {'slug': 'multivariada', 'num': '04', 'titulo': 'Multivariada', 'inst': 'Cruce de tres o más variables del conjunto de datos.', 'disponible': True},
+]
+
 
 @main.route('/')
 def index():
@@ -85,3 +92,19 @@ def limpieza(slug):
     idx = DATASETS_3.index(item)
     nxt = next((d for d in DATASETS_3[idx + 1:] if d['disponible']), None)
     return render_template('etapa3/r3-limpieza-datos.html', apartado=item, next=nxt, datasets=DATASETS_3)
+
+
+@main.route('/etapa-4')
+def etapa4():
+    return render_template('etapa4/index.html', conocimientos=CONOCIMIENTOS)
+
+
+@main.route('/etapa-4/<slug>')
+def conocimiento(slug):
+    item = next((c for c in CONOCIMIENTOS if c['slug'] == slug), None)
+    if not item or not item['disponible']:
+        return redirect(url_for('main.etapa4'))
+
+    idx = CONOCIMIENTOS.index(item)
+    nxt = next((c for c in CONOCIMIENTOS[idx + 1:] if c['disponible']), None)
+    return render_template('etapa4/r4-conocimiento-evidente.html', apartado=item, next=nxt, conocimientos=CONOCIMIENTOS)
