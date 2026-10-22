@@ -1,0 +1,59 @@
+{
+  "fuente": "Dataset/Dataset.csv",
+  "periodo": "2000–2026",
+  "total_registros": 20087,
+  "no_evaluados": 11425,
+  "provincia_sin_clasificar": 2981,
+  "registros_amenazados": 330,
+  "provincia_lider": "Guavio",
+  "registros_amenazados_provincia_lider": 92,
+  "registros_amenazados_sin_provincia": 89,
+  "registros_naturalista": 5038,
+  "no_evaluados_naturalista": 4919,
+  "max_cruce": 76,
+  "max_perfil": 6948,
+  "fuentes": [
+    {
+      "nombre": "SiB Colombia / GBIF",
+      "registros": 14486,
+      "amenazados": 254,
+      "no_evaluados": 6133
+    },
+    {
+      "nombre": "NaturaLista Colombia",
+      "registros": 5038,
+      "amenazados": 0,
+      "no_evaluados": 4919
+    },
+    {
+      "nombre": "SIBIO CAR Cundinamarca",
+      "registros": 563,
+      "amenazados": 76,
+      "no_evaluados": 373
+    }
+  ],
+  "cruces_provincia_grupo_estado": [
+    {"provincia": "Guavio", "grupo": "Mamíferos", "estado": "VU", "registros": 76},
+    {"provincia": "Almeidas", "grupo": "Mamíferos", "estado": "NT", "registros": 31},
+    {"provincia": "Sin Clasificar", "grupo": "Aves", "estado": "EN", "registros": 27},
+    {"provincia": "Distrito Capital / Sabana", "grupo": "Aves", "estado": "NT", "registros": 18},
+    {"provincia": "Ubaté", "grupo": "Aves", "estado": "EN", "registros": 17},
+    {"provincia": "Sin Clasificar", "grupo": "Aves", "estado": "NT", "registros": 16},
+    {"provincia": "Guavio", "grupo": "Aves", "estado": "NT", "registros": 12},
+    {"provincia": "Ubaté", "grupo": "Aves", "estado": "NT", "registros": 11},
+    {"provincia": "Sin Clasificar", "grupo": "Reptiles", "estado": "NT", "registros": 10},
+    {"provincia": "Sin Clasificar", "grupo": "Insectos", "estado": "NT", "registros": 9},
+    {"provincia": "Sin Clasificar", "grupo": "Aves", "estado": "VU", "registros": 9},
+    {"provincia": "Almeidas", "grupo": "Insectos", "estado": "EN", "registros": 9}
+  ],
+  "perfiles_principales": [
+    {"fuente": "SiB Colombia / GBIF", "grupo": "Aves", "estado": "LC", "registros": 6948},
+    {"fuente": "NaturaLista Colombia", "grupo": "Otros Invertebrados", "estado": "NE", "registros": 4856},
+    {"fuente": "SiB Colombia / GBIF", "grupo": "Insectos", "estado": "NE", "registros": 3263},
+    {"fuente": "SiB Colombia / GBIF", "grupo": "Arácnidos", "estado": "NE", "registros": 1619},
+    {"fuente": "SiB Colombia / GBIF", "grupo": "Aves", "estado": "NE", "registros": 707},
+    {"fuente": "SiB Colombia / GBIF", "grupo": "Mamíferos", "estado": "LC", "registros": 392},
+    {"fuente": "SiB Colombia / GBIF", "grupo": "Mamíferos", "estado": "NE", "registros": 331},
+    {"fuente": "SiB Colombia / GBIF", "grupo": "Reptiles", "estado": "LC", "registros": 319}
+  ]
+}

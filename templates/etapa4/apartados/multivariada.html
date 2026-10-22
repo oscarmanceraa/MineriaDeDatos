@@ -1,10 +1,299 @@
 <div class="doc-prose">
+    <div class="pob-meta">
+        <span class="pob-meta__item"><strong>Fuente:</strong> Dataset/Dataset.csv</span>
+        <span class="pob-meta__item"><strong>Periodo:</strong> {{ res.periodo }}</span>
+        <span class="pob-meta__item"><strong>Registros:</strong> {{ "{:,}".format(res.total_registros) }}</span>
+        <span class="pob-meta__item"><strong>Unidad:</strong> registro de ocurrencia</span>
+    </div>
+
+    <p>
+        Esta dimensión cruza simultáneamente información taxonómica, territorial, de
+        conservación y de procedencia en el conjunto unificado de SiB Colombia / GBIF,
+        NaturaLista Colombia y SIBIO CAR Cundinamarca. Cada fila representa un registro
+        de ocurrencia, no necesariamente un individuo; por tanto, los conteos describen
+        registros y no abundancia poblacional.
+    </p>
+
     <div class="callout">
-        <div class="callout__label">Contenido pendiente</div>
+        <div class="callout__label">Calidad remanente</div>
         <div class="callout__text">
-            Este apartado se completará con el análisis multivariado, los indicadores,
-            las visualizaciones y los conocimientos evidentes correspondientes a esta
-            dimensión.
+            {{ "{:,}".format(res.no_evaluados) }} registros ({{ "%.2f"|format(res.no_evaluados / res.total_registros * 100) }}%)
+            tienen estado UICN “No Evaluada” (NE). Además,
+            {{ "{:,}".format(res.provincia_sin_clasificar) }} registros
+            ({{ "%.2f"|format(res.provincia_sin_clasificar / res.total_registros * 100) }}%)
+            figuran con provincia “Sin Clasificar”. Estos faltantes limitan los cruces
+            entre conservación y territorio, y no deben interpretarse como ausencia de riesgo.
         </div>
     </div>
+
+    <h3 class="doc-prose__title">Pregunta de análisis</h3>
+    <div class="question-main">
+        <div class="question-main__label">Pregunta multivariada</div>
+        <p class="question-main__text">
+            ¿Cómo se relacionan el grupo taxonómico, la provincia, el estado de conservación
+            UICN y la fuente de origen en los registros de biodiversidad de Cundinamarca?
+        </p>
+    </div>
+
+    <h3 class="doc-prose__title">Variables utilizadas</h3>
+    <p>
+        Los cruces describen perfiles dentro de los
+        {{ "{:,}".format(res.total_registros) }} registros disponibles; no establecen
+        causalidad entre fuente, territorio, taxonomía y categoría de conservación.
+    </p>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Variable</th>
+                    <th>Descripción</th>
+                    <th>Uso en el análisis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>clase_grupo</code></td>
+                    <td>Grupo taxonómico general del registro.</td>
+                    <td>Comparar perfiles taxonómicos entre niveles de riesgo y provincias.</td>
+                </tr>
+                <tr>
+                    <td><code>provincia</code></td>
+                    <td>Provincia asociada al registro; incluye “Sin Clasificar”.</td>
+                    <td>Localizar la distribución territorial de los registros en categorías de riesgo.</td>
+                </tr>
+                <tr>
+                    <td><code>iucn_codigo</code> / <code>iucn_estado</code></td>
+                    <td>Categoría de conservación asignada, como CR, EN, VU, NT, LC o NE.</td>
+                    <td>Separar registros amenazados, otras categorías y registros no evaluados.</td>
+                </tr>
+                <tr>
+                    <td><code>dataset_origen</code></td>
+                    <td>Fuente: SiB Colombia / GBIF, NaturaLista Colombia o SIBIO CAR Cundinamarca.</td>
+                    <td>Comparar la composición de categorías UICN según la procedencia.</td>
+                </tr>
+                <tr>
+                    <td><code>cantidad_registros</code></td>
+                    <td>Unidades aportadas por fila; equivale a un registro.</td>
+                    <td>Contar las combinaciones y calcular participaciones.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Indicadores de la dimensión</h3>
+    <div class="pob-kpi-grid">
+        <article class="pob-kpi">
+            <span class="pob-kpi__label">Registros en categorías de riesgo</span>
+            <strong class="pob-kpi__value">{{ "{:,}".format(res.registros_amenazados) }}</strong>
+            <span class="pob-kpi__detail">
+                {{ "%.2f"|format(res.registros_amenazados / res.total_registros * 100) }}%
+                del total en CR, EN, VU o NT.
+            </span>
+        </article>
+        <article class="pob-kpi">
+            <span class="pob-kpi__label">Mayor concentración · {{ res.provincia_lider }}</span>
+            <strong class="pob-kpi__value">{{ "{:,}".format(res.registros_amenazados_provincia_lider) }}</strong>
+            <span class="pob-kpi__detail">
+                {{ "%.2f"|format(res.registros_amenazados_provincia_lider / res.registros_amenazados * 100) }}%
+                de los registros en categorías de riesgo.
+            </span>
+        </article>
+        <article class="pob-kpi">
+            <span class="pob-kpi__label">No evaluados en NaturaLista</span>
+            <strong class="pob-kpi__value">{{ "%.2f"|format(res.no_evaluados_naturalista / res.registros_naturalista * 100) }}%</strong>
+            <span class="pob-kpi__detail">
+                {{ "{:,}".format(res.no_evaluados_naturalista) }} de
+                {{ "{:,}".format(res.registros_naturalista) }} registros están clasificados como NE.
+            </span>
+        </article>
+    </div>
+
+    <h3 class="doc-prose__title">Filtros del análisis</h3>
+    <div class="pob-filters">
+        <article class="pob-filter">
+            <span class="pob-filter__label">Estado UICN</span>
+            <div class="pob-chips">
+                <span class="pob-chip pob-chip--active">Todos</span>
+                <span class="pob-chip">CR / EN / VU · Amenazadas</span>
+                <span class="pob-chip">NT · Casi Amenazada</span>
+                <span class="pob-chip">LC · Preocupación Menor</span>
+                <span class="pob-chip">NE · No Evaluada</span>
+            </div>
+        </article>
+        <article class="pob-filter">
+            <span class="pob-filter__label">Fuente de origen</span>
+            <div class="pob-chips">
+                <span class="pob-chip pob-chip--active">Todas</span>
+                {% for fuente in res.fuentes %}
+                    <span class="pob-chip">{{ fuente.nombre }}</span>
+                {% endfor %}
+            </div>
+        </article>
+    </div>
+    <p class="chart-caption">
+        Estos criterios permiten segmentar el análisis. Los resultados presentados a
+        continuación describen el conjunto completo, sin filtros aplicados.
+    </p>
+
+    <h3 class="doc-prose__title">Visualizaciones e interpretación</h3>
+    <div class="multi-chart-grid">
+        <figure class="pob-chart">
+            <span class="pob-chart__title">Registros en categorías de riesgo por provincia y grupo</span>
+            <p class="pob-chart__interp">
+                Cruce de provincia, grupo taxonómico y estado UICN, restringido a las
+                categorías CR, EN, VU y NT. Se muestran las combinaciones con mayor
+                frecuencia en el conjunto.
+            </p>
+            <div class="multi-bars" role="img" aria-label="Combinaciones principales de provincia, grupo taxonómico y estado UICN">
+                {% for item in res.cruces_provincia_grupo_estado %}
+                    <div class="multi-bar">
+                        <span class="multi-bar__label">{{ item.provincia }} · {{ item.grupo }} · {{ item.estado }}</span>
+                        <span class="multi-bar__track">
+                            <span class="multi-bar__fill" style="width: {{ (item.registros / res.max_cruce * 100)|round(2) }}%"></span>
+                        </span>
+                        <span class="multi-bar__value">{{ "{:,}".format(item.registros) }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+            <p class="pob-chart__interp">
+                <strong>Interpretación:</strong> Guavio reúne
+                {{ "{:,}".format(res.registros_amenazados_provincia_lider) }} registros en
+                categorías de riesgo, incluidos 80 en VU; 76 de estos corresponden a
+                Mamíferos. La siguiente combinación provincial más frecuente es Almeidas, con
+                Mamíferos en NT (31 registros). “Sin Clasificar” también aparece en el
+                cruce, por lo que una parte de los registros no puede asignarse a una provincia.
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <span class="pob-chart__title">Estado de conservación por fuente</span>
+            <div class="source-table-wrap">
+                <table class="source-table">
+                    <thead>
+                        <tr><th>Fuente</th><th>Registros</th><th>CR / EN / VU / NT</th><th>NE</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for fuente in res.fuentes %}
+                            <tr>
+                                <td>{{ fuente.nombre }}</td>
+                                <td>{{ "{:,}".format(fuente.registros) }}</td>
+                                <td>{{ "{:,}".format(fuente.amenazados) }}</td>
+                                <td>{{ "{:,}".format(fuente.no_evaluados) }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="pob-chart__interp">
+                <strong>Interpretación:</strong> SiB Colombia / GBIF aporta 254 registros
+                en categorías de riesgo; SIBIO CAR aporta 76 y NaturaLista no registra
+                casos en CR, EN, VU o NT. En NaturaLista,
+                {{ "{:,}".format(res.no_evaluados_naturalista) }} de sus
+                {{ "{:,}".format(res.registros_naturalista) }} registros están en NE
+                (97.64%). Estas diferencias describen los datos disponibles por fuente,
+                no la presencia o ausencia real de especies amenazadas.
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <span class="pob-chart__title">Combinaciones más frecuentes: fuente, grupo y estado UICN</span>
+            <div class="multi-bars" role="img" aria-label="Combinaciones más frecuentes entre fuente, grupo taxonómico y estado UICN">
+                {% for item in res.perfiles_principales %}
+                    <div class="multi-bar">
+                        <span class="multi-bar__label">{{ item.fuente }} · {{ item.grupo }} · {{ item.estado }}</span>
+                        <span class="multi-bar__track">
+                            <span class="multi-bar__fill" style="width: {{ (item.registros / res.max_perfil * 100)|round(2) }}%"></span>
+                        </span>
+                        <span class="multi-bar__value">{{ "{:,}".format(item.registros) }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+            <p class="pob-chart__interp">
+                <strong>Interpretación:</strong> el perfil más frecuente es
+                SiB Colombia / GBIF + Aves + LC, con
+                {{ "{:,}".format(res.perfiles_principales[0].registros) }} registros
+                ({{ "%.2f"|format(res.perfiles_principales[0].registros / res.total_registros * 100) }}%
+                del total). Le sigue NaturaLista Colombia + Otros Invertebrados + NE,
+                con {{ "{:,}".format(res.perfiles_principales[1].registros) }} registros.
+            </p>
+        </figure>
+    </div>
+
+    <h3 class="doc-prose__title">Conocimientos evidentes</h3>
+    <div class="pob-insights">
+        <article class="pob-insight">
+            <span class="pob-insight__num">Conocimiento 01</span>
+            <h4 class="pob-insight__question">
+                Guavio concentra el mayor número de registros territoriales en categorías de riesgo.
+            </h4>
+            <dl class="pob-insight__grid">
+                <div class="pob-insight__item"><dt>Pregunta</dt><dd>¿Qué provincia concentra más registros amenazados al cruzar territorio, grupo taxonómico y estado UICN?</dd></div>
+                <div class="pob-insight__item"><dt>Variables</dt><dd><code>provincia</code>, <code>clase_grupo</code>, <code>iucn_codigo</code> y <code>cantidad_registros</code>.</dd></div>
+                <div class="pob-insight__item"><dt>Procedimiento</dt><dd>Se filtraron los códigos CR, EN, VU y NT, y se agruparon los registros por provincia, grupo taxonómico y estado de conservación.</dd></div>
+                <div class="pob-insight__item"><dt>Evidencia</dt><dd>Guavio contiene {{ "{:,}".format(res.registros_amenazados_provincia_lider) }} de los {{ "{:,}".format(res.registros_amenazados) }} registros en esas categorías; 80 están en VU, incluidos 76 Mamíferos.</dd></div>
+                <div class="pob-insight__item"><dt>Hallazgo</dt><dd>Guavio representa {{ "%.2f"|format(res.registros_amenazados_provincia_lider / res.registros_amenazados * 100) }}% de los registros clasificados como CR, EN, VU o NT.</dd></div>
+                <div class="pob-insight__item"><dt>Interpretación</dt><dd>El cruce identifica una concentración en los registros disponibles; no permite atribuirla únicamente a la vulnerabilidad ecológica ni establecer causalidad territorial.</dd></div>
+                <div class="pob-insight__item"><dt>Utilidad</dt><dd>Orientar revisiones y monitoreos posteriores en las zonas y grupos destacados, verificando la cobertura y el esfuerzo de muestreo.</dd></div>
+                <div class="pob-insight__item"><dt>Limitación</dt><dd>{{ "{:,}".format(res.registros_amenazados_sin_provincia) }} registros en categorías de riesgo carecen de provincia definida, y la distribución depende del esfuerzo de registro.</dd></div>
+            </dl>
+        </article>
+
+        <article class="pob-insight">
+            <span class="pob-insight__num">Conocimiento 02</span>
+            <h4 class="pob-insight__question">
+                La distribución de estados UICN difiere entre las fuentes del conjunto.
+            </h4>
+            <dl class="pob-insight__grid">
+                <div class="pob-insight__item"><dt>Pregunta</dt><dd>¿Cómo varían las categorías de conservación registradas según la fuente de origen?</dd></div>
+                <div class="pob-insight__item"><dt>Variables</dt><dd><code>dataset_origen</code>, <code>iucn_codigo</code> y <code>cantidad_registros</code>.</dd></div>
+                <div class="pob-insight__item"><dt>Procedimiento</dt><dd>Se cruzó la fuente de origen con el código UICN y se contaron los registros en cada combinación.</dd></div>
+                <div class="pob-insight__item"><dt>Evidencia</dt><dd>SiB Colombia / GBIF reúne 254 registros en CR, EN, VU o NT; SIBIO CAR 76 y NaturaLista 0. NaturaLista tiene 4,919 registros en NE.</dd></div>
+                <div class="pob-insight__item"><dt>Hallazgo</dt><dd>El único registro CR y los 62 registros EN proceden de SiB Colombia / GBIF; en NaturaLista el 97.64% está clasificado como NE.</dd></div>
+                <div class="pob-insight__item"><dt>Interpretación</dt><dd>Las diferencias pueden reflejar cómo cada fuente aporta y clasifica los datos; NE indica que el registro no tiene una evaluación asignada y no significa que esté libre de amenaza.</dd></div>
+                <div class="pob-insight__item"><dt>Utilidad</dt><dd>Priorizar la revisión taxonómica y la consulta de listados de conservación para registros con estado NE.</dd></div>
+                <div class="pob-insight__item"><dt>Limitación</dt><dd>Las fuentes tienen tamaños, cobertura y procesos de evaluación distintos; las frecuencias no son tasas comparables de amenaza.</dd></div>
+            </dl>
+        </article>
+
+        <article class="pob-insight">
+            <span class="pob-insight__num">Conocimiento 03</span>
+            <h4 class="pob-insight__question">
+                El perfil más frecuente combina SiB/GBIF, Aves y Preocupación Menor.
+            </h4>
+            <dl class="pob-insight__grid">
+                <div class="pob-insight__item"><dt>Pregunta</dt><dd>¿Qué combinación de fuente, grupo taxonómico y estado UICN aparece con mayor frecuencia?</dd></div>
+                <div class="pob-insight__item"><dt>Variables</dt><dd><code>dataset_origen</code>, <code>clase_grupo</code>, <code>iucn_codigo</code> y <code>cantidad_registros</code>.</dd></div>
+                <div class="pob-insight__item"><dt>Procedimiento</dt><dd>Se agruparon conjuntamente los registros por fuente, grupo taxonómico y código UICN, y se ordenaron las combinaciones por frecuencia.</dd></div>
+                <div class="pob-insight__item"><dt>Evidencia</dt><dd>El cruce muestra como primera combinación SiB Colombia / GBIF + Aves + LC, con 6,948 registros, seguida de NaturaLista Colombia + Otros Invertebrados + NE, con 4,856.</dd></div>
+                <div class="pob-insight__item"><dt>Hallazgo</dt><dd>La combinación más frecuente representa {{ "%.2f"|format(res.perfiles_principales[0].registros / res.total_registros * 100) }}% de todos los registros.</dd></div>
+                <div class="pob-insight__item"><dt>Interpretación</dt><dd>El perfil describe la composición del conjunto y no demuestra abundancia, estado poblacional o representatividad ecológica de los grupos.</dd></div>
+                <div class="pob-insight__item"><dt>Utilidad</dt><dd>Estratificar los resultados para que los perfiles más voluminosos no oculten grupos con menor representación o categorías de riesgo.</dd></div>
+                <div class="pob-insight__item"><dt>Limitación</dt><dd>Los conteos combinan registros de fuentes con cobertura y criterios de clasificación diferentes; además, muchas observaciones están en NE.</dd></div>
+            </dl>
+        </article>
+    </div>
+
+    <h3 class="doc-prose__title">Limitación del análisis</h3>
+    <div class="callout">
+        <div class="callout__label">Alcance</div>
+        <div class="callout__text">
+            El {{ "%.2f"|format(res.no_evaluados / res.total_registros * 100) }}% de los registros
+            está clasificado como NE y el {{ "%.2f"|format(res.provincia_sin_clasificar / res.total_registros * 100) }}%
+            no tiene provincia definida. Por ello, los cruces describen parcialmente los
+            registros disponibles y no permiten concluir la distribución completa de la
+            vulnerabilidad biológica en el departamento.
+        </div>
+    </div>
+
+    <h3 class="doc-prose__title">Decisión sustentada</h3>
+    <div class="callout">
+        <div class="callout__label">Curso de acción</div>
+        <div class="callout__text">
+            Priorizar la verificación taxonómica y de conservación de los registros NE,
+            mejorar la asignación de provincia y estratificar los análisis por fuente,
+            grupo taxonómico y esfuerzo de muestreo antes de orientar acciones de conservación.
+        </div>
+    </div>
+
+    <h3 class="doc-prose__title">Tablero interactivo en Power BI</h3>
 </div>

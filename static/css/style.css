@@ -1828,6 +1828,52 @@ a {
   background: linear-gradient(90deg, var(--cyan), var(--green-soft));
 }
 
+.multi-chart-grid {
+  display: grid;
+  gap: 22px;
+  margin: 12px 0 30px;
+}
+
+.multi-bars {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.multi-bar {
+  display: grid;
+  grid-template-columns: minmax(180px, 280px) minmax(60px, 1fr) 56px;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.multi-bar__label,
+.multi-bar__value {
+  color: var(--text-dim);
+}
+
+.multi-bar__value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.multi-bar__track {
+  display: block;
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+.multi-bar__fill {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--cyan), var(--green-soft));
+}
+
 .pob-insights {
   display: grid;
   gap: 18px;
@@ -1915,5 +1961,11 @@ a {
 @media (max-width: 720px) {
   .pob-embed {
     height: 700px;
+  }
+
+  .multi-bar {
+    grid-template-columns: minmax(120px, 1fr) minmax(45px, 1fr) 48px;
+    gap: 7px;
+    font-size: 11px;
   }
 }
