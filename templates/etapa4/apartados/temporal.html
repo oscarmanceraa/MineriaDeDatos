@@ -1,10 +1,309 @@
 <div class="doc-prose">
+    <div class="pob-meta">
+        <span class="pob-meta__item"><strong>Fuente:</strong> Dataset/Dataset.csv</span>
+        <span class="pob-meta__item"><strong>Periodo:</strong> {{ res.periodo }}</span>
+        <span class="pob-meta__item"><strong>Registros:</strong> {{ "{:,}".format(res.total_registros) }}</span>
+        <span class="pob-meta__item"><strong>Unidad:</strong> registro de ocurrencia</span>
+    </div>
+
+    <p>
+        El análisis describe la evolución de los registros de biodiversidad del conjunto
+        unificado de SiB Colombia / GBIF, NaturaLista Colombia y SIBIO CAR Cundinamarca.
+        Cada fila representa una observación, un espécimen o un registro institucional;
+        no equivale necesariamente a un individuo. La columna
+        <code>cantidad_registros</code> vale 1 por fila y suma
+        <strong>{{ "{:,}".format(res.total_registros) }} registros</strong>.
+    </p>
+
     <div class="callout">
-        <div class="callout__label">Contenido pendiente</div>
+        <div class="callout__label">Calidad remanente</div>
         <div class="callout__text">
-            Este apartado se completará con el análisis del comportamiento temporal,
-            los indicadores, las visualizaciones y los conocimientos evidentes
-            correspondientes a esta dimensión.
+            {{ "{:,}".format(res.anios_sin_identificar) }} registros no tienen año
+            ({{ "%.2f"|format(res.anios_sin_identificar / res.total_registros * 100) }}%)
+            y {{ "{:,}".format(res.meses_sin_identificar) }} no tienen mes o temporada
+            climática ({{ "%.2f"|format(res.meses_sin_identificar / res.total_registros * 100) }}%).
+            Los años 2024–2026 concentran {{ "{:,}".format(res.registros_2024_2026) }}
+            registros ({{ "%.2f"|format(res.registros_2024_2026 / res.total_registros * 100) }}%);
+            este volumen reciente y los faltantes deben tenerse en cuenta al comparar periodos.
         </div>
     </div>
+
+    <h3 class="doc-prose__title">Pregunta de análisis</h3>
+    <div class="question-main">
+        <div class="question-main__label">Pregunta temporal</div>
+        <p class="question-main__text">
+            ¿Cómo evoluciona la generación de registros de biodiversidad a lo largo del
+            tiempo y qué patrones mensuales y de temporada climática se observan en
+            Cundinamarca?
+        </p>
+    </div>
+
+    <h3 class="doc-prose__title">Variables utilizadas</h3>
+    <p>
+        Las variables permiten caracterizar la serie anual, la distribución mensual y
+        la clasificación por temporada. Los porcentajes se calculan sobre los
+        {{ "{:,}".format(res.total_registros) }} registros del conjunto completo.
+    </p>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Variable</th>
+                    <th>Descripción</th>
+                    <th>Uso en el análisis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>occurrenceID</code></td>
+                    <td>Identificador único del registro de ocurrencia.</td>
+                    <td>Conteo de registros.</td>
+                </tr>
+                <tr>
+                    <td><code>cantidad_registros</code></td>
+                    <td>Unidades aportadas por cada fila; vale 1.</td>
+                    <td>Verificar el tamaño del conjunto.</td>
+                </tr>
+                <tr>
+                    <td><code>year</code></td>
+                    <td>Año de la observación; {{ "{:,}".format(res.anios_sin_identificar) }} registros no tienen año.</td>
+                    <td>Evaluar picos y cambios en el volumen anual.</td>
+                </tr>
+                <tr>
+                    <td><code>month</code> / <code>mes_nombre</code></td>
+                    <td>Mes calendario de la observación.</td>
+                    <td>Identificar la distribución mensual de los reportes.</td>
+                </tr>
+                <tr>
+                    <td><code>temporada_climatica</code></td>
+                    <td>Clasificación en temporada seca, lluviosa, de transición o sin determinar.</td>
+                    <td>Comparar el volumen registrado entre temporadas.</td>
+                </tr>
+                <tr>
+                    <td><code>provincia</code></td>
+                    <td>Provincia o región departamental asociada al registro.</td>
+                    <td>Variable disponible para segmentar el análisis temporal.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Indicadores de la dimensión</h3>
+    <div class="pob-kpi-grid">
+        <article class="pob-kpi">
+            <span class="pob-kpi__label">Registros de ocurrencia</span>
+            <strong class="pob-kpi__value">{{ "{:,}".format(res.total_registros) }}</strong>
+            <span class="pob-kpi__detail">Total del conjunto integrado y denominador de los porcentajes.</span>
+        </article>
+        <article class="pob-kpi">
+            <span class="pob-kpi__label">Pico anual · {{ res.anio_pico }}</span>
+            <strong class="pob-kpi__value">{{ "{:,}".format(res.registros_anio_pico) }}</strong>
+            <span class="pob-kpi__detail">
+                {{ "%.2f"|format(res.registros_anio_pico / res.total_registros * 100) }}%
+                del total; es el año con más registros en el archivo.
+            </span>
+        </article>
+        <article class="pob-kpi">
+            <span class="pob-kpi__label">Temporada seca</span>
+            <strong class="pob-kpi__value">{{ "%.2f"|format(res.registros_temporada_seca / res.total_registros * 100) }}%</strong>
+            <span class="pob-kpi__detail">
+                {{ "{:,}".format(res.registros_temporada_seca) }} registros; la temporada
+                de lluvias aporta {{ "{:,}".format(res.registros_temporada_lluvias) }}.
+            </span>
+        </article>
+    </div>
+
+    <h3 class="doc-prose__title">Filtros del análisis</h3>
+    <div class="pob-filters">
+        <article class="pob-filter">
+            <span class="pob-filter__label">Año de observación</span>
+            <div class="pob-chips">
+                <span class="pob-chip pob-chip--active">Todos</span>
+                <span class="pob-chip">2026</span>
+                <span class="pob-chip">2025</span>
+                <span class="pob-chip">2024</span>
+                <span class="pob-chip">2023 y anteriores</span>
+            </div>
+        </article>
+        <article class="pob-filter">
+            <span class="pob-filter__label">Provincia</span>
+            <div class="pob-chips">
+                <span class="pob-chip pob-chip--active">Todas</span>
+                <span class="pob-chip">Sabana Centro</span>
+                <span class="pob-chip">Tequendama</span>
+                <span class="pob-chip">Guavio</span>
+                <span class="pob-chip">Otras</span>
+            </div>
+        </article>
+    </div>
+    <p class="chart-caption">
+        Los filtros se presentan como criterios de segmentación del análisis; esta página
+        muestra los valores del conjunto completo, sin filtros aplicados.
+    </p>
+
+    <h3 class="doc-prose__title">Visualizaciones e interpretación</h3>
+    <div class="temporal-chart-grid">
+        <figure class="pob-chart">
+            <span class="pob-chart__title">Evolución anual de registros (2015–2026)</span>
+            <div class="temporal-bars" role="img" aria-label="Registros por año, de 2015 a 2026">
+                {% for item in res.anios %}
+                    <div class="temporal-bar">
+                        <span class="temporal-bar__label">{{ item.anio }}</span>
+                        <span class="temporal-bar__track">
+                            <span class="temporal-bar__fill" style="width: {{ (item.registros / res.max_anual * 100)|round(2) }}%"></span>
+                        </span>
+                        <span class="temporal-bar__value">{{ "{:,}".format(item.registros) }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+            <p class="pob-chart__interp">
+                <strong>Interpretación:</strong> el volumen crece con fuerza desde 2024:
+                ese año registra {{ "{:,}".format(res.registros_2024) }}, 2025 alcanza el
+                máximo de {{ "{:,}".format(res.registros_anio_pico) }} y 2026 suma
+                {{ "{:,}".format(res.registros_2026) }} hasta el último registro del archivo
+                ({{ res.fecha_corte_2026 }}). Los años 2024–2026 reúnen
+                {{ "%.2f"|format(res.registros_2024_2026 / res.total_registros * 100) }}%
+                del conjunto.
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <span class="pob-chart__title">Distribución mensual de registros</span>
+            <div class="temporal-bars" role="img" aria-label="Registros por mes del año">
+                {% for item in res.meses %}
+                    <div class="temporal-bar">
+                        <span class="temporal-bar__label">{{ item.mes }}</span>
+                        <span class="temporal-bar__track">
+                            <span class="temporal-bar__fill" style="width: {{ (item.registros / res.max_mensual * 100)|round(2) }}%"></span>
+                        </span>
+                        <span class="temporal-bar__value">{{ "{:,}".format(item.registros) }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+            <p class="pob-chart__interp">
+                <strong>Interpretación:</strong> Enero concentra
+                {{ "{:,}".format(res.registros_enero) }} registros, seguido de abril
+                ({{ "{:,}".format(res.registros_abril) }}) y marzo
+                ({{ "{:,}".format(res.registros_marzo) }}). De enero a abril se agrupan
+                {{ "{:,}".format(res.registros_enero_abril) }} registros
+                ({{ "%.2f"|format(res.registros_enero_abril / res.total_registros * 100) }}%);
+                septiembre a diciembre reúnen {{ "{:,}".format(res.registros_sep_dic) }}
+                ({{ "%.2f"|format(res.registros_sep_dic / res.total_registros * 100) }}%).
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <span class="pob-chart__title">Registros por temporada climática</span>
+            <div class="temporal-bars" role="img" aria-label="Registros por temporada climática">
+                {% for item in res.temporadas %}
+                    <div class="temporal-bar">
+                        <span class="temporal-bar__label">{{ item.temporada }}</span>
+                        <span class="temporal-bar__track">
+                            <span class="temporal-bar__fill" style="width: {{ (item.registros / res.max_temporada * 100)|round(2) }}%"></span>
+                        </span>
+                        <span class="temporal-bar__value">{{ "{:,}".format(item.registros) }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+            <p class="pob-chart__interp">
+                <strong>Interpretación:</strong> la temporada seca reúne
+                {{ "{:,}".format(res.registros_temporada_seca) }} registros
+                ({{ "%.2f"|format(res.registros_temporada_seca / res.total_registros * 100) }}%),
+                seguida de lluvias con {{ "{:,}".format(res.registros_temporada_lluvias) }}
+                ({{ "%.2f"|format(res.registros_temporada_lluvias / res.total_registros * 100) }}%)
+                y transición con {{ "{:,}".format(res.registros_temporada_transicion) }}
+                ({{ "%.2f"|format(res.registros_temporada_transicion / res.total_registros * 100) }}%).
+                {{ "{:,}".format(res.meses_sin_identificar) }} registros (2.22%) no tienen
+                temporada determinada.
+            </p>
+        </figure>
+    </div>
+
+    <h3 class="doc-prose__title">Conocimientos evidentes</h3>
+    <div class="pob-insights">
+        <article class="pob-insight">
+            <span class="pob-insight__num">Conocimiento 01</span>
+            <h4 class="pob-insight__question">
+                El volumen de registros se concentra en los años recientes, con un máximo en 2025.
+            </h4>
+            <dl class="pob-insight__grid">
+                <div class="pob-insight__item"><dt>Pregunta</dt><dd>¿En qué periodo anual se concentra la mayor captura de datos y cuál es la tendencia reciente?</dd></div>
+                <div class="pob-insight__item"><dt>Variables</dt><dd><code>year</code>, <code>occurrenceID</code> y <code>cantidad_registros</code>.</dd></div>
+                <div class="pob-insight__item"><dt>Procedimiento</dt><dd>Se contaron los registros por año y se calculó su participación sobre el total del conjunto.</dd></div>
+                <div class="pob-insight__item"><dt>Evidencia</dt><dd>La serie anual muestra {{ "{:,}".format(res.registros_2024_2026) }} registros entre 2024 y 2026 ({{ "%.2f"|format(res.registros_2024_2026 / res.total_registros * 100) }}%).</dd></div>
+                <div class="pob-insight__item"><dt>Hallazgo</dt><dd>{{ res.anio_pico }} es el año con más registros: {{ "{:,}".format(res.registros_anio_pico) }} ({{ "%.2f"|format(res.registros_anio_pico / res.total_registros * 100) }}%); en 2022 se registraron {{ "{:,}".format(res.registros_2022) }}.</dd></div>
+                <div class="pob-insight__item"><dt>Interpretación</dt><dd>El incremento describe el crecimiento de la captura o digitalización de datos; no demuestra por sí mismo un aumento biológico de las poblaciones.</dd></div>
+                <div class="pob-insight__item"><dt>Utilidad</dt><dd>Dimensionar la actualización y el procesamiento futuro del conjunto, y contextualizar las comparaciones entre años.</dd></div>
+                <div class="pob-insight__item"><dt>Limitación</dt><dd>Los registros dependen del esfuerzo de observación, la digitalización y el uso de plataformas; la serie no mide abundancia de especies.</dd></div>
+            </dl>
+        </article>
+
+        <article class="pob-insight">
+            <span class="pob-insight__num">Conocimiento 02</span>
+            <h4 class="pob-insight__question">
+                El primer cuatrimestre concentra más de la mitad de los registros con mes identificado.
+            </h4>
+            <dl class="pob-insight__grid">
+                <div class="pob-insight__item"><dt>Pregunta</dt><dd>¿Qué meses concentran la mayor cantidad de observaciones reportadas?</dd></div>
+                <div class="pob-insight__item"><dt>Variables</dt><dd><code>month</code>, <code>mes_nombre</code> y <code>cantidad_registros</code>.</dd></div>
+                <div class="pob-insight__item"><dt>Procedimiento</dt><dd>Se agruparon los registros por mes calendario, se ordenaron cronológicamente y se compararon sus frecuencias.</dd></div>
+                <div class="pob-insight__item"><dt>Evidencia</dt><dd>Enero presenta {{ "{:,}".format(res.registros_enero) }} registros; enero–abril suma {{ "{:,}".format(res.registros_enero_abril) }} ({{ "%.2f"|format(res.registros_enero_abril / res.total_registros * 100) }}% del total).</dd></div>
+                <div class="pob-insight__item"><dt>Hallazgo</dt><dd>Enero es el mes con más registros, seguido por abril y marzo; septiembre–diciembre reúnen {{ "{:,}".format(res.registros_sep_dic) }} registros.</dd></div>
+                <div class="pob-insight__item"><dt>Interpretación</dt><dd>La distribución refleja cuándo se reportaron o cargaron los datos; no permite atribuir el patrón únicamente al clima o a la actividad biológica.</dd></div>
+                <div class="pob-insight__item"><dt>Utilidad</dt><dd>Orientar campañas de registro hacia los meses con menor volumen y mejorar el balance de la información a lo largo del año.</dd></div>
+                <div class="pob-insight__item"><dt>Limitación</dt><dd>El volumen de enero puede incluir cargas masivas extemporáneas de datos, por lo que no equivale necesariamente a observaciones realizadas en ese mes.</dd></div>
+            </dl>
+        </article>
+
+        <article class="pob-insight">
+            <span class="pob-insight__num">Conocimiento 03</span>
+            <h4 class="pob-insight__question">
+                La temporada seca tiene el mayor volumen de registros clasificados por temporada.
+            </h4>
+            <dl class="pob-insight__grid">
+                <div class="pob-insight__item"><dt>Pregunta</dt><dd>¿Cómo se distribuyen los registros entre las temporadas climáticas clasificadas?</dd></div>
+                <div class="pob-insight__item"><dt>Variables</dt><dd><code>temporada_climatica</code> y <code>cantidad_registros</code>.</dd></div>
+                <div class="pob-insight__item"><dt>Procedimiento</dt><dd>Se contaron los registros de cada categoría de temporada y se calculó su proporción sobre el total.</dd></div>
+                <div class="pob-insight__item"><dt>Evidencia</dt><dd>Temporada seca: {{ "{:,}".format(res.registros_temporada_seca) }}; lluvias: {{ "{:,}".format(res.registros_temporada_lluvias) }}; transición: {{ "{:,}".format(res.registros_temporada_transicion) }}.</dd></div>
+                <div class="pob-insight__item"><dt>Hallazgo</dt><dd>La temporada seca supera a la de lluvias en {{ "{:,}".format(res.registros_temporada_seca - res.registros_temporada_lluvias) }} registros.</dd></div>
+                <div class="pob-insight__item"><dt>Interpretación</dt><dd>La diferencia corresponde a los registros disponibles; no demuestra que la temporada climática cause un mayor número de observaciones.</dd></div>
+                <div class="pob-insight__item"><dt>Utilidad</dt><dd>Usar la clasificación como contexto para planear y comparar futuras actividades de monitoreo.</dd></div>
+                <div class="pob-insight__item"><dt>Limitación</dt><dd>La categoría no representa por sí sola las diferencias de microclima, esfuerzo de muestreo o cobertura entre provincias.</dd></div>
+            </dl>
+        </article>
+    </div>
+
+    <h3 class="doc-prose__title">Limitación del análisis</h3>
+    <div class="callout">
+        <div class="callout__label">Alcance</div>
+        <div class="callout__text">
+            El análisis describe la dinámica temporal de los registros, no fluctuaciones
+            poblacionales ni abundancia biológica. La concentración en 2024–2026 y las
+            diferencias mensuales o estacionales pueden responder al esfuerzo de observación,
+            la digitalización, las cargas de datos y la cobertura desigual. El año 2026 está
+            incompleto: el último registro del archivo corresponde al {{ res.fecha_corte_2026 }}.
+        </div>
+    </div>
+
+    <h3 class="doc-prose__title">Decisión sustentada</h3>
+    <div class="callout">
+        <div class="callout__label">Curso de acción</div>
+        <div class="callout__text">
+            Estandarizar las comparaciones históricas con periodos equivalentes y promedios
+            mensuales; reforzar las campañas de registro en los meses con menor volumen y
+            documentar la fecha de carga para distinguirla de la fecha de observación.
+        </div>
+    </div>
+
+    <h3 class="doc-prose__title">Tablero interactivo en Power BI</h3>
+    <div class="pob-embed pob-embed--report">
+        <iframe
+            title="Tablero Temporal en Power BI"
+            src="https://app.powerbi.com/reportEmbed?reportId=88fb8b4f-fd9a-42ca-a809-9f534864f37e&pageName=8823e2c67644d50a214b&autoAuth=true&ctid=07da67a0-1f43-4e8c-977f-5f88b6470ee6"
+            allowfullscreen="true"></iframe>
+    </div>
+    <p class="chart-caption">
+        Si el tablero no carga en la aplicación,
+        <a class="source-link" href="https://app.powerbi.com/groups/me/reports/88fb8b4f-fd9a-42ca-a809-9f534864f37e/8823e2c67644d50a214b?experience=power-bi" target="_blank" rel="noopener">ábrelo directamente en Power BI</a>.
+    </p>
 </div>
