@@ -1782,6 +1782,52 @@ a {
   color: var(--green-soft);
 }
 
+.temporal-chart-grid {
+  display: grid;
+  gap: 22px;
+  margin: 12px 0 30px;
+}
+
+.temporal-bars {
+  display: grid;
+  gap: 9px;
+  margin: 12px 0 18px;
+}
+
+.temporal-bar {
+  display: grid;
+  grid-template-columns: minmax(95px, 170px) minmax(60px, 1fr) 64px;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.temporal-bar__label,
+.temporal-bar__value {
+  color: var(--text-dim);
+}
+
+.temporal-bar__value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.temporal-bar__track {
+  display: block;
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+.temporal-bar__fill {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--cyan), var(--green-soft));
+}
+
 .pob-insights {
   display: grid;
   gap: 18px;
