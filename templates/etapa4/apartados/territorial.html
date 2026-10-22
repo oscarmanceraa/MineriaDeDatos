@@ -1,10 +1,513 @@
+{% set ns = namespace(gualiva=None, distrito=None, urbanas_100=[], rurales_91=[]) %}
+{% for p in res.detalle_provincias %}
+  {% if p.nombre == 'Gualivá' %}{% set ns.gualiva = p %}{% endif %}
+  {% if p.nombre == 'Distrito Capital / Sabana' %}{% set ns.distrito = p %}{% endif %}
+  {% if p.urbano_pct == 100.0 %}{% set ns.urbanas_100 = ns.urbanas_100 + [p.nombre] %}{% endif %}
+  {% if p.rural_pct >= 91 %}{% set ns.rurales_91 = ns.rurales_91 + [p.nombre] %}{% endif %}
+{% endfor %}
+{% set pct_mas_especies = ((ns.gualiva.especies / ns.distrito.especies - 1) * 100)|round(1) %}
+{% set pct_menos_registros = ((1 - ns.gualiva.registros / ns.distrito.registros) * 100)|round(1) %}
+
 <div class="doc-prose">
+
+    <div class="pob-meta">
+        <span class="pob-meta__item"><strong>Fuente:</strong> {{ res.fuente }}</span>
+        <span class="pob-meta__item"><strong>Periodo:</strong> {{ res.periodo }}</span>
+        <span class="pob-meta__item"><strong>Corte:</strong> {{ res.corte }}</span>
+        <span class="pob-meta__item"><strong>Registros:</strong> {{ "{:,}".format(res.total_registros) }}</span>
+        <span class="pob-meta__item"><strong>Válidos:</strong> {{ "{:,}".format(res.registros_validos) }}</span>
+    </div>
+
+    <p>
+        El análisis territorial se realiza sobre el conjunto unificado del proyecto,
+        disponible en <code>Dataset/Dataset.csv</code>. El conjunto conserva
+        <strong>{{ "{:,}".format(res.total_registros) }} registros</strong> y
+        <strong>{{ res.provincias_validas }} provincias</strong> con información
+        territorial utilizable. La unidad de análisis es el
+        <strong>registro de ocurrencia</strong>: cada fila representa una observación,
+        un espécimen o un registro institucional, no un individuo único.
+    </p>
+    <p>
+        Se consideran registros con territorio válido aquellos que tienen provincia,
+        municipio y código DANE identificables. Con ese criterio quedan
+        <strong>{{ "{:,}".format(res.registros_validos) }} registros válidos</strong>
+        ({{ res.pct_registros_validos }}% del total), distribuidos en
+        <strong>{{ res.municipios_validos }} municipios</strong> y
+        <strong>{{ res.provincias_validas }} provincias</strong>. Los
+        {{ "{:,}".format(res.registros_sin_territorio) }} registros restantes
+        ({{ res.pct_sin_territorio }}%) no tienen territorio asignado y se excluyen
+        de los indicadores territoriales.
+    </p>
+
     <div class="callout">
-        <div class="callout__label">Contenido pendiente</div>
+        <div class="callout__label">Calidad remanente</div>
         <div class="callout__text">
-            Este apartado se completará con la comparación entre territorios, los
-            indicadores, las visualizaciones y los conocimientos evidentes
-            correspondientes a esta dimensión.
+            Persisten {{ "{:,}".format(res.registros_sin_territorio) }} registros sin
+            territorio ({{ res.pct_sin_territorio }}%),
+            {{ "{:,}".format(res.municipios_sin_clasificar) }} con municipio
+            “Sin Clasificar” ({{ res.municipios_sin_clasificar_pct }}%) y
+            {{ "{:,}".format(res.localidades_sin_provincia) }} con localidad pero sin
+            provincia. Además, {{ "{:,}".format(res.especies_sin_identificar) }} registros
+            no tienen nombre científico ({{ res.especies_sin_identificar_pct }}%);
+            todos ellos están dentro de los registros sin territorio, por lo que no afectan
+            los {{ "{:,}".format(res.registros_validos) }} registros válidos. También hay
+            {{ "{:,}".format(res.validos_sin_anio) }} registros válidos sin año y
+            {{ "{:,}".format(res.validos_sin_fecha) }} sin fecha. Estos faltantes deben
+            considerarse antes de generalizar los resultados.
         </div>
     </div>
+
+    <h3 class="doc-prose__title">Pregunta de análisis</h3>
+    <div class="question-main">
+        <div class="question-main__label">Pregunta territorial</div>
+        <p class="question-main__text">{{ res.pregunta }}</p>
+    </div>
+
+    <h3 class="doc-prose__title">Variables utilizadas</h3>
+    <p>
+        La unidad de análisis es el <strong>registro de ocurrencia</strong>. Las variables
+        seleccionadas permiten comparar el volumen de registros, la concentración por
+        provincia, la composición urbana/rural y la riqueza observada. Los porcentajes
+        territoriales usan como denominador los
+        <strong>{{ "{:,}".format(res.registros_validos) }} registros válidos</strong>.
+    </p>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Variable</th>
+                    <th>Descripción</th>
+                    <th>Uso en el análisis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>occurrenceID</code></td>
+                    <td>Identificador único de cada registro de ocurrencia. Hay {{ "{:,}".format(res.total_registros) }} registros y no hay duplicados.</td>
+                    <td>Conteo de registros.</td>
+                </tr>
+                <tr>
+                    <td><code>cantidad_registros</code></td>
+                    <td>Unidades aportadas por la fila; vale 1 en todas y suma {{ "{:,}".format(res.total_registros) }}.</td>
+                    <td>Verificar el tamaño del conjunto; no se usa para sumar individuos.</td>
+                </tr>
+                <tr>
+                    <td><code>provincia</code></td>
+                    <td>Agrupación territorial del dataset. Hay {{ res.provincias_validas }} provincias con registros válidos; “Sin Clasificar” se trata como faltante.</td>
+                    <td>Comparación y concentración territorial.</td>
+                </tr>
+                <tr>
+                    <td><code>municipio</code></td>
+                    <td>Municipio del registro. Hay {{ res.municipios_validos }} municipios con registros válidos; “Sin Clasificar” y las localidades sin código se tratan como faltantes.</td>
+                    <td>Detalle y construcción de la dimensión territorial.</td>
+                </tr>
+                <tr>
+                    <td><code>codigo_dane</code></td>
+                    <td>Código del municipio; llave única de la dimensión territorial.</td>
+                    <td>Relacionar <code>DimTerritorio</code> con los registros.</td>
+                </tr>
+                <tr>
+                    <td><code>categoria_territorial</code></td>
+                    <td>Urbana, Rural o No Determinada. “No Determinada” coincide con los {{ "{:,}".format(res.registros_sin_territorio) }} registros sin territorio y se excluye de la comparación.</td>
+                    <td>Composición urbana/rural por provincia.</td>
+                </tr>
+                <tr>
+                    <td><code>scientificName</code></td>
+                    <td>Nombre científico. Se usa para contar especies distintas: {{ "{:,}".format(res.especies_distintas) }} en territorio válido y {{ "{:,}".format(res.especies_total_dataset) }} en todo el dataset.</td>
+                    <td>Riqueza observada y relación registros/especie.</td>
+                </tr>
+                <tr>
+                    <td><code>especie_amenazada</code></td>
+                    <td>Categoría de amenaza. Hay {{ "{:,}".format(res.amenazadas_registros) }} registros amenazados en territorio válido ({{ res.pct_amenazadas }}%) y {{ "{:,}".format(res.amenazadas_total) }} en todo el dataset ({{ res.pct_amenazadas_total }}%).</td>
+                    <td>Apoyo para la decisión y lectura complementaria.</td>
+                </tr>
+                <tr>
+                    <td><code>year</code> / <code>fecha</code></td>
+                    <td>Periodo observado 2000–2026, con corte al {{ res.corte }}. 2026 está incompleto y no se compara con años cerrados.</td>
+                    <td>Delimitar el periodo y verificar la robustez.</td>
+                </tr>
+                <tr>
+                    <td><code>TerritorioValido</code></td>
+                    <td>Variable derivada: 1 = provincia y municipio identificados; 0 = faltante.</td>
+                    <td>Base de todos los indicadores territoriales.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Indicadores del tablero</h3>
+    <div class="pob-kpi-grid">
+        <article class="pob-kpi">
+            <span class="pob-kpi__label">Registros válidos</span>
+            <strong class="pob-kpi__value">{{ "{:,}".format(res.registros_validos) }}</strong>
+            <span class="pob-kpi__detail">
+                {{ res.pct_registros_validos }}% del dataset. Denominador de los
+                indicadores territoriales.
+            </span>
+        </article>
+        <article class="pob-kpi">
+            <span class="pob-kpi__label">Participación rural</span>
+            <strong class="pob-kpi__value">{{ res.pct_rural }}%</strong>
+            <span class="pob-kpi__detail">
+                {{ "{:,}".format(res.rural_registros) }} registros rurales de
+                {{ "{:,}".format(res.registros_validos) }}. El
+                {{ res.pct_urbano }}% restante es urbano.
+            </span>
+        </article>
+        <article class="pob-kpi">
+            <span class="pob-kpi__label">Especies distintas</span>
+            <strong class="pob-kpi__value">{{ "{:,}".format(res.especies_distintas) }}</strong>
+            <span class="pob-kpi__detail">
+                {{ "{:,}".format(res.especies_total_dataset) }} en todo el dataset.
+                {{ res.registros_por_especie }} registros por especie en territorio válido.
+            </span>
+        </article>
+    </div>
+
+    <h3 class="doc-prose__title">Filtros del tablero</h3>
+    <div class="pob-filters">
+        <article class="pob-filter">
+            <span class="pob-filter__label">Segmentador 1 · Provincia</span>
+            <div class="pob-chips">
+                <span class="pob-chip pob-chip--active">Todas</span>
+                {% for p in res.detalle_provincias %}
+                    <span class="pob-chip">{{ p.nombre }}</span>
+                {% endfor %}
+            </div>
+        </article>
+        <article class="pob-filter">
+            <span class="pob-filter__label">Segmentador 2 · Categoría territorial</span>
+            <div class="pob-chips">
+                <span class="pob-chip pob-chip--active">Todas</span>
+                <span class="pob-chip">Urbana</span>
+                <span class="pob-chip">Rural</span>
+            </div>
+        </article>
+    </div>
+    <p class="chart-caption">
+        El segmentador de Categoría territorial excluye “No Determinada” y no filtra la
+        gráfica de composición 100% apilada, para conservar la comparación completa entre
+        provincias. Sí filtra las tarjetas, el Pareto y la dispersión. El segmentador de
+        Provincia filtra todas las visualizaciones.
+    </p>
+
+    <h3 class="doc-prose__title">Visualizaciones e interpretación</h3>
+    <div class="pob-chart-grid">
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa4/territorial/pareto.png') }}"
+                 alt="Concentración de registros por provincia" loading="lazy">
+            <span class="pob-chart__title">Concentración de registros por provincia</span>
+            <p class="pob-chart__interp">
+                <strong>Interpretación:</strong> tres provincias reúnen
+                {{ "{:,}".format(res.top3_registros) }} de los
+                {{ "{:,}".format(res.registros_validos) }} registros válidos
+                ({{ res.top3_pct }}%): {{ res.detalle_provincias[0].nombre }}
+                ({{ "{:,}".format(res.detalle_provincias[0].registros) }};
+                {{ res.detalle_provincias[0].pct }}%),
+                {{ res.detalle_provincias[1].nombre }}
+                ({{ "{:,}".format(res.detalle_provincias[1].registros) }};
+                {{ res.detalle_provincias[1].pct }}%) y
+                {{ res.detalle_provincias[2].nombre }}
+                ({{ "{:,}".format(res.detalle_provincias[2].registros) }};
+                {{ res.detalle_provincias[2].pct }}%). Nueve provincias acumulan
+                {{ "{:,}".format(res.top9_registros) }} registros ({{ res.top9_pct }}%),
+                mientras las siete restantes comparten
+                {{ (100 - res.top9_pct)|round(2) }}%. La concentración es alta y sugiere
+                que la cobertura de registros no es proporcional al territorio.
+            </p>
+            <p class="chart-caption">Barra = registros; línea = porcentaje acumulado.</p>
+        </figure>
+
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa4/territorial/composicion.png') }}"
+                 alt="Composición urbana y rural de los registros por provincia" loading="lazy">
+            <span class="pob-chart__title">Composición urbana/rural por provincia</span>
+            <p class="pob-chart__interp">
+                <strong>Interpretación:</strong> el patrón no es homogéneo.
+                {{ ns.urbanas_100|length }} provincias son 100% urbanas
+                ({{ ns.urbanas_100|join(', ') }}) y {{ ns.rurales_91|length }} tienen
+                ≥91% de registros rurales ({{ ns.rurales_91|join(', ') }}). En el total
+                válido, {{ "{:,}".format(res.rural_registros) }} registros son rurales
+                ({{ res.pct_rural }}%) y {{ "{:,}".format(res.urbano_registros) }} urbanos
+                ({{ res.pct_urbano }}%). La categoría describe la localidad del registro,
+                no el uso del suelo.
+            </p>
+            <p class="chart-caption">
+                Este gráfico no se filtra por Categoría territorial para conservar la
+                comparación completa entre provincias.
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa4/territorial/dispersion.png') }}"
+                 alt="Relación entre registros y especies distintas por provincia" loading="lazy">
+            <span class="pob-chart__title">Riqueza de especies y volumen de registros</span>
+            <p class="pob-chart__interp">
+                <strong>Interpretación:</strong> la riqueza no crece proporcionalmente al
+                volumen. {{ ns.gualiva.nombre }} registra {{ ns.gualiva.especies }} especies
+                con {{ "{:,}".format(ns.gualiva.registros) }} registros
+                ({{ ns.gualiva.registros_por_especie }} registros por especie), mientras
+                {{ ns.distrito.nombre }} registra {{ ns.distrito.especies }} especies con
+                {{ "{:,}".format(ns.distrito.registros) }}
+                ({{ ns.distrito.registros_por_especie }}). Gualivá tiene
+                {{ pct_mas_especies }}% más especies con {{ pct_menos_registros }}% menos
+                registros. El patrón es compatible con diferencias en el esfuerzo de
+                observación y en la resolución taxonómica, no solo con diferencias biológicas.
+            </p>
+            <p class="chart-caption">
+                Cada punto es una provincia. La posición horizontal indica volumen de
+                registros; la vertical, especies distintas.
+            </p>
+        </figure>
+    </div>
+
+    <h3 class="doc-prose__title">Conocimientos evidentes</h3>
+    <div class="pob-insights">
+        <article class="pob-insight">
+            <span class="pob-insight__num">Conocimiento 01</span>
+            <h4 class="pob-insight__question">
+                La concentración territorial es alta: tres provincias reúnen el
+                {{ res.top3_pct }}% de los registros válidos.
+            </h4>
+            <dl class="pob-insight__grid">
+                <div class="pob-insight__item">
+                    <dt>Pregunta</dt>
+                    <dd>¿Cómo se distribuyen los registros entre las provincias y qué tan concentrada está la cobertura territorial?</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Variables</dt>
+                    <dd><code>provincia</code>, <code>occurrenceID</code> y <code>TerritorioValido</code>.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Procedimiento</dt>
+                    <dd>Se agruparon los {{ "{:,}".format(res.registros_validos) }} registros válidos por <code>provincia</code>, se ordenaron de mayor a menor y se calculó la participación y el porcentaje acumulado. Se excluyeron los {{ "{:,}".format(res.registros_sin_territorio) }} registros sin territorio.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Evidencia</dt>
+                    <dd>Pareto por provincia: el top 3 reúne {{ "{:,}".format(res.top3_registros) }} registros ({{ res.top3_pct }}%) y el top 9, {{ "{:,}".format(res.top9_registros) }} ({{ res.top9_pct }}%).</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Hallazgo</dt>
+                    <dd>Tres provincias concentran {{ res.top3_pct }}% de los registros y nueve concentran {{ res.top9_pct }}%. {{ res.detalle_provincias[0].nombre }} aporta {{ res.detalle_provincias[0].pct }}%.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Interpretación</dt>
+                    <dd>La cobertura no es proporcional al territorio y el esfuerzo de observación está concentrado. La concentración no equivale a mayor biodiversidad.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Utilidad</dt>
+                    <dd>Priorizar el muestreo en las provincias subrepresentadas y no usar el volumen de registros como proxy de riqueza.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Limitación</dt>
+                    <dd>La concentración puede reflejar acceso, esfuerzo de observación y cobertura del dataset. “Distrito Capital / Sabana” es una agrupación que incluye Bogotá D.C. y no equivale a una provincia administrativa.</dd>
+                </div>
+            </dl>
+        </article>
+
+        <article class="pob-insight">
+            <span class="pob-insight__num">Conocimiento 02</span>
+            <h4 class="pob-insight__question">
+                El patrón urbano/rural es contrastante: hay provincias completamente
+                urbanas y provincias predominantemente rurales.
+            </h4>
+            <dl class="pob-insight__grid">
+                <div class="pob-insight__item">
+                    <dt>Pregunta</dt>
+                    <dd>¿La composición urbana/rural es homogénea entre provincias?</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Variables</dt>
+                    <dd><code>provincia</code>, <code>categoria_territorial</code> y <code>occurrenceID</code>.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Procedimiento</dt>
+                    <dd>Se agruparon los registros válidos por provincia y categoría territorial; se calculó el porcentaje dentro de cada provincia y el total departamental.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Evidencia</dt>
+                    <dd>Barras 100% apiladas: {{ ns.urbanas_100|length }} provincias 100% urbanas; {{ ns.rurales_91|length }} con ≥91% rural; en total, {{ res.pct_rural }}% rural ({{ "{:,}".format(res.rural_registros) }} registros) y {{ res.pct_urbano }}% urbano ({{ "{:,}".format(res.urbano_registros) }}).</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Hallazgo</dt>
+                    <dd>El patrón es contrastante: {{ ns.urbanas_100|join(', ') }} son 100% urbanas; {{ ns.rurales_91|join(', ') }} tienen ≥91% rural.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Interpretación</dt>
+                    <dd>Hay dos regímenes de observación. La categoría describe la localidad del registro, no el uso del suelo.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Utilidad</dt>
+                    <dd>Estratificar el monitoreo y las decisiones de conservación por régimen urbano/rural, y reforzar el monitoreo institucional en provincias rurales.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Limitación</dt>
+                    <dd>Se excluyen {{ "{:,}".format(res.registros_sin_territorio) }} registros ({{ res.pct_sin_territorio }}%) sin territorio y la categoría “No Determinada”. La clasificación urbano/rural depende de la fuente y no mide uso del suelo.</dd>
+                </div>
+            </dl>
+        </article>
+
+        <article class="pob-insight">
+            <span class="pob-insight__num">Conocimiento 03</span>
+            <h4 class="pob-insight__question">
+                La riqueza observada no sigue el volumen de registros: Gualivá tiene más
+                especies con menos registros que Distrito Capital / Sabana.
+            </h4>
+            <dl class="pob-insight__grid">
+                <div class="pob-insight__item">
+                    <dt>Pregunta</dt>
+                    <dd>¿Las provincias con más registros tienen más especies?</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Variables</dt>
+                    <dd><code>provincia</code>, <code>scientificName</code> y <code>occurrenceID</code>.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Procedimiento</dt>
+                    <dd>Se contaron los registros y los nombres científicos distintos por provincia; se calculó el cociente registros por especie.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Evidencia</dt>
+                    <dd>Dispersión registros vs especies: Gualivá {{ ns.gualiva.especies }} especies con {{ "{:,}".format(ns.gualiva.registros) }} registros ({{ ns.gualiva.registros_por_especie }}); Distrito Capital / Sabana {{ ns.distrito.especies }} con {{ "{:,}".format(ns.distrito.registros) }} ({{ ns.distrito.registros_por_especie }}).</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Hallazgo</dt>
+                    <dd>Gualivá tiene {{ pct_mas_especies }}% más especies con {{ pct_menos_registros }}% menos registros que Distrito Capital / Sabana.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Interpretación</dt>
+                    <dd>La riqueza observada no sigue el volumen; el esfuerzo de observación y la resolución taxonómica explican parte del patrón.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Utilidad</dt>
+                    <dd>Usar registros por especie como señal de esfuerzo y priorizar la identificación taxonómica en provincias de alta riqueza y bajo volumen.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Limitación</dt>
+                    <dd>Los conteos dependen de la resolución taxonómica; <code>scientificName</code> incluye algunos rangos superiores. Los registros son ocurrencias, no abundancia.</dd>
+                </div>
+            </dl>
+        </article>
+    </div>
+
+    <h3 class="doc-prose__title">Detalle por provincia</h3>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Provincia</th>
+                    <th>Registros</th>
+                    <th>% participación</th>
+                    <th>Especies</th>
+                    <th>Registros/especie</th>
+                    <th>% rural</th>
+                    <th>Amenazadas</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in res.detalle_provincias %}
+                <tr>
+                    <td>{{ p.nombre }}</td>
+                    <td>{{ "{:,}".format(p.registros) }}</td>
+                    <td>{{ p.pct }}%</td>
+                    <td>{{ p.especies }}</td>
+                    <td>{{ p.registros_por_especie }}</td>
+                    <td>{{ p.rural_pct }}%</td>
+                    <td>{{ p.amenazadas }} ({{ p.amenazadas_pct }}%)</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td><strong>Total válido</strong></td>
+                    <td><strong>{{ "{:,}".format(res.registros_validos) }}</strong></td>
+                    <td><strong>100.00%</strong></td>
+                    <td><strong>{{ "{:,}".format(res.especies_distintas) }}</strong></td>
+                    <td><strong>{{ res.registros_por_especie }}</strong></td>
+                    <td><strong>{{ res.pct_rural }}%</strong></td>
+                    <td><strong>{{ res.amenazadas_registros }} ({{ res.pct_amenazadas }}%)</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="callout">
+        <div class="callout__label">Chequeo de robustez 2024–2025</div>
+        <div class="callout__text">
+            Al restringir el periodo a 2024–2025 se mantiene el patrón:
+            {{ "{:,}".format(res.robustez_registros_2024_2025) }} registros válidos,
+            top 3 = {{ res.robustez_top3_pct_2024_2025 }}%, rural =
+            {{ res.robustez_pct_rural_2024_2025 }}% y
+            {{ "{:,}".format(res.robustez_especies_2024_2025) }} especies distintas.
+            La concentración y el contraste urbano/rural no dependen únicamente del año
+            incompleto 2026.
+        </div>
+    </div>
+
+    <div class="callout">
+        <div class="callout__label">Señal complementaria</div>
+        <div class="callout__text">
+            Guavio, 100% rural, concentra {{ res.detalle_provincias[3].amenazadas }} de los
+            {{ res.amenazadas_registros }} registros de especies amenazadas en territorio
+            válido ({{ ((res.detalle_provincias[3].amenazadas / res.amenazadas_registros) * 100)|round(1) }}%
+            del total de amenazados y {{ res.detalle_provincias[3].amenazadas_pct }}% de sus
+            propios registros). Es una señal para priorizar el monitoreo, pero no permite
+            concluir causalidad.
+        </div>
+    </div>
+
+    <h3 class="doc-prose__title">Limitación del análisis</h3>
+    <div class="callout">
+        <div class="callout__label">Alcance</div>
+        <div class="callout__text">
+            El análisis describe registros de ocurrencia, no poblaciones biológicas ni
+            individuos. No permite concluir abundancia, tendencia poblacional ni relaciones
+            causales. Los {{ "{:,}".format(res.registros_sin_territorio) }} registros sin
+            territorio ({{ res.pct_sin_territorio }}%) y los
+            {{ "{:,}".format(res.municipios_sin_clasificar) }} con municipio “Sin Clasificar”
+            ({{ res.municipios_sin_clasificar_pct }}%) limitan la comparación. El año 2026
+            está incompleto: {{ "{:,}".format(res.registros_2026) }} registros válidos
+            ({{ res.pct_2026 }}%), con corte al {{ res.corte }}; por eso no se compara con
+            años cerrados. “Distrito Capital / Sabana” es una agrupación del dataset que
+            incluye Bogotá D.C. y no equivale a una provincia administrativa.
+        </div>
+    </div>
+
+    <h3 class="doc-prose__title">Decisión sustentada</h3>
+    <div class="callout">
+        <div class="callout__label">Curso de acción</div>
+        <div class="callout__text">
+            Priorizar el monitoreo institucional y la identificación taxonómica en las
+            provincias rurales subrepresentadas, especialmente en Gualivá por su alta
+            riqueza y bajo volumen de registros, y en Guavio por la concentración de
+            registros amenazados. No usar el volumen de registros como proxy de
+            biodiversidad y mantener la lectura separada de los regímenes urbano y rural.
+        </div>
+    </div>
+
+    <h3 class="doc-prose__title">Tablero interactivo en Power BI</h3>
+    <figure class="pob-chart">
+        <img src="{{ url_for('static', filename='img/etapa4/territorial/tablero.png') }}"
+             alt="Vista general del tablero territorial en Power BI" loading="lazy">
+        <span class="pob-chart__title">Vista general del tablero</span>
+        <p class="pob-chart__interp">
+            El tablero reúne tres tarjetas, el Pareto por provincia, la composición
+            urbana/rural y la dispersión registros vs especies. Incluye los textos de
+            interpretación y las tres tarjetas de conocimiento evidente.
+        </p>
+    </figure>
+    <p class="chart-caption">
+        <a class="source-link" href="{{ url_for('static', filename='descargas/territorial.pbix') }}" download>
+            Descargar el tablero en Power BI (.pbix)
+        </a>
+    </p>
+
+    <div class="callout">
+        <div class="callout__label">Nota técnica</div>
+        <div class="callout__text">
+            El archivo <code>Dataset/Dataset.csv</code> está codificado en
+            Latin-1/Windows-1252. Al importarlo en Power BI se debe seleccionar el origen
+            de archivo 1252 para conservar tildes y caracteres como “á”, “é”, “í”, “ó”,
+            “ú” y “ñ”.
+        </div>
+    </div>
+
 </div>
