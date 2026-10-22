@@ -1,8 +1,20 @@
+import json
+from functools import lru_cache
+from pathlib import Path
+
 from flask import Blueprint, render_template, redirect, url_for
 
 from app.calidad_data import RESULTADOS
 
 main = Blueprint('main', __name__)
+
+
+@lru_cache(maxsize=None)
+def cargar_conocimiento(slug):
+    ruta = Path(__file__).resolve().parent.parent / 'static' / 'json' / 'conocimiento' / f'{slug}.json'
+    if not ruta.is_file():
+        return {}
+    return json.loads(ruta.read_text(encoding='utf-8'))
 
 APARTADOS = [
     {'slug': 'problema-contexto', 'num': '01', 'titulo': 'Problema y contexto', 'disponible': True},
@@ -107,4 +119,11 @@ def conocimiento(slug):
 
     idx = CONOCIMIENTOS.index(item)
     nxt = next((c for c in CONOCIMIENTOS[idx + 1:] if c['disponible']), None)
-    return render_template('etapa4/r4-conocimiento-evidente.html', apartado=item, next=nxt, conocimientos=CONOCIMIENTOS)
+    res = cargar_conocimiento(item['slug'])
+    return render_template(
+        'etapa4/r4-conocimiento-evidente.html',
+        apartado=item,
+        next=nxt,
+        conocimientos=CONOCIMIENTOS,
+        res=res,
+    )

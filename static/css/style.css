@@ -1633,3 +1633,241 @@ a {
     transition: none !important;
   }
 }
+
+/* ---------- Etapa 4 · Conocimiento evidente ---------- */
+.pob-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 24px;
+}
+
+.pob-meta__item {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.pob-meta__item strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.pob-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+  margin: 10px 0 30px;
+}
+
+.pob-kpi {
+  padding: 22px 24px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+}
+
+.pob-kpi__label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--green-soft);
+  margin-bottom: 10px;
+}
+
+.pob-kpi__value {
+  display: block;
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.pob-kpi__detail {
+  display: block;
+  font-size: 12.5px;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+
+.pob-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 10px 0 18px;
+}
+
+.pob-filter {
+  padding: 20px 22px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.pob-filter__label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 12px;
+}
+
+.pob-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pob-chip {
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(63, 216, 232, 0.22);
+  background: rgba(63, 216, 232, 0.08);
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.pob-chip--active {
+  border-color: rgba(91, 229, 138, 0.4);
+  background: rgba(91, 229, 138, 0.12);
+  color: var(--text);
+}
+
+.pob-chart-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+  margin: 12px 0 30px;
+}
+
+.pob-chart {
+  margin: 0;
+  padding: 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.pob-chart img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.pob-chart__title {
+  display: block;
+  margin: 16px 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.pob-chart__interp {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.pob-chart__interp strong {
+  color: var(--green-soft);
+}
+
+.pob-insights {
+  display: grid;
+  gap: 18px;
+  margin: 12px 0 30px;
+}
+
+.pob-insight {
+  padding: 24px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+}
+
+.pob-insight__num {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 10px;
+}
+
+.pob-insight__num::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.pob-insight__question {
+  margin: 0 0 18px;
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.pob-insight__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px 24px;
+  margin: 0;
+}
+
+.pob-insight__item dt {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--green-soft);
+  margin-bottom: 5px;
+}
+
+.pob-insight__item dd {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.pob-embed {
+  position: relative;
+  width: 100%;
+  max-width: 1024px;
+  height: 1060px;
+  margin: 10px auto 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.pob-embed iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+@media (max-width: 720px) {
+  .pob-embed {
+    height: 700px;
+  }
+}
