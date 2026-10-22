@@ -18,6 +18,22 @@
         <span class="pob-meta__item"><strong>Válidos:</strong> {{ "{:,}".format(res.registros_validos) }}</span>
     </div>
 
+    <h3 class="doc-prose__title" id="tablero">Tablero interactivo en Power BI</h3>
+    <div class="pob-embed pob-embed--territorial">
+        <iframe
+            title="Tablero territorial de biodiversidad en Power BI"
+            src="https://app.powerbi.com/view?r=eyJrIjoiYzFkYThkMGYtZDdkOC00MjdkLWJlMzUtOGM1MmE4ZTQ0YmRjIiwidCI6IjA3ZGE2N2EwLTFmNDMtNGU4Yy05NzdmLTVmODhiNjQ3MGVlNiIsImMiOjR9"
+            frameborder="0"
+            allowfullscreen="true"></iframe>
+    </div>
+    <p class="chart-caption">
+        El tablero reúne tres tarjetas, el Pareto por provincia, la composición
+        urbana/rural y la dispersión registros vs especies. Si no carga,
+        <a class="source-link" href="https://app.powerbi.com/view?r=eyJrIjoiYzFkYThkMGYtZDdkOC00MjdkLWJlMzUtOGM1MmE4ZTQ0YmRjIiwidCI6IjA3ZGE2N2EwLTFmNDMtNGU4Yy05NzdmLTVmODhiNjQ3MGVlNiIsImMiOjR9" target="_blank" rel="noopener">ábrelo directamente en Power BI</a>.
+        También puedes
+        <a class="source-link" href="{{ url_for('static', filename='descargas/territorial.pbix') }}" download>descargar el archivo .pbix</a>.
+    </p>
+
     <p>
         El análisis territorial se realiza sobre el conjunto unificado del proyecto,
         disponible en <code>Dataset/Dataset.csv</code>. El conjunto conserva
@@ -482,23 +498,6 @@
             biodiversidad y mantener la lectura separada de los regímenes urbano y rural.
         </div>
     </div>
-
-    <h3 class="doc-prose__title">Tablero interactivo en Power BI</h3>
-    <figure class="pob-chart">
-        <img src="{{ url_for('static', filename='img/etapa4/territorial/tablero.png') }}"
-             alt="Vista general del tablero territorial en Power BI" loading="lazy">
-        <span class="pob-chart__title">Vista general del tablero</span>
-        <p class="pob-chart__interp">
-            El tablero reúne tres tarjetas, el Pareto por provincia, la composición
-            urbana/rural y la dispersión registros vs especies. Incluye los textos de
-            interpretación y las tres tarjetas de conocimiento evidente.
-        </p>
-    </figure>
-    <p class="chart-caption">
-        <a class="source-link" href="{{ url_for('static', filename='descargas/territorial.pbix') }}" download>
-            Descargar el tablero en Power BI (.pbix)
-        </a>
-    </p>
 
     <div class="callout">
         <div class="callout__label">Nota técnica</div>
