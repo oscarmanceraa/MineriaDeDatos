@@ -1958,9 +1958,19 @@ a {
   border: 0;
 }
 
+.pob-embed--report {
+  max-width: 1280px;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
 @media (max-width: 720px) {
   .pob-embed {
     height: 700px;
+  }
+
+  .pob-embed--report {
+    height: auto;
   }
 
   .multi-bar {
