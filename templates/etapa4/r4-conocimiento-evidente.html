@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ apartado.num }} · {{ apartado.titulo }}{% endblock %}
+{% block nav_etapa4 %}is-active{% endblock %}
+
+{% block content %}
+<section class="etapa-page">
+
+    <nav class="breadcrumb" aria-label="Ruta de navegación">
+        <a href="{{ url_for('main.index') }}" class="breadcrumb-link">Inicio</a>
+        <span class="breadcrumb-sep" aria-hidden="true">/</span>
+        <a href="{{ url_for('main.etapa4') }}" class="breadcrumb-link">Etapa 04</a>
+        <span class="breadcrumb-sep" aria-hidden="true">/</span>
+        <span class="breadcrumb-current">{{ apartado.titulo }}</span>
+    </nav>
+
+    <header class="apartado-hero">
+        <p class="etapa-hero__kicker">Dimensión {{ apartado.num }} · Etapa 04 · Conocimiento evidente</p>
+        <h1 class="apartado-hero__title">{{ apartado.titulo }}</h1>
+        <p class="etapa-hero__sub">{{ apartado.inst }}</p>
+    </header>
+
+    <div class="apartado-body">
+        {% include 'etapa4/apartados/' ~ apartado.slug ~ '.html' %}
+    </div>
+
+    <div class="apartado-nav">
+        <a class="btn-back" href="{{ url_for('main.etapa4') }}">← Volver a la Etapa 04</a>
+        {% if next %}
+            <a class="btn-next" href="{{ url_for('main.conocimiento', slug=next.slug) }}">
+                Siguiente · {{ next.num }} {{ next.titulo }}
+                <span class="btn-next__arrow" aria-hidden="true">→</span>
+            </a>
+        {% endif %}
+    </div>
+
+</section>
+{% endblock %}

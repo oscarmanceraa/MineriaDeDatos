@@ -1,0 +1,389 @@
+<div class="doc-prose">
+
+    <div class="pob-meta">
+        <span class="pob-meta__item"><strong>Fuente:</strong> Dataset/Dataset.csv</span>
+        <span class="pob-meta__item"><strong>Periodo:</strong> {{ res.periodo }}</span>
+        <span class="pob-meta__item"><strong>Registros:</strong> {{ "{:,}".format(res.total_registros) }}</span>
+        <span class="pob-meta__item"><strong>Unidad:</strong> registro de ocurrencia</span>
+    </div>
+
+    <p>
+        El análisis se realiza sobre el conjunto unificado del proyecto, disponible en
+        <code>Dataset/Dataset.csv</code>. Antes de esta etapa se integraron las fuentes
+        SiB Colombia / GBIF, NaturaLista Colombia y SIBIO CAR Cundinamarca; se normalizaron
+        los campos taxonómicos, geográficos y temporales, se eliminaron duplicados y se
+        separaron los registros con coordenadas o fechas no válidas. El conjunto resultante
+        conserva <strong>{{ "{:,}".format(res.total_registros) }} registros</strong> y
+        <strong>{{ res.grupos_distintos }} grupos taxonómicos</strong>.
+    </p>
+    <p>
+        La unidad de análisis es el <strong>registro de ocurrencia</strong>: cada fila representa
+        una observación, un espécimen o un registro institucional, no un individuo único. La
+        columna <code>cantidad_registros</code> vale 1 en todas las filas y suma
+        {{ "{:,}".format(res.cantidad_registros_suma) }}, por lo que todos los porcentajes se
+        calculan sobre el total de registros y no sobre el número de individuos.
+    </p>
+
+    <div class="callout">
+        <div class="callout__label">Calidad remanente</div>
+        <div class="callout__text">
+            Persisten {{ "{:,}".format(res.especies_sin_identificar) }} registros sin nombre
+            científico ({{ res.especies_sin_identificar_pct }}%),
+            {{ "{:,}".format(res.familias_sin_identificar) }} sin familia
+            ({{ res.familias_sin_identificar_pct }}%),
+            {{ "{:,}".format(res.clases_sin_identificar) }} sin clase
+            ({{ res.clases_sin_identificar_pct }}%) y
+            {{ "{:,}".format(res.anios_sin_identificar) }} sin año
+            ({{ res.anios_sin_identificar_pct }}%). Además,
+            {{ res.municipios_sin_clasificar_pct }}% de los registros tiene municipio
+            “Sin Clasificar”. Estos faltantes afectan la composición y deben considerarse
+            antes de generalizar los resultados.
+        </div>
+    </div>
+
+    <h3 class="doc-prose__title">Pregunta de análisis</h3>
+    <div class="question-main">
+        <div class="question-main__label">Pregunta poblacional</div>
+        <p class="question-main__text">
+            ¿Cómo se compone y distribuye la población de registros de biodiversidad del
+            conjunto unificado y qué grupos taxonómicos y fuentes concentran la mayor
+            participación?
+        </p>
+    </div>
+
+    <h3 class="doc-prose__title">Variables utilizadas</h3>
+    <p>
+        La unidad de análisis es el <strong>registro de ocurrencia</strong>. Las variables
+        seleccionadas permiten describir la composición taxonómica, la concentración por
+        familia y la procedencia de los registros. Todos los porcentajes usan como
+        denominador los <strong>{{ "{:,}".format(res.total_registros) }} registros</strong>
+        del conjunto.
+    </p>
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Variable</th>
+                    <th>Descripción</th>
+                    <th>Uso en el análisis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>occurrenceID</code></td>
+                    <td>Identificador único de cada registro de ocurrencia.</td>
+                    <td>Conteo de registros.</td>
+                </tr>
+                <tr>
+                    <td><code>cantidad_registros</code></td>
+                    <td>Unidades aportadas por cada fila; vale 1 en todas y suma {{ "{:,}".format(res.cantidad_registros_suma) }}.</td>
+                    <td>Verificar el tamaño del conjunto.</td>
+                </tr>
+                <tr>
+                    <td><code>clase_grupo</code></td>
+                    <td>Grupo taxonómico general del registro.</td>
+                    <td>Composición por grupos predominantes y minoritarios.</td>
+                </tr>
+                <tr>
+                    <td><code>class</code></td>
+                    <td>Clase taxonómica del registro.</td>
+                    <td>Validar y detallar la clasificación.</td>
+                </tr>
+                <tr>
+                    <td><code>family</code></td>
+                    <td>Familia taxonómica. El {{ res.familias_sin_identificar_pct }}% de los registros no tiene familia.</td>
+                    <td>Identificar las familias con mayor número de registros.</td>
+                </tr>
+                <tr>
+                    <td><code>scientificName</code></td>
+                    <td>Nombre científico registrado. Incluye algunos nombres de rangos superiores.</td>
+                    <td>Contar los nombres distintos y analizar la cola de taxa poco frecuentes.</td>
+                </tr>
+                <tr>
+                    <td><code>dataset_origen</code></td>
+                    <td>Fuente del registro: SiB Colombia / GBIF, NaturaLista Colombia o SIBIO CAR Cundinamarca.</td>
+                    <td>Composición por procedencia.</td>
+                </tr>
+                <tr>
+                    <td><code>tipo_registro</code></td>
+                    <td>Tipo de registro: ciencia ciudadana, monitoreo institucional o espécimen de colección.</td>
+                    <td>Contextualizar la fuente y el esfuerzo de observación.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="doc-prose__title">Indicadores del tablero</h3>
+    <div class="pob-kpi-grid">
+        <article class="pob-kpi">
+            <span class="pob-kpi__label">Registros de ocurrencia</span>
+            <strong class="pob-kpi__value">{{ "{:,}".format(res.total_registros) }}</strong>
+            <span class="pob-kpi__detail">
+                100% del dataset integrado. Denominador de los porcentajes.
+            </span>
+        </article>
+        <article class="pob-kpi">
+            <span class="pob-kpi__label">Nombres científicos distintos</span>
+            <strong class="pob-kpi__value">{{ "{:,}".format(res.especies_distintas) }}</strong>
+            <span class="pob-kpi__detail">
+                {{ res.especies_sin_identificar_pct }}% de los registros no tiene nombre
+                científico; no todos los nombres corresponden a especies plenas.
+            </span>
+        </article>
+        <article class="pob-kpi">
+            <span class="pob-kpi__label">Participación de invertebrados</span>
+            <strong class="pob-kpi__value">{{ res.pct_invertebrados }}%</strong>
+            <span class="pob-kpi__detail">
+                {{ "{:,}".format(res.invertebrados_registros) }} registros. Aves es el grupo
+                individual mayor, con {{ res.pct_aves }}%.
+            </span>
+        </article>
+    </div>
+
+    <h3 class="doc-prose__title">Filtros del tablero</h3>
+    <div class="pob-filters">
+        <article class="pob-filter">
+            <span class="pob-filter__label">Segmentador 1 · Grupo taxonómico</span>
+            <div class="pob-chips">
+                <span class="pob-chip pob-chip--active">Todos</span>
+                <span class="pob-chip">Aves</span>
+                <span class="pob-chip">Otros Invertebrados</span>
+                <span class="pob-chip">Insectos</span>
+                <span class="pob-chip">Arácnidos</span>
+                <span class="pob-chip">Mamíferos</span>
+                <span class="pob-chip">Reptiles</span>
+                <span class="pob-chip">Anfibios</span>
+                <span class="pob-chip">Otros Vertebrados</span>
+            </div>
+        </article>
+        <article class="pob-filter">
+            <span class="pob-filter__label">Segmentador 2 · Fuente del registro</span>
+            <div class="pob-chips">
+                <span class="pob-chip pob-chip--active">Todas</span>
+                <span class="pob-chip">SiB Colombia / GBIF</span>
+                <span class="pob-chip">NaturaLista Colombia</span>
+                <span class="pob-chip">SIBIO CAR Cundinamarca</span>
+            </div>
+        </article>
+    </div>
+    <p class="chart-caption">
+        Estos dos segmentadores son los definidos para el tablero de Power BI. Al seleccionar
+        una categoría, los tres indicadores y las tres visualizaciones deben recalcularse con
+        el denominador correspondiente. Los valores de esta página describen el conjunto
+        completo, sin filtro aplicado.
+    </p>
+
+    <h3 class="doc-prose__title">Visualizaciones e interpretación</h3>
+    <div class="pob-chart-grid">
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa4/poblacional/grupos.png') }}"
+                 alt="Participación de los registros por grupo taxonómico" loading="lazy">
+            <span class="pob-chart__title">Participación por grupo taxonómico</span>
+            <p class="pob-chart__interp">
+                <strong>Interpretación:</strong> Aves es el grupo individual con mayor
+                participación ({{ res.pct_aves }}%), pero los invertebrados en conjunto
+                reúnen {{ res.pct_invertebrados }}% de los registros. La categoría
+                “Otros Invertebrados” aporta {{ res.grupos_pct['Otros Invertebrados'] }}%
+                y agrupa taxa diversos, por lo que su peso debe leerse como un conjunto
+                heterogéneo y no como un único grupo biológico.
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa4/poblacional/familias.png') }}"
+                 alt="Familias con mayor número de registros" loading="lazy">
+            <span class="pob-chart__title">Familias con mayor número de registros</span>
+            <p class="pob-chart__interp">
+                <strong>Interpretación:</strong> las diez familias principales concentran
+                {{ res.top10_familias_pct }}% de los registros
+                ({{ "{:,}".format(res.top10_familias_registros) }} de
+                {{ "{:,}".format(res.total_registros) }}). Buthidae (6.10%) y Thraupidae
+                (5.65%) son las de mayor peso; el resto de familias se distribuye en una
+                cola más amplia, lo que sugiere una concentración moderada y no un dominio
+                absoluto de pocas familias.
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa4/poblacional/fuentes.png') }}"
+                 alt="Origen de los registros del conjunto unificado" loading="lazy">
+            <span class="pob-chart__title">Origen de los registros</span>
+            <p class="pob-chart__interp">
+                <strong>Interpretación:</strong> SiB Colombia / GBIF aporta
+                {{ res.pct_sib_gbif }}% de los registros, NaturaLista Colombia
+                {{ res.pct_naturalista }}% y SIBIO CAR Cundinamarca
+                {{ res.pct_sibio_car }}%. La composición está fuertemente asociada a
+                plataformas de biodiversidad y ciencia ciudadana; el monitoreo institucional
+                tiene una participación minoritaria, lo que limita la representatividad
+                territorial del conjunto.
+            </p>
+        </figure>
+    </div>
+
+    <h3 class="doc-prose__title">Conocimientos evidentes</h3>
+    <div class="pob-insights">
+        <article class="pob-insight">
+            <span class="pob-insight__num">Conocimiento 01</span>
+            <h4 class="pob-insight__question">
+                Los invertebrados son mayoría en el conjunto, aunque Aves sea el grupo
+                individual más visible.
+            </h4>
+            <dl class="pob-insight__grid">
+                <div class="pob-insight__item">
+                    <dt>Pregunta</dt>
+                    <dd>¿Qué grupo taxonómico concentra la mayor cantidad de registros y cómo se reparte la población entre vertebrados e invertebrados?</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Variables</dt>
+                    <dd><code>clase_grupo</code>, <code>occurrenceID</code> y <code>cantidad_registros</code>.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Procedimiento</dt>
+                    <dd>Se agruparon los {{ "{:,}".format(res.total_registros) }} registros por <code>clase_grupo</code>, se contó cada categoría y se dividió entre el total. No se sumaron individuos ni se ponderó por esfuerzo de muestreo.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Evidencia</dt>
+                    <dd>Indicador de invertebrados ({{ res.pct_invertebrados }}%) y gráfico de composición por grupo taxonómico.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Hallazgo</dt>
+                    <dd>Aves reúne {{ "{:,}".format(res.aves_registros) }} registros ({{ res.pct_aves }}%), mientras que los invertebrados suman {{ "{:,}".format(res.invertebrados_registros) }} ({{ res.pct_invertebrados }}%): Otros Invertebrados {{ res.grupos_pct['Otros Invertebrados'] }}%, Insectos {{ res.grupos_pct['Insectos'] }}% y Arácnidos {{ res.grupos_pct['Arácnidos'] }}%.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Interpretación</dt>
+                    <dd>El conjunto no es exclusivamente ornitológico: la mayor parte de los registros corresponde a invertebrados, aunque están repartidos en categorías heterogéneas y con menor resolución taxonómica.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Utilidad</dt>
+                    <dd>Orientar el esfuerzo de identificación y monitoreo hacia los invertebrados y evitar que las decisiones de conservación se basen solo en aves.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Limitación</dt>
+                    <dd>Son registros de ocurrencia, no individuos. La categoría “Otros Invertebrados” agrupa taxa distintos y el conteo depende del esfuerzo de observación.</dd>
+                </div>
+            </dl>
+        </article>
+
+        <article class="pob-insight">
+            <span class="pob-insight__num">Conocimiento 02</span>
+            <h4 class="pob-insight__question">
+                Pocas familias concentran los registros, mientras la mayoría de los nombres
+                científicos aparece muy pocas veces.
+            </h4>
+            <dl class="pob-insight__grid">
+                <div class="pob-insight__item">
+                    <dt>Pregunta</dt>
+                    <dd>¿La población se concentra en pocas familias y especies o se distribuye en un conjunto amplio de taxa poco frecuentes?</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Variables</dt>
+                    <dd><code>family</code>, <code>scientificName</code> y <code>occurrenceID</code>.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Procedimiento</dt>
+                    <dd>Se contaron los registros por familia y por <code>scientificName</code>; se calcularon las diez primeras y su porcentaje sobre {{ "{:,}".format(res.total_registros) }}. También se contaron los nombres con diez o menos registros sobre los {{ "{:,}".format(res.especies_distintas) }} nombres distintos.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Evidencia</dt>
+                    <dd>Gráfico de familias; las diez primeras reúnen {{ "{:,}".format(res.top10_familias_registros) }} registros ({{ res.top10_familias_pct }}%) y {{ "{:,}".format(res.especies_raras) }} nombres ({{ res.especies_raras_pct }}%) tienen diez registros o menos.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Hallazgo</dt>
+                    <dd>Las diez familias principales concentran {{ res.top10_familias_pct }}% del total; Buthidae (6.10%) y Thraupidae (5.65%) son las mayores. En contraste, {{ res.especies_raras_pct }}% de los nombres científicos aparece diez veces o menos.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Interpretación</dt>
+                    <dd>Hay una concentración moderada en pocas familias y una cola larga de taxa raros. El patrón puede reflejar diferencias de detectabilidad y cobertura, no solo abundancia ecológica.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Utilidad</dt>
+                    <dd>Analizar por separado los taxa frecuentes y los raros, y priorizar el muestreo de los grupos subrepresentados.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Limitación</dt>
+                    <dd><code>scientificName</code> contiene algunos nombres de rangos superiores (por ejemplo, “Animalia”, “Arthropoda” o “Juliformia”), por lo que {{ "{:,}".format(res.especies_distintas) }} no equivale a especies plenas. La frecuencia de registros no mide abundancia.</dd>
+                </div>
+            </dl>
+        </article>
+
+        <article class="pob-insight">
+            <span class="pob-insight__num">Conocimiento 03</span>
+            <h4 class="pob-insight__question">
+                La composición depende principalmente de dos plataformas y de la observación
+                ciudadana.
+            </h4>
+            <dl class="pob-insight__grid">
+                <div class="pob-insight__item">
+                    <dt>Pregunta</dt>
+                    <dd>¿Qué fuentes concentran los registros y qué tan representativa es la cobertura del conjunto unificado?</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Variables</dt>
+                    <dd><code>dataset_origen</code>, <code>tipo_registro</code> y <code>occurrenceID</code>.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Procedimiento</dt>
+                    <dd>Se agruparon los registros por <code>dataset_origen</code> y <code>tipo_registro</code>, se contó cada categoría y se dividió entre el total de {{ "{:,}".format(res.total_registros) }} registros.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Evidencia</dt>
+                    <dd>Gráfico de origen de los registros: SiB Colombia / GBIF {{ res.pct_sib_gbif }}%, NaturaLista {{ res.pct_naturalista }}% y SIBIO CAR {{ res.pct_sibio_car }}%. La ciencia ciudadana representa {{ res.pct_ciencia_ciudadana }}% del total.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Hallazgo</dt>
+                    <dd>El {{ res.pct_sib_gbif }}% de los registros proviene de SiB Colombia / GBIF y el {{ res.pct_ciencia_ciudadana }}% corresponde a observación humana o ciencia ciudadana; el monitoreo institucional de campo aporta {{ res.pct_sibio_car }}%.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Interpretación</dt>
+                    <dd>La composición está fuertemente condicionada por plataformas de biodiversidad y observación ciudadana. La cobertura institucional es minoritaria, lo que puede sesgar la representación territorial y taxonómica.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Utilidad</dt>
+                    <dd>Estratificar los resultados por fuente y reforzar el monitoreo institucional para sustentar decisiones territoriales con datos más equilibrados.</dd>
+                </div>
+                <div class="pob-insight__item">
+                    <dt>Limitación</dt>
+                    <dd>La etiqueta “SiB Colombia / GBIF” agrupa dos orígenes y no permite separar sus aportes. El número de registros no mide cobertura geográfica ni esfuerzo de muestreo.</dd>
+                </div>
+            </dl>
+        </article>
+    </div>
+
+    <h3 class="doc-prose__title">Limitación del análisis</h3>
+    <div class="callout">
+        <div class="callout__label">Alcance</div>
+        <div class="callout__text">
+            El análisis describe la composición de los registros, no poblaciones biológicas ni
+            individuos. No permite concluir abundancia, tendencia poblacional ni relaciones
+            causales. La presencia de registros sin nombre científico, familia o clase, y el
+            13.61% de municipios “Sin Clasificar”, limitan la interpretación taxonómica y
+            territorial de los resultados.
+        </div>
+    </div>
+
+    <h3 class="doc-prose__title">Decisión sustentada</h3>
+    <div class="callout">
+        <div class="callout__label">Curso de acción</div>
+        <div class="callout__text">
+            Priorizar una campaña de identificación taxonómica de invertebrados y de registros
+            sin familia o clase, y presentar los resultados estratificados por fuente para no
+            sobrerrepresentar la ciencia ciudadana en las decisiones de conservación.
+        </div>
+    </div>
+
+    <h3 class="doc-prose__title">Tablero interactivo en Power BI</h3>
+    <div class="pob-embed">
+        <iframe
+            title="Tablero Poblacional en Power BI"
+            width="1024"
+            height="1060"
+            src="https://app.powerbi.com/view?r=eyJrIjoiMDcwZmE5YTEtMTBkYy00ZDkxLWI5ZjMtZjgyNzYyMGFjNTk0IiwidCI6IjA3ZGE2N2EwLTFmNDMtNGU4Yy05NzdmLTVmODhiNjQ3MGVlNiIsImMiOjR9"
+            frameborder="0"
+            allowfullscreen="true"></iframe>
+    </div>
+    <p class="chart-caption">
+        Si el tablero no carga en la aplicación,
+        <a class="source-link" href="https://app.powerbi.com/view?r=eyJrIjoiMDcwZmE5YTEtMTBkYy00ZDkxLWI5ZjMtZjgyNzYyMGFjNTk0IiwidCI6IjA3ZGE2N2EwLTFmNDMtNGU4Yy05NzdmLTVmODhiNjQ3MGVlNiIsImMiOjR9" target="_blank" rel="noopener">ábrelo directamente en Power BI</a>.
+    </p>
+
+</div>

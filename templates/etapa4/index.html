@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Etapa 04 · Conocimiento evidente{% endblock %}
+{% block nav_etapa4 %}is-active{% endblock %}
+
+{% block content %}
+<section class="etapa-page">
+
+    <nav class="breadcrumb" aria-label="Ruta de navegación">
+        <a href="{{ url_for('main.index') }}" class="breadcrumb-link">Inicio</a>
+        <span class="breadcrumb-sep" aria-hidden="true">/</span>
+        <span class="breadcrumb-current">Etapa 04</span>
+    </nav>
+
+    <header class="etapa-hero">
+        <p class="etapa-hero__kicker">Etapa activa · Minería de Datos</p>
+        <h1 class="etapa-hero__title">Conocimiento evidente</h1>
+        <p class="etapa-hero__sub">
+            Análisis exploratorio sobre el conjunto de datos unificado del proyecto.
+        </p>
+    </header>
+
+    <div class="apartados-grid">
+        {% for c in conocimientos %}
+            {% if c.disponible %}
+                <a class="item-card item-card--link" href="{{ url_for('main.conocimiento', slug=c.slug) }}">
+                    <span class="item-num">{{ c.num }}</span>
+                    <h2 class="item-title">{{ c.titulo }}</h2>
+                    <span class="item-cta">
+                        Abrir análisis
+                        <span class="item-arrow" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </span>
+                    </span>
+                </a>
+            {% else %}
+                <div class="item-card item-card--soon" data-tip="Disponible en próximas etapas del proyecto">
+                    <span class="item-num">{{ c.num }}</span>
+                    <h2 class="item-title">{{ c.titulo }}</h2>
+                    <span class="item-state">Próximamente</span>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+</section>
+{% endblock %}

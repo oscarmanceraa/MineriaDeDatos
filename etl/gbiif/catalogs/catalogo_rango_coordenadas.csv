@@ -1,0 +1,4 @@
+parametro,min,max,unidad,descripcion
+decimalLatitude,3.5,6.0,grados,Rango de referencia para Cundinamarca
+decimalLongitude,-75.5,-72.5,grados,Rango de referencia para Cundinamarca
+year,1990,2026,anio,Ventana temporal del estudio

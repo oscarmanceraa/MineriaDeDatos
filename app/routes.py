@@ -1,8 +1,20 @@
+import json
+from functools import lru_cache
+from pathlib import Path
+
 from flask import Blueprint, render_template, redirect, url_for
 
 from app.calidad_data import RESULTADOS
 
 main = Blueprint('main', __name__)
+
+
+@lru_cache(maxsize=None)
+def cargar_conocimiento(slug):
+    ruta = Path(__file__).resolve().parent.parent / 'static' / 'json' / 'conocimiento' / f'{slug}.json'
+    if not ruta.is_file():
+        return {}
+    return json.loads(ruta.read_text(encoding='utf-8'))
 
 APARTADOS = [
     {'slug': 'problema-contexto', 'num': '01', 'titulo': 'Problema y contexto', 'disponible': True},
@@ -22,6 +34,21 @@ DATASETS = [
     {'slug': 'naturalista', 'num': '04', 'titulo': 'NaturaLista Colombia', 'inst': 'iNaturalist / Instituto Humboldt', 'disponible': True},
     {'slug': 'sibio-car', 'num': '05', 'titulo': 'SIBIO CAR Cundinamarca', 'inst': 'CAR Cundinamarca', 'disponible': True},
     {'slug': 'datos-abiertos', 'num': '06', 'titulo': 'Datos Abiertos Cundinamarca', 'inst': 'Gobernación / DANE', 'disponible': True},
+]
+
+DATASETS_3 = [
+    {'slug': 'gbif', 'num': '01', 'titulo': 'GBIF', 'inst': 'Global Biodiversity Information Facility', 'disponible': True},
+    {'slug': 'iucn', 'num': '02', 'titulo': 'IUCN Red List', 'inst': 'International Union for Conservation of Nature', 'disponible': True},
+    {'slug': 'naturalista', 'num': '03', 'titulo': 'NaturaLista Colombia', 'inst': 'iNaturalist / Instituto Humboldt', 'disponible': True},
+    {'slug': 'sibio-car', 'num': '04', 'titulo': 'SIBIO CAR', 'inst': 'Sistema de Información sobre Biodiversidad de la CAR', 'disponible': True},
+    {'slug': 'datos-abiertos', 'num': '05', 'titulo': 'Datos Abiertos Cundinamarca', 'inst': 'Gobernación / DANE', 'disponible': True},
+]
+
+CONOCIMIENTOS = [
+    {'slug': 'poblacional', 'num': '01', 'titulo': 'Poblacional', 'inst': 'Composición y distribución de la población de registros.', 'disponible': True},
+    {'slug': 'territorial', 'num': '02', 'titulo': 'Territorial', 'inst': 'Comparación entre territorios y concentración de registros.', 'disponible': True},
+    {'slug': 'temporal', 'num': '03', 'titulo': 'Temporal', 'inst': 'Evolución y cambios a lo largo del periodo analizado.', 'disponible': True},
+    {'slug': 'multivariada', 'num': '04', 'titulo': 'Multivariada', 'inst': 'Cruce de tres o más variables del conjunto de datos.', 'disponible': True},
 ]
 
 
@@ -61,3 +88,42 @@ def dataset(slug):
     nxt = next((d for d in DATASETS[idx + 1:] if d['disponible']), None)
     results = RESULTADOS.get(item['slug'], {})
     return render_template('etapa2/r2-calidad-datos.html', apartado=item, next=nxt, datasets=DATASETS, res=results)
+
+
+@main.route('/etapa-3')
+def etapa3():
+    return render_template('etapa3/index.html', datasets=DATASETS_3)
+
+
+@main.route('/etapa-3/<slug>')
+def limpieza(slug):
+    item = next((d for d in DATASETS_3 if d['slug'] == slug), None)
+    if not item or not item['disponible']:
+        return redirect(url_for('main.etapa3'))
+
+    idx = DATASETS_3.index(item)
+    nxt = next((d for d in DATASETS_3[idx + 1:] if d['disponible']), None)
+    return render_template('etapa3/r3-limpieza-datos.html', apartado=item, next=nxt, datasets=DATASETS_3)
+
+
+@main.route('/etapa-4')
+def etapa4():
+    return render_template('etapa4/index.html', conocimientos=CONOCIMIENTOS)
+
+
+@main.route('/etapa-4/<slug>')
+def conocimiento(slug):
+    item = next((c for c in CONOCIMIENTOS if c['slug'] == slug), None)
+    if not item or not item['disponible']:
+        return redirect(url_for('main.etapa4'))
+
+    idx = CONOCIMIENTOS.index(item)
+    nxt = next((c for c in CONOCIMIENTOS[idx + 1:] if c['disponible']), None)
+    res = cargar_conocimiento(item['slug'])
+    return render_template(
+        'etapa4/r4-conocimiento-evidente.html',
+        apartado=item,
+        next=nxt,
+        conocimientos=CONOCIMIENTOS,
+        res=res,
+    )
