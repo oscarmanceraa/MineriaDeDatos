@@ -413,30 +413,19 @@ a {
 
 /* ---------- Orbital grid ---------- */
 .orbital {
-  display: grid;
-  align-items: center;
-  justify-items: center;
-  gap: 16px;
-  width: min(100%, 1100px);
+  position: relative;
+  width: min(100%, 980px);
+  height: clamp(920px, 94vw, 1000px);
   margin-inline: auto;
-  grid-template-columns: 1fr minmax(320px, 440px) 1fr;
-  grid-template-rows: auto minmax(320px, 440px) auto;
-  grid-template-areas:
-    ".   stage1  ."
-    "stage4 planet stage2"
-    ".   stage3  .";
 }
-
-.stage--1 { grid-area: stage1; }
-.stage--2 { grid-area: stage2; }
-.stage--3 { grid-area: stage3; }
-.stage--4 { grid-area: stage4; }
 
 /* ---------- Planet ---------- */
 .planet-stage {
-  grid-area: planet;
-  position: relative;
-  width: min(320px, 64vw);
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: min(320px, 46vw);
+  height: min(320px, 46vw);
   aspect-ratio: 1;
   display: grid;
   place-items: center;
@@ -511,9 +500,12 @@ a {
 
 /* ---------- Stage cards ---------- */
 .stage {
-  position: relative;
-  width: 100%;
-  max-width: 300px;
+  --r: clamp(300px, 32vw, 340px);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: clamp(200px, 21vw, 240px);
+  max-width: none;
   padding: 22px 22px 24px;
   border-radius: var(--radius);
   background: linear-gradient(180deg, var(--surface-2), var(--surface));
@@ -521,8 +513,19 @@ a {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease, background 0.35s ease;
+  transform:
+    translate(-50%, -50%)
+    rotate(var(--a))
+    translate(var(--r))
+    rotate(calc(-1 * var(--a)));
+  transition: translate 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease, background 0.35s ease;
 }
+
+.stage--1 { --a: -90deg; }
+.stage--2 { --a: -18deg; }
+.stage--3 { --a: 54deg; }
+.stage--4 { --a: 126deg; }
+.stage--5 { --a: 198deg; }
 
 .stage__state {
   align-self: flex-start;
@@ -596,7 +599,7 @@ a {
 .stage--active .stage__desc { color: var(--text-dim); }
 
 .stage--active:hover {
-  transform: translateY(-6px);
+  translate: 0 -6px;
   border-color: var(--green);
   box-shadow: 0 24px 56px -22px var(--glow-green);
   background: linear-gradient(180deg, rgba(91, 229, 138, 0.06), var(--surface));
@@ -622,7 +625,7 @@ a {
 .stage--soon .stage__title { color: var(--text-dim); }
 
 .stage--soon:hover {
-  transform: translateY(-4px);
+  translate: 0 -4px;
   border-color: rgba(148, 163, 184, 0.36);
   opacity: 1;
 }
@@ -1562,28 +1565,41 @@ a {
 }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 920px) {
+@media (max-width: 1024px) {
   .orbital {
+    position: static;
+    display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: auto;
-    grid-template-areas:
-      "planet"
-      "stage1"
-      "stage2"
-      "stage3"
-      "stage4";
+    gap: 16px;
+    height: auto;
     width: min(100%, 620px);
+    justify-items: center;
   }
 
   .planet-stage {
+    position: relative;
+    inset: auto;
+    margin: 0 auto;
     width: min(300px, 80vw);
+    height: min(300px, 80vw);
+    grid-row: 1;
   }
 
   .stage {
-    max-width: none;
+    position: static;
     width: 100%;
+    max-width: none;
+    transform: none;
+    translate: none;
     justify-self: stretch;
   }
+
+  .stage--1 { grid-row: 2; }
+  .stage--2 { grid-row: 3; }
+  .stage--3 { grid-row: 4; }
+  .stage--4 { grid-row: 5; }
+  .stage--5 { grid-row: 6; }
 
   .stage--soon::after {
     top: auto;

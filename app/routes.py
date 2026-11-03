@@ -51,6 +51,13 @@ CONOCIMIENTOS = [
     {'slug': 'multivariada', 'num': '04', 'titulo': 'Multivariada', 'inst': 'Cruce de tres o más variables del conjunto de datos.', 'disponible': True},
 ]
 
+DIMENSIONES = [
+    {'slug': 'q1-concentracion-territorial', 'num': '01', 'titulo': '¿Dónde se concentran los registros y las especies al pasar de provincia a municipio?', 'inst': 'Territorio · Tiempo · Taxón', 'disponible': True},
+    {'slug': 'q2-amenaza-taxon-fuente', 'num': '02', 'titulo': '¿Qué grupos taxonómicos y fuentes concentran los registros amenazados?', 'inst': 'Taxón · Conservación · Fuente', 'disponible': True},
+    {'slug': 'q3-crecimiento-temporal', 'num': '03', 'titulo': '¿Qué explica el crecimiento de registros entre 2024 y 2026?', 'inst': 'Tiempo · Fuente · Taxón', 'disponible': True},
+    {'slug': 'q4-urbano-rural-amenaza', 'num': '04', 'titulo': '¿Las provincias rurales concentran mayor tasa de amenaza que el área urbana?', 'inst': 'Territorio · Conservación · Tiempo', 'disponible': True},
+]
+
 
 @main.route('/')
 def index():
@@ -126,4 +133,25 @@ def conocimiento(slug):
         next=nxt,
         conocimientos=CONOCIMIENTOS,
         res=res,
+    )
+
+
+@main.route('/etapa-5')
+def etapa5():
+    return render_template('etapa5/index.html', dimensiones=DIMENSIONES)
+
+
+@main.route('/etapa-5/<slug>')
+def analisis_multidimensional(slug):
+    item = next((d for d in DIMENSIONES if d['slug'] == slug), None)
+    if not item or not item['disponible']:
+        return redirect(url_for('main.etapa5'))
+
+    idx = DIMENSIONES.index(item)
+    nxt = next((d for d in DIMENSIONES[idx + 1:] if d['disponible']), None)
+    return render_template(
+        'etapa5/r5-analisis-multidimensional.html',
+        apartado=item,
+        next=nxt,
+        dimensiones=DIMENSIONES,
     )
