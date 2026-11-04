@@ -2,9 +2,10 @@ import json
 from functools import lru_cache
 from pathlib import Path
 
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, request, url_for
 
 from app.calidad_data import RESULTADOS
+from app.etapa5.q4_urbano_rural import q4_datos
 
 main = Blueprint('main', __name__)
 
@@ -149,9 +150,27 @@ def analisis_multidimensional(slug):
 
     idx = DIMENSIONES.index(item)
     nxt = next((d for d in DIMENSIONES[idx + 1:] if d['disponible']), None)
+
+    datos = None
+    error = None
+    if slug == 'q4-urbano-rural-amenaza':
+        try:
+            datos = q4_datos(
+                provincia=request.args.get('provincia', 'todas'),
+                periodo=request.args.get('periodo', 'todo'),
+                categoria=request.args.get('categoria', 'Todas'),
+                conservacion=request.args.get('conservacion', 'Todas'),
+                pivot=request.args.get('pivot') == '1',
+                drill=request.args.get('drill') == '1',
+            )
+        except Exception as exc:  # pragma: no cover - depende de Supabase
+            error = str(exc)
+
     return render_template(
         'etapa5/r5-analisis-multidimensional.html',
         apartado=item,
         next=nxt,
         dimensiones=DIMENSIONES,
+        datos=datos,
+        error=error,
     )

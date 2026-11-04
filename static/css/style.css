@@ -2001,3 +2001,273 @@ a {
   height: auto;
   aspect-ratio: 16 / 9;
 }
+
+/* ---------- Etapa 5 · Analisis multidimensional ---------- */
+.q5-filter-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+  gap: 14px;
+  align-items: end;
+  margin: 10px 0 16px;
+  padding: 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.q5-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.q5-field label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.q5-select {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.q5-select:focus {
+  outline: 2px solid rgba(91, 229, 138, 0.4);
+  outline-offset: 1px;
+}
+
+.q5-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 6px 0 14px;
+}
+
+.q5-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(91, 229, 138, 0.35);
+  background: rgba(91, 229, 138, 0.12);
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+.q5-btn:hover {
+  border-color: var(--green);
+  background: rgba(91, 229, 138, 0.2);
+}
+
+.q5-btn--ghost {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+}
+
+.q5-btn--active {
+  border-color: var(--green);
+  background: rgba(91, 229, 138, 0.18);
+  color: var(--text);
+}
+
+.q5-btn--reset {
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-mute);
+}
+
+.q5-chips {
+  margin: 4px 0 16px;
+}
+
+.q5-note {
+  margin: 8px 0 18px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--cyan);
+  border-radius: 8px;
+  background: rgba(63, 216, 232, 0.08);
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.q5-section-title {
+  margin: 30px 0 14px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.q5-canvas {
+  position: relative;
+  width: 100%;
+  height: 340px;
+  margin-top: 10px;
+}
+
+.q5-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.q5-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.q5-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+  font-size: 13px;
+}
+
+.q5-matrix thead th {
+  text-align: left;
+  padding: 13px 16px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  white-space: nowrap;
+}
+
+.q5-matrix tbody th {
+  text-align: left;
+  padding: 12px 16px;
+  color: var(--text);
+  font-weight: 700;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.q5-matrix tbody td {
+  padding: 12px 16px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--line);
+}
+
+.q5-matrix tbody tr:last-child th,
+.q5-matrix tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.q5-matrix tbody tr:hover th,
+.q5-matrix tbody tr:hover td {
+  background: rgba(91, 229, 138, 0.04);
+}
+
+.q5-cell-reg {
+  display: block;
+  color: var(--text);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.q5-cell-rate {
+  display: block;
+  color: var(--green-soft);
+  font-weight: 700;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.q5-cell-amen {
+  display: block;
+  color: var(--text-mute);
+  font-size: 11px;
+}
+
+.q5-cell-empty {
+  color: var(--text-mute);
+}
+
+.q5-caption {
+  margin: 8px 0 4px;
+  color: var(--text-mute);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.q5-knowledge-grid {
+  display: grid;
+  gap: 18px;
+  margin: 10px 0 30px;
+}
+
+.q5-knowledge {
+  padding: 24px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+}
+
+.q5-knowledge__title {
+  margin: 0 0 16px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.q5-knowledge__list {
+  display: grid;
+  grid-template-columns: minmax(150px, 190px) 1fr;
+  gap: 12px 20px;
+  margin: 0;
+}
+
+.q5-knowledge__list dt {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--green-soft);
+}
+
+.q5-knowledge__list dd {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+@media (max-width: 640px) {
+  .q5-filter-form {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .q5-canvas {
+    height: 280px;
+  }
+
+  .q5-knowledge__list {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .q5-knowledge__list dd {
+    margin-bottom: 10px;
+  }
+}

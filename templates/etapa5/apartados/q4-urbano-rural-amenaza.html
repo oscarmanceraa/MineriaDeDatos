@@ -1,7 +1,336 @@
+{% if error %}
+<div class="doc-prose">
+    <div class="callout">
+        <div class="callout__label">No se pudo consultar el modelo</div>
+        <div class="callout__text">
+            Revisa la conexión con Supabase y vuelve a intentarlo.
+            <small>{{ error }}</small>
+        </div>
+    </div>
+</div>
+{% elif datos %}
+<div class="doc-prose">
+
+    <div class="pob-meta">
+        <span class="pob-meta__item"><strong>Fuente:</strong> {{ datos.fuente }}</span>
+        <span class="pob-meta__item"><strong>Cobertura:</strong> {{ datos.cobertura }}</span>
+        <span class="pob-meta__item"><strong>Granularidad:</strong> un registro de ocurrencia</span>
+        <span class="pob-meta__item"><strong>Medida de amenaza:</strong> CR/EN/VU</span>
+    </div>
+
+    <p>
+        Esta vista cruza <strong>territorio</strong> (provincia y categoría urbana/rural),
+        <strong>conservación</strong> (categoría UICN) y <strong>tiempo</strong> para comparar
+        tasas de amenaza entre provincias con volúmenes muy distintos. La medida principal es
+        la tasa de amenaza: registros CR/EN/VU sobre el total de registros de cada celda, no
+        sobre el total general. Cambiar de nivel recalcula el denominador.
+    </p>
+
+    <form class="q5-filter-form" method="get" action="{{ url_for('main.analisis_multidimensional', slug=apartado.slug) }}">
+        <div class="q5-field">
+            <label for="f-provincia">Provincia (territorio)</label>
+            <select id="f-provincia" name="provincia" class="q5-select">
+                <option value="todas" {% if datos.filtros.provincia == 'todas' %}selected{% endif %}>Todas las provincias</option>
+                {% for p in datos.opciones.provincias %}
+                    <option value="{{ p }}" {% if datos.filtros.provincia == p %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="q5-field">
+            <label for="f-periodo">Periodo (tiempo)</label>
+            <select id="f-periodo" name="periodo" class="q5-select">
+                {% for item in datos.opciones.periodos %}
+                    <option value="{{ item.valor }}" {% if datos.filtros.periodo == item.valor %}selected{% endif %}>{{ item.etiqueta }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="q5-field">
+            <label for="f-categoria">Categoría territorial (slice)</label>
+            <select id="f-categoria" name="categoria" class="q5-select">
+                {% for c in datos.opciones.categorias %}
+                    <option value="{{ c }}" {% if datos.filtros.categoria == c %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="q5-field">
+            <label for="f-conservacion">Conservación (slice)</label>
+            <select id="f-conservacion" name="conservacion" class="q5-select">
+                {% for c in datos.opciones.conservaciones %}
+                    <option value="{{ c }}" {% if datos.filtros.conservacion == c %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <input type="hidden" name="pivot" value="{{ '1' if datos.filtros.pivot else '0' }}">
+        <input type="hidden" name="drill" value="{{ '1' if datos.filtros.drill else '0' }}">
+        <button type="submit" class="q5-btn">Aplicar filtros</button>
+    </form>
+
+    <div class="q5-toolbar">
+        <a class="q5-btn q5-btn--ghost {% if datos.filtros.conservacion == 'Amenazadas' %}q5-btn--active{% endif %}"
+           href="{{ url_for('main.analisis_multidimensional', slug=apartado.slug, provincia=datos.filtros.provincia, periodo=datos.filtros.periodo, categoria=datos.filtros.categoria, conservacion=('Todas' if datos.filtros.conservacion == 'Amenazadas' else 'Amenazadas'), pivot=('1' if datos.filtros.pivot else '0'), drill=('1' if datos.filtros.drill else '0')) }}">
+            Slice · {{ 'Quitar solo amenazadas' if datos.filtros.conservacion == 'Amenazadas' else 'Solo amenazadas (CR/EN/VU)' }}
+        </a>
+        <a class="q5-btn q5-btn--ghost"
+           href="{{ url_for('main.analisis_multidimensional', slug=apartado.slug, provincia=datos.filtros.provincia, periodo='2024-2026', categoria='Rural', conservacion='Todas', pivot=('1' if datos.filtros.pivot else '0'), drill='0') }}">
+            Dice · provincia + rural + 2024–2026
+        </a>
+        <a class="q5-btn q5-btn--ghost {% if datos.filtros.pivot %}q5-btn--active{% endif %}"
+           href="{{ url_for('main.analisis_multidimensional', slug=apartado.slug, provincia=datos.filtros.provincia, periodo=datos.filtros.periodo, categoria=datos.filtros.categoria, conservacion=datos.filtros.conservacion, pivot=('0' if datos.filtros.pivot else '1'), drill=('1' if datos.filtros.drill else '0')) }}">
+            Pivot · {{ 'Volver a provincia × categoría' if datos.filtros.pivot else 'Intercambiar ejes' }}
+        </a>
+        {% if datos.filtros.provincia != 'todas' %}
+        <a class="q5-btn q5-btn--ghost {% if datos.filtros.drill %}q5-btn--active{% endif %}"
+           href="{{ url_for('main.analisis_multidimensional', slug=apartado.slug, provincia=datos.filtros.provincia, periodo=datos.filtros.periodo, categoria=datos.filtros.categoria, conservacion=datos.filtros.conservacion, pivot=('1' if datos.filtros.pivot else '0'), drill=('0' if datos.filtros.drill else '1')) }}">
+            Drill-down · {{ 'Volver a provincia' if datos.filtros.drill else 'Ver municipios de ' ~ datos.filtros.provincia }}
+        </a>
+        {% endif %}
+        <a class="q5-btn q5-btn--reset" href="{{ url_for('main.analisis_multidimensional', slug=apartado.slug) }}">Restablecer</a>
+    </div>
+
+    <div class="pob-chips q5-chips">
+        <span class="pob-chip pob-chip--active">{{ datos.etiquetas.provincia }}</span>
+        <span class="pob-chip">{{ datos.etiquetas.periodo }}</span>
+        <span class="pob-chip">{{ datos.etiquetas.categoria }}</span>
+        <span class="pob-chip">{{ datos.etiquetas.conservacion }}</span>
+        {% if datos.filtros.pivot %}<span class="pob-chip pob-chip--active">Pivot activo</span>{% endif %}
+        {% if datos.filtros.drill and datos.filtros.provincia != 'todas' %}<span class="pob-chip pob-chip--active">Nivel municipio</span>{% endif %}
+    </div>
+
+    {% if datos.nota_slice %}
+        <div class="q5-note">{{ datos.nota_slice }}</div>
+    {% endif %}
+
+    <div class="pob-kpi-grid">
+        {% for k in datos.indicadores %}
+            <div class="pob-kpi">
+                <span class="pob-kpi__label">{{ k.etiqueta }}</span>
+                <span class="pob-kpi__value">{{ k.valor }}</span>
+                <span class="pob-kpi__detail">{{ k.detalle }}</span>
+            </div>
+        {% endfor %}
+    </div>
+
+    <h3 class="q5-section-title">Visualizaciones</h3>
+    <div class="pob-chart-grid">
+        <figure class="pob-chart">
+            <span class="pob-chart__title">
+                {% if datos.chart_barras.tipo == 'registros' %}
+                    Registros amenazados por {{ datos.matriz.modo }} y categoría territorial
+                {% else %}
+                    Tasa de amenaza por {{ datos.matriz.modo }} y categoría territorial
+                    (top 10 por amenazados)
+                {% endif %}
+            </span>
+            <div class="q5-canvas"><canvas id="q4-barras"></canvas></div>
+            <p class="pob-chart__interp">
+                Cada barra muestra la tasa de amenaza calculada dentro de su propia celda. No se suman
+                porcentajes entre categorías; los totales se recalculan con sus registros.
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <span class="pob-chart__title">Registros vs tasa de amenaza por provincia</span>
+            <div class="q5-canvas"><canvas id="q4-burbuja"></canvas></div>
+            <p class="pob-chart__interp">
+                El eje X es el volumen de registros y el eje Y la tasa de amenaza. El tamaño del punto
+                representa las especies distintas. Volumen alto no implica tasa alta.
+            </p>
+        </figure>
+    </div>
+
+    <h3 class="q5-section-title">
+        Matriz {{ 'categoría × ' ~ datos.matriz.modo if datos.matriz.pivot else datos.matriz.modo ~ ' × categoría' }}
+    </h3>
+    <div class="q5-table-wrap">
+        <table class="source-table q5-matrix">
+            <thead>
+                <tr>
+                    <th scope="col">{{ 'Categoría' if datos.matriz.pivot else datos.matriz.modo|capitalize }}</th>
+                    {% for col in datos.matriz.columnas %}
+                        <th scope="col">{{ col }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for fila in datos.matriz.filas %}
+                    <tr>
+                        <th scope="row">{{ fila }}</th>
+                        {% for col in datos.matriz.columnas %}
+                            {% set celda = datos.matriz.celdas[fila][col] %}
+                            <td>
+                                {% if celda %}
+                                    <span class="q5-cell-reg">{{ "{:,}".format(celda.registros) }}</span>
+                                    <span class="q5-cell-rate">{{ "%.2f"|format(celda.tasa) }}%</span>
+                                    <span class="q5-cell-amen">{{ celda.amenazados }} amenazados</span>
+                                {% else %}
+                                    <span class="q5-cell-empty">—</span>
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="q5-caption">
+        Cada celda muestra registros, tasa de amenaza y número de registros amenazados. El denominador
+        es la cantidad de registros de esa celda, no el total general.
+    </p>
+
+    <h3 class="q5-section-title">Interpretación</h3>
+    <p>{{ datos.interpretacion }}</p>
+
+    <h3 class="q5-section-title">Conocimientos multidimensionales</h3>
+    <div class="q5-knowledge-grid">
+        {% for k in datos.conocimientos %}
+            <article class="q5-knowledge">
+                <h4 class="q5-knowledge__title">{{ loop.index }}. {{ k.titulo }}</h4>
+                <dl class="q5-knowledge__list">
+                    <dt>Pregunta</dt><dd>{{ k.pregunta }}</dd>
+                    <dt>Dimensiones y medidas</dt><dd>{{ k.dimensiones }}</dd>
+                    <dt>Procedimiento</dt><dd>{{ k.procedimiento }}</dd>
+                    <dt>Evidencia</dt><dd>{{ k.evidencia }}</dd>
+                    <dt>Hallazgo</dt><dd>{{ k.hallazgo }}</dd>
+                    <dt>Interpretación</dt><dd>{{ k.interpretacion }}</dd>
+                    <dt>Utilidad</dt><dd>{{ k.utilidad }}</dd>
+                    <dt>Limitación</dt><dd>{{ k.limitacion }}</dd>
+                </dl>
+            </article>
+        {% endfor %}
+    </div>
+
+    <h3 class="q5-section-title">Limitación del análisis</h3>
+    <div class="callout">
+        <div class="callout__label">Alcance</div>
+        <div class="callout__text">{{ datos.limitacion }}</div>
+    </div>
+
+    <h3 class="q5-section-title">Decisión sustentada</h3>
+    <p>{{ datos.decision }}</p>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/chart.umd.min.js') }}"></script>
+<script>
+(function () {
+    const barras = {{ datos.chart_barras|tojson }};
+    const burbuja = {{ datos.chart_burbuja|tojson }};
+    const verde = '#5be58a';
+    const cian = '#3fd8e8';
+    const gris = '#a8b3b0';
+    const paleta = [cian, verde, gris, '#f2b84b'];
+    const texto = '#9fb3af';
+    const grilla = 'rgba(148, 163, 184, 0.14)';
+
+    const ejeX = {
+        ticks: { color: texto, maxRotation: 40, minRotation: 0 },
+        grid: { display: false }
+    };
+    const esTasa = barras.tipo === 'tasa';
+    const ejeY = {
+        beginAtZero: true,
+        ticks: {
+            color: texto,
+            callback: (v) => (esTasa ? v + '%' : Number(v).toLocaleString('es-CO'))
+        },
+        grid: { color: grilla }
+    };
+
+    const canvasBarras = document.getElementById('q4-barras');
+    if (canvasBarras && window.Chart) {
+        new Chart(canvasBarras, {
+            type: 'bar',
+            data: {
+                labels: barras.etiquetas,
+                datasets: barras.series.map((serie, i) => ({
+                    label: serie.nombre,
+                    data: serie.valores,
+                    backgroundColor: paleta[i % paleta.length],
+                    borderRadius: 4,
+                    maxBarThickness: 36
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { x: ejeX, y: ejeY },
+                plugins: {
+                    legend: { labels: { color: texto, boxWidth: 12 } },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => {
+                                const valor = Number(ctx.parsed.y);
+                                return ctx.dataset.label + ': ' + (
+                                    esTasa
+                                        ? valor.toFixed(2) + '%'
+                                        : valor.toLocaleString('es-CO')
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    const canvasBurbuja = document.getElementById('q4-burbuja');
+    if (canvasBurbuja && window.Chart) {
+        new Chart(canvasBurbuja, {
+            type: 'bubble',
+            data: {
+                datasets: [{
+                    label: 'Provincias',
+                    data: burbuja.puntos,
+                    backgroundColor: 'rgba(91, 229, 138, 0.28)',
+                    borderColor: verde,
+                    borderWidth: 1.5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Registros', color: texto },
+                        ticks: { color: texto },
+                        grid: { color: grilla }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Tasa de amenaza (%)', color: texto },
+                        ticks: { color: texto, callback: (v) => v + '%' },
+                        grid: { color: grilla }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => {
+                                const p = ctx.raw;
+                                return [
+                                    p.provincia,
+                                    'Registros: ' + p.x.toLocaleString('es-CO'),
+                                    'Tasa: ' + Number(p.y).toFixed(2) + '%',
+                                    'Amenazados: ' + p.amenazados,
+                                    'Especies: ' + p.especies
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+})();
+</script>
+{% else %}
 <div class="doc-prose">
     <div class="callout">
         <div class="callout__label">Contenido en desarrollo</div>
         <div class="callout__text">
+            Esta vista será desarrollada por el integrante asignado a la pregunta 04.
         </div>
     </div>
 </div>
+{% endif %}
