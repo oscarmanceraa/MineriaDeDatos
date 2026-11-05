@@ -21,6 +21,54 @@
         </p>
     </header>
 
+    <div class="doc-prose">
+        <h2 class="q5-section-title">Propósito de la etapa</h2>
+        <p>
+            Esta sección organiza el conjunto de datos tratado (20.087 registros de ocurrencia,
+            periodo 2000-2026, corte 08/09/2026) en un modelo estrella consultable desde Flask.
+            Permite profundizar en los hallazgos de conocimiento evidente de la etapa 4 mediante
+            el cruce de dimensiones, la exploración de niveles de detalle y la aplicación de
+            operaciones multidimensionales.
+        </p>
+
+        <h2 class="q5-section-title">Relación con el conocimiento evidente</h2>
+        <p>
+            Los conocimientos de etapa 4 describieron patrones agregados (poblacional, territorial,
+            temporal y multivariado). Esta etapa recalcula medidas sobre la selección activa,
+            diferencia conteos de filas, sumas de cantidades y conteos distintos, y expone
+            asociaciones descriptivas sin afirmar causalidad.
+        </p>
+
+        <h2 class="q5-section-title">Modelo estrella</h2>
+        <p>
+            Tabla de hechos: <code>hecho_registros_ocurrencia</code>, granularidad de una fila
+            por <code>registro_key</code> (ocurrencia). Dimensiones: tiempo, territorio, taxón,
+            fuente y conservación. Medidas: ocurrencias (COUNT(*)), cantidad de registros
+            (SUM(cantidad_registros)), promedio de cantidad (AVG, recalculado por grupo) y
+            especies identificadas (COUNT DISTINCT, excluyendo 'Sin Identificar').
+        </p>
+        <p>
+            Jerarquías: territorio provincia → municipio; tiempo año → trimestre → mes;
+            taxón grupo → clase → familia → género → especie. Las relaciones son 1:N desde cada
+            dimensión hacia el hecho; las claves primarias y foráneas se verifican en el ETL.
+        </p>
+
+        <h2 class="q5-section-title">Operaciones multidimensionales implementadas</h2>
+        <p>
+            Drill-down, roll-up, slice, dice y pivot se aplican sobre las cuatro vistas. Cada
+            operación recalcula las medidas y los denominadores de los porcentajes según el nivel
+            o filtro activo.
+        </p>
+
+        <h2 class="q5-section-title">Limitaciones y conclusiones</h2>
+        <p>
+            El modelo mide registros de ocurrencia, no individuos ni esfuerzo de muestreo.
+            2026 es parcial (corte 08/09/2026), 392 registros no tienen año y 47 registros
+            amenazados no tienen territorio asignado. Las categorías 'Sin Clasificar', 'Sin
+            Identificar', NE y datos insuficientes se conservan como estados desconocidos.
+        </p>
+    </div>
+
     <div class="apartados-grid">
         {% for d in dimensiones %}
             {% if d.disponible %}

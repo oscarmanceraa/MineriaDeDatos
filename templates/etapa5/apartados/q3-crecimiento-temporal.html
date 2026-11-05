@@ -1,7 +1,281 @@
+{% if error %}
 <div class="doc-prose">
     <div class="callout">
-        <div class="callout__label">Contenido en desarrollo</div>
+        <div class="callout__label">No se pudo consultar el modelo</div>
         <div class="callout__text">
+            Revisa la conexión con Supabase y vuelve a intentarlo.
+            <small>{{ error }}</small>
         </div>
     </div>
 </div>
+{% elif datos %}
+<div class="doc-prose">
+    <h2 class="q5-section-title">Análisis del crecimiento temporal 2024-2026</h2>
+    <p><strong>Pregunta:</strong> {{ apartado.titulo }}</p>
+
+    <div class="pob-meta">
+        <span class="pob-meta__item"><strong>Fuente:</strong> {{ datos.fuente }}</span>
+        <span class="pob-meta__item"><strong>Cobertura:</strong> {{ datos.cobertura }}</span>
+        <span class="pob-meta__item"><strong>Granularidad:</strong> una fila del hecho por ocurrencia</span>
+        <span class="pob-meta__item"><strong>Nivel temporal:</strong> {{ datos.etiquetas.nivel }}</span>
+    </div>
+
+    <p>
+        <strong>Dimensiones:</strong> Tiempo, Fuente y Taxón.
+        <strong>Jerarquías:</strong> año → trimestre → mes; fuente expone
+        <code>dataset_origen</code>, <code>tipo_registro</code> y <code>basis_of_record</code>;
+        taxón expone grupo → clase → familia → género → especie.
+        <strong>Medidas:</strong> conteo de ocurrencias, suma y promedio de
+        <code>cantidad_registros</code>, y conteo distinto de especies identificadas.
+        El periodo se fija en 2024-2026 (2026 parcial) para no comparar años incompletos
+        con años completos.
+    </p>
+
+    <form class="q5-filter-form" method="get"
+          action="{{ url_for('main.analisis_multidimensional', slug=apartado.slug) }}">
+        <div class="q5-field">
+            <label for="q3-fuente">Fuente · dataset_origen</label>
+            <select id="q3-fuente" name="fuente" class="q5-select">
+                <option value="">Todas las fuentes</option>
+                {% for fuente in datos.opciones.fuentes %}
+                    <option value="{{ fuente }}" {% if datos.filtros.fuente == fuente %}selected{% endif %}>
+                        {{ fuente }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="q5-field">
+            <label for="q3-grupo">Grupo taxonómico · Taxón</label>
+            <select id="q3-grupo" name="grupo" class="q5-select">
+                <option value="">Todos los grupos</option>
+                {% for grupo in datos.opciones.grupos %}
+                    <option value="{{ grupo }}" {% if datos.filtros.grupo == grupo %}selected{% endif %}>
+                        {{ grupo }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <input type="hidden" name="nivel" value="{{ datos.filtros.nivel }}">
+        <input type="hidden" name="pivot" value="{{ '1' if datos.filtros.pivot else '0' }}">
+        <button type="submit" class="q5-btn">Aplicar filtros / slice</button>
+    </form>
+
+    <div class="q5-toolbar">
+        {% if datos.filtros.nivel == 'anio' %}
+            <a class="q5-btn q5-btn--ghost"
+               href="{{ url_for('main.analisis_multidimensional', slug=apartado.slug, fuente=datos.filtros.fuente or '', grupo=datos.filtros.grupo or '', nivel='trimestre', pivot='1' if datos.filtros.pivot else '0') }}">
+                Drill-down · Trimestre
+            </a>
+        {% elif datos.filtros.nivel == 'trimestre' %}
+            <a class="q5-btn q5-btn--ghost"
+               href="{{ url_for('main.analisis_multidimensional', slug=apartado.slug, fuente=datos.filtros.fuente or '', grupo=datos.filtros.grupo or '', nivel='mes', pivot='1' if datos.filtros.pivot else '0') }}">
+                Drill-down · Mes
+            </a>
+            <a class="q5-btn q5-btn--ghost"
+               href="{{ url_for('main.analisis_multidimensional', slug=apartado.slug, fuente=datos.filtros.fuente or '', grupo=datos.filtros.grupo or '', nivel='anio', pivot='1' if datos.filtros.pivot else '0') }}">
+                Roll-up · Año
+            </a>
+        {% elif datos.filtros.nivel == 'mes' %}
+            <a class="q5-btn q5-btn--ghost"
+               href="{{ url_for('main.analisis_multidimensional', slug=apartado.slug, fuente=datos.filtros.fuente or '', grupo=datos.filtros.grupo or '', nivel='trimestre', pivot='1' if datos.filtros.pivot else '0') }}">
+                Roll-up · Trimestre
+            </a>
+        {% endif %}
+        <a class="q5-btn q5-btn--ghost {% if datos.filtros.pivot %}q5-btn--active{% endif %}"
+           href="{{ url_for('main.analisis_multidimensional', slug=apartado.slug, fuente=datos.filtros.fuente or '', grupo=datos.filtros.grupo or '', nivel=datos.filtros.nivel, pivot=('0' if datos.filtros.pivot else '1')) }}">
+            Pivot · {{ 'Restaurar tiempo × fuente' if datos.filtros.pivot else 'Intercambiar ejes' }}
+        </a>
+        <a class="q5-btn q5-btn--reset"
+           href="{{ url_for('main.analisis_multidimensional', slug=apartado.slug) }}">
+            Restablecer
+        </a>
+    </div>
+
+    <div class="pob-chips q5-chips" aria-label="Filtros activos">
+        <span class="pob-chip pob-chip--active">{{ datos.etiquetas.fuente }}</span>
+        <span class="pob-chip pob-chip--active">{{ datos.etiquetas.grupo }}</span>
+        <span class="pob-chip">{{ datos.etiquetas.nivel }}</span>
+        <span class="pob-chip">{{ datos.etiquetas.periodo }}</span>
+        {% if datos.filtros.pivot %}
+            <span class="pob-chip pob-chip--active">Pivot activo</span>
+        {% endif %}
+    </div>
+
+    <h3 class="q5-section-title">Indicadores de la selección</h3>
+    <div class="pob-kpi-grid">
+        {% for indicador in datos.indicadores %}
+            <div class="pob-kpi">
+                <span class="pob-kpi__label">{{ indicador.etiqueta }}</span>
+                <span class="pob-kpi__value">{{ indicador.valor }}</span>
+                <span class="pob-kpi__detail">{{ indicador.detalle }}</span>
+            </div>
+        {% endfor %}
+    </div>
+
+    <h3 class="q5-section-title">Visualizaciones</h3>
+    <div class="pob-chart-grid">
+        <figure class="pob-chart">
+            <figcaption class="pob-chart__title">Ocurrencias por año y fuente (2024-2026)</figcaption>
+            <div class="q5-canvas"><canvas id="q3-anios"></canvas></div>
+            <p class="pob-chart__interp">
+                Cada serie es una fuente; las ocurrencias se cuentan como filas del hecho.
+                Los años se mantienen separados para no mezclar 2026 parcial con años completos.
+            </p>
+        </figure>
+        <figure class="pob-chart">
+            <figcaption class="pob-chart__title">Participación por grupo taxonómico en el periodo</figcaption>
+            <div class="q5-canvas"><canvas id="q3-grupos"></canvas></div>
+            <p class="pob-chart__interp">
+                La participación usa como denominador todas las ocurrencias del periodo filtrado;
+                no se suman porcentajes entre grupos.
+            </p>
+        </figure>
+    </div>
+
+    <h3 class="q5-section-title">
+        Matriz {{ 'Fuente × Tiempo' if datos.filtros.pivot else 'Tiempo × Fuente' }}
+    </h3>
+    <div class="q5-table-wrap">
+        <table class="source-table q5-matrix">
+            <thead>
+                <tr>
+                    <th scope="col">
+                        {{ 'Fuente' if datos.filtros.pivot else 'Periodo' }}
+                    </th>
+                    {% for columna in datos.matriz.columnas %}
+                        <th scope="col">{{ columna }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for fila in datos.matriz.filas %}
+                    <tr>
+                        <th scope="row">{{ fila }}</th>
+                        {% for columna in datos.matriz.columnas %}
+                            {% set celda = datos.matriz.celdas.get(fila, {}).get(columna) %}
+                            <td>
+                                {% if celda %}
+                                    <span class="q5-cell-reg">{{ "{:,}".format(celda.ocurrencias|int) }} ocurrencias</span>
+                                    <span class="q5-cell-rate">{{ "%.2f"|format(celda.porcentaje_ocurrencias|float) }}% del periodo filtrado</span>
+                                    <span class="q5-cell-amen">{{ celda.especies_identificadas|int }} especies únicas en celda</span>
+                                    <span class="q5-cell-empty">Suma: {{ celda.cantidad_registros|int }} · Promedio: {{ "%.2f"|format(celda.promedio_cantidad_por_ocurrencia|float) }}</span>
+                                {% else %}
+                                    <span class="q5-cell-empty">Sin ocurrencias</span>
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% else %}
+                    <tr><td colspan="{{ datos.matriz.columnas|length + 1 }}">La selección no contiene resultados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="q5-caption">
+        Los porcentajes de celdas usan como denominador las ocurrencias del periodo filtrado.
+        No se suman porcentajes ni conteos de especies únicas entre celdas.
+    </p>
+
+    <h3 class="q5-section-title">Interpretación</h3>
+    <p>{{ datos.interpretacion }}</p>
+
+    <h3 class="q5-section-title">Conocimientos multidimensionales</h3>
+    <div class="q5-knowledge-grid">
+        {% for conocimiento in datos.conocimientos %}
+            <article class="q5-knowledge">
+                <h4 class="q5-knowledge__title">{{ loop.index }}. {{ conocimiento.titulo }}</h4>
+                <dl class="q5-knowledge__list">
+                    <dt>Pregunta</dt><dd>{{ conocimiento.pregunta }}</dd>
+                    <dt>Dimensiones y medidas</dt><dd>{{ conocimiento.dimensiones }}</dd>
+                    <dt>Procedimiento</dt><dd>{{ conocimiento.procedimiento }}</dd>
+                    <dt>Evidencia</dt><dd>{{ conocimiento.evidencia }}</dd>
+                    <dt>Hallazgo</dt><dd>{{ conocimiento.hallazgo }}</dd>
+                    <dt>Interpretación frente a etapa 4</dt><dd>{{ conocimiento.interpretacion }}</dd>
+                    <dt>Utilidad para una decisión</dt><dd>{{ conocimiento.utilidad }}</dd>
+                    <dt>Limitación</dt><dd>{{ conocimiento.limitacion }}</dd>
+                </dl>
+            </article>
+        {% endfor %}
+    </div>
+
+    <h3 class="q5-section-title">Limitación del análisis</h3>
+    <div class="callout">
+        <div class="callout__label">Alcance</div>
+        <div class="callout__text">{{ datos.limitacion }}</div>
+    </div>
+
+    <h3 class="q5-section-title">Decisión posible</h3>
+    <p>{{ datos.decision }}</p>
+</div>
+
+<script src="{{ url_for('static', filename='js/chart.umd.min.js') }}"></script>
+<script>
+(function () {
+    const anios = {{ datos.grafico_anios|tojson }};
+    const grupos = {{ datos.grafico_grupos|tojson }};
+    const texto = '#9fb3af';
+    const grilla = 'rgba(148, 163, 184, 0.14)';
+    const paleta = ['#3fd8e8', '#5be58a', '#f2b84b', '#a78bfa'];
+
+    const canvasAnios = document.getElementById('q3-anios');
+    if (canvasAnios && window.Chart) {
+        new Chart(canvasAnios, {
+            type: 'bar',
+            data: {
+                labels: anios.etiquetas,
+                datasets: anios.series.map((serie, i) => ({
+                    label: serie.nombre,
+                    data: serie.valores,
+                    backgroundColor: paleta[i % paleta.length],
+                    borderRadius: 4
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: texto }, grid: { display: false } },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Ocurrencias', color: texto },
+                        ticks: { color: texto },
+                        grid: { color: grilla }
+                    }
+                },
+                plugins: { legend: { labels: { color: texto } } }
+            }
+        });
+    }
+
+    const canvasGrupos = document.getElementById('q3-grupos');
+    if (canvasGrupos && window.Chart) {
+        new Chart(canvasGrupos, {
+            type: 'bar',
+            data: {
+                labels: grupos.etiquetas,
+                datasets: [{
+                    label: 'Ocurrencias',
+                    data: grupos.valores,
+                    backgroundColor: '#5be58a',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: texto, maxRotation: 40 }, grid: { display: false } },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Ocurrencias', color: texto },
+                        ticks: { color: texto },
+                        grid: { color: grilla }
+                    }
+                },
+                plugins: { legend: { labels: { color: texto } } }
+            }
+        });
+    }
+})();
+</script>
+{% endif %}
