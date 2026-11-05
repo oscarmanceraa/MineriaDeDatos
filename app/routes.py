@@ -5,6 +5,8 @@ from pathlib import Path
 from flask import Blueprint, render_template, redirect, request, url_for
 
 from app.calidad_data import RESULTADOS
+from app.etapa5.q1_concentracion import q1_datos
+from app.etapa5.q2_amenaza import q2_datos
 from app.etapa5.q4_urbano_rural import q4_datos
 
 main = Blueprint('main', __name__)
@@ -153,7 +155,29 @@ def analisis_multidimensional(slug):
 
     datos = None
     error = None
-    if slug == 'q4-urbano-rural-amenaza':
+    if slug == 'q1-concentracion-territorial':
+        try:
+            datos = q1_datos(
+                provincia=request.args.get('provincia'),
+                grupo=request.args.get('grupo'),
+                anio=request.args.get('anio'),
+                nivel=request.args.get('nivel', 'provincia'),
+                pivot=request.args.get('pivot') == '1',
+                operacion=request.args.get('operacion'),
+            )
+        except Exception as exc:  # pragma: no cover - depende de Supabase
+            error = str(exc)
+    elif slug == 'q2-amenaza-taxon-fuente':
+        try:
+            datos = q2_datos(
+                fuente=request.args.get('fuente'),
+                grupo=request.args.get('grupo'),
+                amenazadas=request.args.get('amenazadas') == '1',
+                operacion=request.args.get('operacion'),
+            )
+        except Exception as exc:  # pragma: no cover - depende de Supabase
+            error = str(exc)
+    elif slug == 'q4-urbano-rural-amenaza':
         try:
             datos = q4_datos(
                 provincia=request.args.get('provincia', 'todas'),
