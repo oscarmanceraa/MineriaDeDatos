@@ -1,6 +1,6 @@
 """Consultas de la pregunta 4 de la Etapa 05: urbano/rural y amenaza.
 
-Fuente: vista v_registros_analitico del modelo estrella cargado en SQLite.
+Fuente: vista v_registros_analitico del modelo estrella en Supabase.
 """
 
 from app.etapa5.db import conexion, fetch
@@ -176,8 +176,15 @@ def _chart_barras(matriz, metrica="tasa"):
     return {"etiquetas": etiquetas, "series": series, "tipo": metrica}
 
 
-def _chart_burbuja(conn, provincia, periodo, categoria, conservacion):
-    where, params = _condiciones(provincia, periodo, categoria, conservacion)
+def _chart_burbuja(conn, provincia, periodo):
+    where, params = [], []
+    if provincia and provincia != "todas":
+        where.append("provincia = %s")
+        params.append(provincia)
+    periodo_sql = _periodo_condicion(periodo)
+    if periodo_sql:
+        where.append(periodo_sql)
+
     sql = f"""
         SELECT
             provincia,
@@ -361,13 +368,7 @@ def q4_datos(provincia="todas", periodo="todo", categoria="Todas", conservacion=
         matriz = _matriz(conn, where, params, fila_col, pivot)
         metrica_barras = "registros" if conservacion == "Amenazadas" else "tasa"
         barras = _chart_barras(matriz, metrica_barras)
-        burbuja = _chart_burbuja(
-            conn,
-            provincia,
-            periodo,
-            categoria,
-            conservacion,
-        )
+        burbuja = _chart_burbuja(conn, provincia, periodo)
 
         total = fetch(
             conn,
@@ -493,6 +494,6 @@ def q4_datos(provincia="todas", periodo="todo", categoria="Todas", conservacion=
             "registros amenazados sin provincia y contrastar los hallazgos con fuentes independientes antes de "
             "declarar prioridades de conservación."
         ),
-        "fuente": "Dataset/Dataset.csv consultado desde el modelo estrella SQLite, Etapa 05.",
+        "fuente": "Dataset/Dataset.csv procesado en Supabase (modelo estrella, Etapa 05).",
         "cobertura": "20.087 registros de ocurrencia, periodo 2000–2026, corte 08/09/2026.",
     }
