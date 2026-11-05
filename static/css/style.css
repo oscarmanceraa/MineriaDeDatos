@@ -2670,3 +2670,236 @@ a {
     font-size: 10px;
   }
 }
+
+.q5-filter-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.q5-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.q5-field label {
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.q5-select {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #07171b;
+  color: var(--text);
+}
+
+.q5-select:focus {
+  outline: 2px solid rgba(91, 229, 138, 0.4);
+  outline-offset: 1px;
+}
+
+.q5-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.q5-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 13px;
+  border: 1px solid rgba(91, 229, 138, 0.3);
+  border-radius: 9px;
+  background: rgba(91, 229, 138, 0.1);
+  color: var(--green-soft);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.q5-btn:hover,
+.q5-btn--active {
+  border-color: var(--green);
+  background: rgba(91, 229, 138, 0.2);
+}
+
+.q5-btn--ghost {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+}
+
+.q5-btn--reset {
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-mute);
+}
+
+.q5-note {
+  margin: 8px 0 18px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--cyan);
+  border-radius: 8px;
+  background: rgba(63, 216, 232, 0.08);
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+.q5-section-title {
+  margin: 30px 0 14px;
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.q5-canvas {
+  position: relative;
+  width: 100%;
+  height: 340px;
+  margin-top: 10px;
+}
+
+.q5-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.q5-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.q5-matrix {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.q5-matrix thead th {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-mute);
+  font-size: 10.5px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.q5-matrix tbody th,
+.q5-matrix tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.q5-matrix tbody th {
+  color: var(--text);
+}
+
+.q5-matrix tbody tr:hover th,
+.q5-matrix tbody tr:hover td {
+  background: rgba(91, 229, 138, 0.04);
+}
+
+.q5-cell-reg,
+.q5-cell-rate,
+.q5-cell-amen {
+  display: block;
+}
+
+.q5-cell-reg {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.q5-cell-rate {
+  color: var(--green-soft);
+  font-weight: 700;
+}
+
+.q5-cell-amen,
+.q5-cell-empty {
+  color: var(--text-mute);
+  font-size: 11px;
+}
+
+.q5-caption {
+  margin: 8px 0 4px;
+  color: var(--text-mute);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.q5-knowledge-grid {
+  display: grid;
+  gap: 18px;
+  margin: 10px 0 30px;
+}
+
+.q5-knowledge {
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+}
+
+.q5-knowledge__title {
+  margin: 0 0 16px;
+  color: var(--text);
+  font-size: 1.05rem;
+}
+
+.q5-knowledge__list {
+  display: grid;
+  grid-template-columns: minmax(150px, 190px) 1fr;
+  gap: 12px 20px;
+}
+
+.q5-knowledge__list dt {
+  color: var(--green-soft);
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.q5-knowledge__list dd {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+@media (max-width: 640px) {
+  .q5-filter-form {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .q5-canvas {
+    height: 280px;
+  }
+
+  .q5-knowledge__list {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .q5-knowledge__list dd {
+    margin-bottom: 10px;
+  }
+}

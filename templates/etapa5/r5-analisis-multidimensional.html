@@ -19,6 +19,9 @@
         <p class="etapa-hero__sub">{{ apartado.inst }}</p>
     </header>
 
+    {% if apartado.slug == 'q4-urbano-rural-amenaza' %}
+        {% include 'etapa5/apartados/q4-urbano-rural-amenaza.html' %}
+    {% else %}
     <section class="md-panel md-question">
         <p class="md-eyebrow">Pregunta de análisis</p>
         <p class="md-question-text">{{ apartado.titulo }}</p>
@@ -259,6 +262,7 @@
             causales comprobados por esta consulta.
         </p>
     </section>
+    {% endif %}
 
     <div class="apartado-nav">
         <a class="btn-back" href="{{ url_for('main.etapa5') }}">← Volver a Análisis multidimensional</a>

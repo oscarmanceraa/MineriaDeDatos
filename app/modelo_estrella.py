@@ -373,6 +373,21 @@ def _create_schema(connection):
         CREATE INDEX ix_hecho_taxon ON hecho_registros_ocurrencia(taxon_key);
         CREATE INDEX ix_hecho_fuente ON hecho_registros_ocurrencia(fuente_key);
         CREATE INDEX ix_hecho_conservacion ON hecho_registros_ocurrencia(conservacion_key);
+        CREATE VIEW v_registros_analitico AS
+        SELECT h.registro_key,
+               t.anio, t.trimestre, t.mes, t.mes_nombre, t.temporada_climatica,
+               r.provincia, r.municipio, r.codigo_dane, r.categoria_territorial,
+               x.clase_grupo, x.clase, x.familia, x.genero, x.especie, x.nombre_comun,
+               u.dataset_origen, u.tipo_registro, u.basis_of_record,
+               c.iucn_codigo, c.iucn_estado, c.grupo_amenaza,
+               h.cantidad_registros, h.flag_amenazada, h.flag_riesgo,
+               h.flag_no_evaluada
+        FROM hecho_registros_ocurrencia h
+        JOIN dim_tiempo t ON t.tiempo_key = h.tiempo_key
+        JOIN dim_territorio r ON r.territorio_key = h.territorio_key
+        JOIN dim_taxon x ON x.taxon_key = h.taxon_key
+        JOIN dim_fuente u ON u.fuente_key = h.fuente_key
+        JOIN dim_conservacion c ON c.conservacion_key = h.conservacion_key;
         """
     )
 
