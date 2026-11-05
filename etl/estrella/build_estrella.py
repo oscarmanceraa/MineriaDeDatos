@@ -14,13 +14,17 @@ import argparse
 import json
 import os
 from pathlib import Path
+import sys
 
 import pandas as pd
-import psycopg2
 from dotenv import load_dotenv
-from psycopg2.extras import execute_values
 
 BASE = Path(__file__).resolve().parents[2]
+if str(BASE) not in sys.path:
+    sys.path.insert(0, str(BASE))
+
+from app.modelo_estrella import normalizar_jerarquia_taxon
+
 DATA = BASE / "Dataset" / "Dataset.csv"
 SCHEMA = Path(__file__).resolve().parent / "schema.sql"
 RESULTS = BASE / "results" / "estrella"
@@ -35,6 +39,8 @@ def get_connection():
     url = os.environ.get("SUPABASE_DB_URL")
     if not url:
         raise SystemExit("Falta SUPABASE_DB_URL en el archivo .env de la raiz.")
+    import psycopg2
+
     return psycopg2.connect(url, connect_timeout=20)
 
 
@@ -104,22 +110,28 @@ def preparar(df):
 
     taxon = pd.DataFrame(
         {
-            "especie": df["scientificName"].fillna("Sin Identificar"),
             "clase_grupo": df["clase_grupo"].fillna("Sin Identificar"),
             "clase": df["class"].fillna("Sin Identificar"),
             "familia": df["family"].fillna("Sin Identificar"),
             "genero": df["genus"].fillna("Sin Identificar"),
+            "especie": df["scientificName"].fillna("Sin Identificar"),
             "nombre_comun": df["nombre_comun"].fillna("Sin Registro"),
         }
     )
-    dim_taxon = (
-        taxon.drop_duplicates(subset=["especie"])
-        .sort_values("especie")
-        .reset_index(drop=True)
+    jerarquia, _ = normalizar_jerarquia_taxon(
+        taxon[
+            ["clase_grupo", "clase", "familia", "genero", "especie"]
+        ].itertuples(index=False, name=None)
     )
-    dim_taxon.insert(0, "taxon_key", range(1, len(dim_taxon) + 1))
-    mapa_taxon = dict(zip(dim_taxon["especie"], dim_taxon["taxon_key"]))
-    df["taxon_key"] = taxon["especie"].map(mapa_taxon)
+    for index, column in enumerate(
+        ["clase_grupo", "clase", "familia", "genero", "especie"]
+    ):
+        taxon[column] = [record[index] for record in jerarquia]
+    dim_taxon, df["taxon_key"] = construir_dimension(
+        taxon,
+        ["clase_grupo", "clase", "familia", "genero", "especie", "nombre_comun"],
+        "taxon_key",
+    )
 
     fuente = pd.DataFrame(
         {
@@ -251,6 +263,8 @@ def registros_hecho(df):
 
 
 def cargar(conn, df, dims):
+    from psycopg2.extras import execute_values
+
     dim_tiempo, dim_territorio, dim_taxon, dim_fuente, dim_conservacion = dims
 
     with conn:
@@ -366,6 +380,23 @@ def validar(conn, df, dims):
                 f"where d.{columna} is null"
             )
             check(f"FK sin huerfanas hacia {tabla}", 0, cur.fetchone()[0])
+
+        for parent, child in [
+            ("clase_grupo", "clase"),
+            ("clase", "familia"),
+            ("familia", "genero"),
+            ("genero", "especie"),
+        ]:
+            cur.execute(
+                f"select count(*) from (select {child} from dim_taxon "
+                f"group by {child} having count(distinct {parent}) > 1) "
+                "relaciones_ambiguas"
+            )
+            check(
+                f"jerarquia taxonomica {parent}-{child}",
+                0,
+                cur.fetchone()[0],
+            )
 
         cur.execute(
             "select count(*) from hecho_registros_ocurrencia where flag_amenazada = 1"

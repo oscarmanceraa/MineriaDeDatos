@@ -1,38 +1,272 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ apartado.num }} · {{ apartado.titulo }}{% endblock %}
+{% block title %}{{ apartado.num }} · Análisis multidimensional{% endblock %}
 {% block nav_etapa5 %}is-active{% endblock %}
 
 {% block content %}
-<section class="etapa-page">
-
+<section class="etapa-page md-page">
     <nav class="breadcrumb" aria-label="Ruta de navegación">
         <a href="{{ url_for('main.index') }}" class="breadcrumb-link">Inicio</a>
         <span class="breadcrumb-sep" aria-hidden="true">/</span>
         <a href="{{ url_for('main.etapa5') }}" class="breadcrumb-link">Etapa 05</a>
         <span class="breadcrumb-sep" aria-hidden="true">/</span>
-        <span class="breadcrumb-current">{{ apartado.titulo }}</span>
+        <span class="breadcrumb-current">Pregunta {{ apartado.num }}</span>
     </nav>
 
     <header class="apartado-hero">
-        <p class="etapa-hero__kicker">Dimensión {{ apartado.num }} · Etapa 05 · Análisis multidimensional</p>
+        <p class="etapa-hero__kicker">Pregunta {{ apartado.num }} · Etapa 05 · Análisis multidimensional</p>
         <h1 class="apartado-hero__title">{{ apartado.titulo }}</h1>
         <p class="etapa-hero__sub">{{ apartado.inst }}</p>
     </header>
 
-    <div class="apartado-body">
-        {% include 'etapa5/apartados/' ~ apartado.slug ~ '.html' %}
-    </div>
+    <section class="md-panel md-question">
+        <p class="md-eyebrow">Pregunta de análisis</p>
+        <p class="md-question-text">{{ apartado.titulo }}</p>
+        <div class="md-meta-grid">
+            <div><strong>Dimensiones</strong><span>{{ apartado.dimensions }}</span></div>
+            <div><strong>Medidas</strong><span>{{ apartado.measures }}</span></div>
+            <div><strong>Jerarquías</strong><span>{{ apartado.hierarchies }}</span></div>
+            <div><strong>Fuente y cobertura</strong><span>Dataset/Dataset.csv · {{ modelo.year_min }}–{{ modelo.year_max }} · corte {{ modelo.date_max }}</span></div>
+        </div>
+    </section>
+
+    <section class="md-panel">
+        <div class="md-controls-heading">
+            <div>
+                <p class="md-eyebrow">Exploración OLAP</p>
+                <h2>Filtros y niveles de detalle</h2>
+            </div>
+            <span class="md-live-badge">Consulta activa · SQLite</span>
+        </div>
+        <form class="md-controls" method="get" action="{{ url_for('main.analisis_multidimensional', slug=apartado.slug) }}">
+            {% for filter in res.filters %}
+            <label>
+                <span>{{ filter.label }} · {{ 'slice' if loop.first else 'dice' }}</span>
+                <select name="f_{{ filter.key }}">
+                    <option value="Todas" {% if filter.value == 'Todas' %}selected{% endif %}>Todas</option>
+                    {% for option in filter.options %}
+                    <option value="{{ option }}" {% if filter.value == option %}selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            {% endfor %}
+            {% if res.row_levels|length > 1 %}
+            <label>
+                <span>Drill-down / roll-up · filas</span>
+                <select name="row_level">
+                    {% for level in res.row_levels %}
+                    <option value="{{ level.key }}" {% if level.key == res.row_level %}selected{% endif %}>{{ level.label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            {% endif %}
+            {% if res.column_levels|length > 1 %}
+            <label>
+                <span>Drill-down / roll-up · columnas</span>
+                <select name="column_level">
+                    {% for level in res.column_levels %}
+                    <option value="{{ level.key }}" {% if level.key == res.column_level %}selected{% endif %}>{{ level.label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            {% endif %}
+            <label>
+                <span>Pivot · disposición de matriz</span>
+                <select name="pivot">
+                    <option value="0" {% if not res.pivot %}selected{% endif %}>{{ res.row_label }} en filas</option>
+                    <option value="1" {% if res.pivot %}selected{% endif %}>Intercambiar ejes</option>
+                </select>
+            </label>
+            <button type="submit" class="md-submit">Actualizar consulta</button>
+        </form>
+        <div class="md-active-filters" aria-live="polite">
+            <strong>Selección activa:</strong>
+            {% for filter in res.filters %}
+            <span>{{ filter.label }} = {{ filter.value }}</span>
+            {% endfor %}
+            <span>Filas = {{ res.row_label }}</span>
+            <span>Columnas = {{ res.column_label }}</span>
+            {% if res.pivot %}<span>Matriz pivotada</span>{% endif %}
+        </div>
+        <p class="md-operation-note">
+            Drill-down y roll-up vuelven a agrupar los hechos en el nivel elegido; los
+            conteos distintos y porcentajes no se suman, se recalculan en cada consulta.
+            Pivot cambia filas/columnas manteniendo las medidas. Las dos selecciones
+            categóricas se aplican conjuntamente (dice).
+        </p>
+    </section>
+
+    <section class="md-kpis" aria-label="Indicadores del subconjunto seleccionado">
+        <article class="md-kpi-card">
+            <span>Registros de ocurrencia</span>
+            <strong>{{ '{:,}'.format(res.summary.records or 0) }}</strong>
+            <small>COUNT(*) · no es conteo de especies</small>
+        </article>
+        <article class="md-kpi-card">
+            {% if apartado.slug == 'q2-amenaza-taxon-fuente' %}
+            <span>En riesgo · CR/EN/VU/NT</span>
+            <strong>{{ '{:,}'.format(res.summary.risk or 0) }}</strong>
+            <small>Incluye NT; NE se presenta por separado</small>
+            {% elif apartado.slug == 'q3-crecimiento-temporal' %}
+            <span>Especies identificadas distintas</span>
+            <strong>{{ '{:,}'.format(res.summary.species or 0) }}</strong>
+            <small>COUNT DISTINCT recalculado en el filtro</small>
+            {% else %}
+            <span>Amenazados · CR/EN/VU</span>
+            <strong>{{ '{:,}'.format(res.summary.threatened or 0) }}</strong>
+            <small>Conteo de registros, no de especies</small>
+            {% endif %}
+        </article>
+        <article class="md-kpi-card">
+            {% if apartado.slug == 'q2-amenaza-taxon-fuente' %}
+                {% set denominator = res.summary.records or 0 %}
+                <span>Proporción en riesgo</span>
+                <strong>{% if denominator %}{{ (100 * res.summary.risk / denominator)|round(2) }}%{% else %}—{% endif %}</strong>
+                <small>Denominador: {{ '{:,}'.format(denominator) }} registros filtrados</small>
+            {% elif apartado.slug == 'q3-crecimiento-temporal' %}
+            <span>Sin año informado</span>
+            <strong>{{ '{:,}'.format(res.summary.unknown_year or 0) }}</strong>
+            <small>Filas temporales «Sin año»</small>
+            {% elif apartado.slug == 'q1-concentracion-territorial' %}
+            <span>Riqueza de especies</span>
+            <strong>{{ '{:,}'.format(res.summary.species or 0) }}</strong>
+            <small>Especies identificadas distintas</small>
+            {% else %}
+                {% set denominator = res.summary.records or 0 %}
+                <span>Tasa CR/EN/VU</span>
+                <strong>{% if denominator %}{{ (100 * res.summary.threatened / denominator)|round(2) }}%{% else %}—{% endif %}</strong>
+                <small>Denominador: {{ '{:,}'.format(denominator) }} registros filtrados</small>
+            {% endif %}
+        </article>
+    </section>
+
+    <section class="md-section">
+        <p class="md-eyebrow">Visualizaciones · consulta al modelo estrella</p>
+        <div class="md-chart-grid">
+            <article class="md-chart-card">
+                <h2>Registros por {{ res.row_label|lower }}</h2>
+                <p>Conteo de ocurrencias en el subconjunto seleccionado.</p>
+                {% with panel=res.chart_one, chart_title='Registros de ocurrencia' %}
+                    {% include 'etapa5/_bar_chart.html' %}
+                {% endwith %}
+            </article>
+            <article class="md-chart-card">
+                <h2>
+                    {% if apartado.slug == 'q1-concentracion-territorial' %}
+                    Especies distintas por {{ res.column_label|lower }}
+                    {% elif apartado.slug == 'q2-amenaza-taxon-fuente' %}
+                    Registros en riesgo por {{ res.chart_two_label|lower }}
+                    {% elif apartado.slug == 'q3-crecimiento-temporal' %}
+                    Especies distintas por {{ res.chart_two_label|lower }}
+                    {% else %}
+                    Tasa CR/EN/VU por {{ res.chart_two_label|lower }}
+                    {% endif %}
+                </h2>
+                <p>
+                    {% if apartado.slug == 'q4-urbano-rural-amenaza' %}
+                    Porcentaje sobre las ocurrencias de cada periodo; se recalcula al cambiar el nivel.
+                    {% elif apartado.slug == 'q2-amenaza-taxon-fuente' %}
+                    CR/EN/VU/NT; separado de las categorías no evaluadas.
+                    {% else %}
+                    Conteo distinto, recalculado en el nivel seleccionado.
+                    {% endif %}
+                </p>
+                {% with panel=res.chart_two, chart_title='Medida comparativa' %}
+                    {% include 'etapa5/_bar_chart.html' %}
+                {% endwith %}
+            </article>
+        </div>
+    </section>
+
+    <section class="md-section">
+        <div class="md-controls-heading">
+            <div>
+                <p class="md-eyebrow">Cruce de dimensiones</p>
+                <h2>Matriz: {{ res.row_label }} × {{ res.column_label }}</h2>
+            </div>
+            <span class="md-unit-label">Cada celda: registros y tasa CR/EN/VU</span>
+        </div>
+        <div class="md-table-wrap">
+            <table class="md-matrix">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ res.row_label }} / {{ res.column_label }}</th>
+                        {% for label in res.matrix_column_labels %}
+                        <th scope="col">{{ label }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in res.matrix_rows %}
+                    <tr>
+                        <th scope="row">{{ row.label }}</th>
+                        {% for cell in row.cells %}
+                        <td>
+                            {% if cell.records is not none %}
+                            <strong>{{ '{:,}'.format(cell.records) }}</strong>
+                            <small>{{ cell.rate }}% amenazados</small>
+                            {% else %}—{% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="20">No hay registros con los filtros activos. Prueba otra selección.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if res.matrix_truncated %}
+        <p class="md-footnote">La matriz muestra las 40 combinaciones con más registros; indicadores y gráficas usan el subconjunto completo.</p>
+        {% endif %}
+        <p class="md-footnote">
+            La tasa de cada celda usa como denominador el número de registros de esa misma
+            celda. La riqueza se calcula con especies distintas identificadas y no se suma
+            entre grupos.
+        </p>
+    </section>
+
+    <section class="md-section">
+        <p class="md-eyebrow">Profundización frente a etapa 4</p>
+        <h2>Interpretación y decisión</h2>
+        <p class="md-interpretation">{{ apartado.continuity }}</p>
+        <div class="md-insights">
+            {% for insight in res.insights %}
+            <article class="md-insight">
+                <span class="md-insight-number">Conocimiento multidimensional 0{{ loop.index }}</span>
+                <h3>{{ insight.question }}</h3>
+                <dl>
+                    <div><dt>Dimensiones y medidas</dt><dd>{{ insight.dimensions }} · registros y riqueza (especies distintas)</dd></div>
+                    <div><dt>Procedimiento</dt><dd>{{ insight.procedure }}</dd></div>
+                    <div><dt>Evidencia</dt><dd>{{ insight.evidence }}</dd></div>
+                    <div><dt>Hallazgo</dt><dd>{{ insight.finding }}</dd></div>
+                    <div><dt>Interpretación</dt><dd>{{ insight.interpretation }}</dd></div>
+                    <div><dt>Utilidad</dt><dd>{{ insight.utility }}</dd></div>
+                    <div><dt>Limitación</dt><dd>{{ insight.limitation }}</dd></div>
+                </dl>
+            </article>
+            {% else %}
+            <div class="md-empty">No se generaron conocimientos para esta selección: el cruce no contiene registros.</div>
+            {% endfor %}
+        </div>
+        <div class="md-decision-grid">
+            <div><strong>Posible decisión sustentada</strong><p>{{ apartado.decision }}</p></div>
+            <div><strong>Limitación de esta vista</strong><p>{{ apartado.limitation }}</p></div>
+        </div>
+        <p class="md-causality-note">
+            Estos son patrones de asociación en los datos observados. Las diferencias
+            pueden relacionarse con esfuerzo de registro, cobertura, identificación o
+            actualización de fuentes; esas explicaciones son hipótesis, no efectos
+            causales comprobados por esta consulta.
+        </p>
+    </section>
 
     <div class="apartado-nav">
-        <a class="btn-back" href="{{ url_for('main.etapa5') }}">← Volver a la Etapa 05</a>
+        <a class="btn-back" href="{{ url_for('main.etapa5') }}">← Volver a Análisis multidimensional</a>
         {% if next %}
-            <a class="btn-next" href="{{ url_for('main.analisis_multidimensional', slug=next.slug) }}">
-                Siguiente · {{ next.num }} {{ next.titulo }}
-                <span class="btn-next__arrow" aria-hidden="true">→</span>
-            </a>
+        <a class="btn-next" href="{{ url_for('main.analisis_multidimensional', slug=next.slug) }}">
+            Siguiente · {{ next.num }} · Abrir pregunta <span class="btn-next__arrow" aria-hidden="true">→</span>
+        </a>
         {% endif %}
     </div>
-
 </section>
 {% endblock %}

@@ -4,48 +4,146 @@
 {% block nav_etapa5 %}is-active{% endblock %}
 
 {% block content %}
-<section class="etapa-page">
-
+<section class="etapa-page md-page">
     <nav class="breadcrumb" aria-label="Ruta de navegación">
         <a href="{{ url_for('main.index') }}" class="breadcrumb-link">Inicio</a>
         <span class="breadcrumb-sep" aria-hidden="true">/</span>
-        <span class="breadcrumb-current">Etapa 05</span>
+        <span class="breadcrumb-current">Etapa 05 · Análisis multidimensional</span>
     </nav>
 
     <header class="etapa-hero">
-        <p class="etapa-hero__kicker">Etapa activa · Minería de Datos</p>
+        <p class="etapa-hero__kicker">Etapa activa · Modelo estrella · Datos de ocurrencia</p>
         <h1 class="etapa-hero__title">Análisis multidimensional</h1>
         <p class="etapa-hero__sub">
-            Organización del conjunto de datos unificado en dimensiones de análisis para
-            explorarlo desde múltiples perspectivas.
+            Explora los registros tratados de fauna de Cundinamarca cruzando tiempo,
+            territorio, taxonomía, fuentes y estado de conservación.
         </p>
     </header>
 
-    <div class="apartados-grid">
-        {% for d in dimensiones %}
-            {% if d.disponible %}
-                <a class="item-card item-card--link" href="{{ url_for('main.analisis_multidimensional', slug=d.slug) }}">
-                    <span class="item-num">{{ d.num }}</span>
-                    <h2 class="item-title">{{ d.titulo }}</h2>
-                    <span class="item-cta">
-                        Abrir análisis
-                        <span class="item-arrow" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                                <polyline points="12 5 19 12 12 19"></polyline>
-                            </svg>
-                        </span>
-                    </span>
-                </a>
-            {% else %}
-                <div class="item-card item-card--soon" data-tip="Disponible en próximas iteraciones del proyecto">
-                    <span class="item-num">{{ d.num }}</span>
-                    <h2 class="item-title">{{ d.titulo }}</h2>
-                    <span class="item-state">Próximamente</span>
-                </div>
-            {% endif %}
-        {% endfor %}
-    </div>
+    <section class="md-panel md-overview">
+        <div>
+            <p class="md-eyebrow">Cobertura y unidad de análisis</p>
+            <h2>Continuidad del proyecto</h2>
+            <p>
+                Se conserva el conjunto unificado trabajado en las etapas anteriores:
+                <strong>Dataset/Dataset.csv</strong>. La unidad de análisis es una
+                ocurrencia identificada por <code>occurrenceID</code>; cada fila de la
+                tabla de hechos representa exactamente una ocurrencia tratada. La
+                granularidad del modelo describe esa fila con cinco claves dimensionales
+                (tiempo, territorio, taxón, fuente y conservación), no una especie ni un
+                agregado territorial.
+            </p>
+            <p>
+                Se cargaron <strong>{{ '{:,}'.format(modelo.records) }} registros</strong>,
+                con <strong>{{ '{:,}'.format(modelo.year_min) }}–{{ modelo.year_max }}</strong>
+                como años representados y cobertura de fechas
+                {{ modelo.date_min }}–{{ modelo.date_max }}. El último año es parcial.
+                {{ '{:,}'.format(modelo.unknown_year) }} registros no tienen año y
+                {{ '{:,}'.format(modelo.unknown_month) }} no tienen mes;
+                {{ '{:,}'.format(modelo.unknown_territory) }} aparecen en provincia
+                «Sin Clasificar». Se identifican
+                {{ '{:,}'.format(modelo.conflicting_taxa) }} nombres/grupos taxonómicos
+                con relaciones jerárquicas ambiguas; esos niveles se etiquetan «No
+                conciliado» para que cada clase, familia, género o especie tenga un
+                único padre en la jerarquía.
+            </p>
+        </div>
+        <div class="md-overview-kpis">
+            <div class="md-kpi"><strong>{{ '{:,}'.format(modelo.records) }}</strong><span>filas de hechos</span></div>
+            <div class="md-kpi"><strong>{{ '{:,}'.format(modelo.identified_taxa) }}</strong><span>nombres científicos distintos informados</span></div>
+            <div class="md-kpi"><strong>{{ '{:,}'.format(modelo.not_evaluated) }}</strong><span>registros con categoría NE</span></div>
+        </div>
+    </section>
 
+    <section class="md-section">
+        <p class="md-eyebrow">Diseño lógico</p>
+        <h2>Modelo estrella</h2>
+        <p class="md-intro">
+            Las cinco dimensiones tienen clave primaria propia y cada hecho conserva una
+            clave foránea hacia cada dimensión. La tabla de hechos no se une a dimensiones
+            de varios valores, por lo que un cruce no duplica ocurrencias.
+        </p>
+        <div class="md-star" role="img" aria-label="Modelo estrella con la tabla de hechos al centro y cinco dimensiones">
+            <div class="md-dim md-dim-time"><strong>dim_tiempo</strong><span>año · trimestre · mes · temporada</span></div>
+            <div class="md-dim md-dim-place"><strong>dim_territorio</strong><span>provincia · municipio · categoría · DANE</span></div>
+            <div class="md-dim md-dim-taxon"><strong>dim_taxon</strong><span>grupo · clase · familia · género · especie</span></div>
+            <div class="md-fact">
+                <strong>hecho_registros_ocurrencia</strong>
+                <span>PK registro_key = occurrenceID</span>
+                <span>FK × 5 · cantidad_registros · flags IUCN</span>
+                <span>1 fila = 1 ocurrencia</span>
+            </div>
+            <div class="md-dim md-dim-source"><strong>dim_fuente</strong><span>dataset · tipo de registro · basisOfRecord</span></div>
+            <div class="md-dim md-dim-status"><strong>dim_conservacion</strong><span>código · estado IUCN · grupo de amenaza</span></div>
+        </div>
+        <div class="md-schema-grid">
+            <article class="md-schema-card">
+                <h3>Medidas y agregación</h3>
+                <ul>
+                    <li><strong>Registros:</strong> COUNT(*), ocurrencias; aditivo entre grupos disjuntos.</li>
+                    <li><strong>Cantidad:</strong> SUM(cantidad_registros); unidad de conteo; aquí cada ocurrencia vale 1.</li>
+                    <li><strong>Riqueza:</strong> COUNT(DISTINCT especie identificada); volver a calcular en cada nivel, no sumar grupos.</li>
+                    <li><strong>Amenazados:</strong> SUM(flag_amenazada), CR/EN/VU; conteo aditivo.</li>
+                    <li><strong>Tasa:</strong> CR/EN/VU ÷ COUNT(*) × 100; porcentaje no aditivo, denominador = ocurrencias del cruce.</li>
+                    <li><strong>En riesgo:</strong> CR/EN/VU/NT; separado de amenazadas CR/EN/VU. NE significa no evaluada, no «no amenazada».</li>
+                </ul>
+            </article>
+            <article class="md-schema-card">
+                <h3>Jerarquías válidas</h3>
+                <ul>
+                    <li><strong>Tiempo:</strong> año → trimestre → mes; 2026 llega hasta {{ modelo.date_max }} y se interpreta como periodo parcial.</li>
+                    <li><strong>Territorio:</strong> provincia → municipio; el municipio se identifica junto con su provincia.</li>
+                    <li><strong>Taxón:</strong> grupo → clase → familia → género → especie. Se conserva el nombre científico como clave natural de agrupación.</li>
+                    <li><strong>Fuente:</strong> dataset, tipo de registro y basisOfRecord describen la procedencia; no se fuerza una jerarquía entre ellos.</li>
+                    <li>«Sin año», «Sin Clasificar» y «Sin Identificar» son categorías de calidad; NE es una categoría IUCN distinta.</li>
+                </ul>
+            </article>
+        </div>
+    </section>
+
+    <section class="md-section">
+        <p class="md-eyebrow">Comprobaciones del modelo</p>
+        <h2>Carga y calidad</h2>
+        <p class="md-intro">
+            Modelo cargado en SQLite en memoria al consultar esta sección, desde el CSV
+            tratado; el ETL remoto de Supabase queda disponible en
+            <code>etl/estrella/build_estrella.py</code>. No se requiere conexión externa
+            para explorar estos resultados.
+        </p>
+        <div class="md-validation-list">
+            {% for check in modelo.validation %}
+            <div class="md-validation {% if check.ok %}is-ok{% else %}is-failed{% endif %}">
+                <span class="md-validation-state">{% if check.ok %}OK{% else %}Revisar{% endif %}</span>
+                <strong>{{ check.name }}</strong>
+                <span>Esperado: {{ check.expected }} · Modelo: {{ check.actual }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="md-section">
+        <p class="md-eyebrow">Cuatro preguntas interactivas</p>
+        <h2>Explora los cruces</h2>
+        <div class="apartados-grid">
+            {% for d in dimensiones %}
+            <a class="item-card item-card--link" href="{{ url_for('main.analisis_multidimensional', slug=d.slug) }}">
+                <span class="item-num">{{ d.num }}</span>
+                <h3 class="item-title">{{ d.titulo }}</h3>
+                <span class="item-cta">Abrir análisis <span aria-hidden="true">→</span></span>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="md-section md-operations">
+        <p class="md-eyebrow">Operaciones OLAP implementadas</p>
+        <h2>Cómo explorar los datos</h2>
+        <div class="md-schema-grid">
+            <p><strong>Drill-down / roll-up:</strong> cambia provincia por municipio, grupo por clase o año por trimestre/mes. El servidor ejecuta otra agrupación y recalcula conteos, riqueza y tasas.</p>
+            <p><strong>Slice / dice:</strong> un filtro selecciona una categoría; dos filtros de dimensiones distintas delimitan el subconjunto de cada pregunta.</p>
+            <p><strong>Pivot:</strong> transpone filas y columnas de la matriz para comparar la misma agregación desde el eje opuesto.</p>
+            <p><strong>Limitación común:</strong> las fuentes tienen esfuerzos y coberturas distintas. Los patrones son asociaciones en los registros disponibles, no efectos causales ni estimaciones de abundancia.</p>
+        </div>
+    </section>
 </section>
 {% endblock %}
