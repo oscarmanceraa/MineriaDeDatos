@@ -7,6 +7,7 @@ from flask import Blueprint, render_template, redirect, request, url_for
 from app.calidad_data import RESULTADOS
 from app.etapa5.q1_concentracion import q1_datos
 from app.etapa5.q2_amenaza import q2_datos
+from app.etapa5.q3_crecimiento import q3_datos
 from app.etapa5.q4_urbano_rural import q4_datos
 
 main = Blueprint('main', __name__)
@@ -174,6 +175,16 @@ def analisis_multidimensional(slug):
                 grupo=request.args.get('grupo'),
                 amenazadas=request.args.get('amenazadas') == '1',
                 operacion=request.args.get('operacion'),
+            )
+        except Exception as exc:  # pragma: no cover - depende de Supabase
+            error = str(exc)
+    elif slug == 'q3-crecimiento-temporal':
+        try:
+            datos = q3_datos(
+                fuente=request.args.get('fuente'),
+                grupo=request.args.get('grupo'),
+                nivel=request.args.get('nivel', 'anio'),
+                pivot=request.args.get('pivot') == '1',
             )
         except Exception as exc:  # pragma: no cover - depende de Supabase
             error = str(exc)
