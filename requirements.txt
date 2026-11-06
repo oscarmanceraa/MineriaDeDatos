@@ -1,2 +1,6 @@
 flask
 gunicorn>=21.0.0
+pandas
+psycopg2-binary
+SQLAlchemy
+python-dotenv

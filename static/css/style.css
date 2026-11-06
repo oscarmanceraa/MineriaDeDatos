@@ -413,30 +413,19 @@ a {
 
 /* ---------- Orbital grid ---------- */
 .orbital {
-  display: grid;
-  align-items: center;
-  justify-items: center;
-  gap: 16px;
-  width: min(100%, 1100px);
+  position: relative;
+  width: min(100%, 980px);
+  height: clamp(920px, 94vw, 1000px);
   margin-inline: auto;
-  grid-template-columns: 1fr minmax(320px, 440px) 1fr;
-  grid-template-rows: auto minmax(320px, 440px) auto;
-  grid-template-areas:
-    ".   stage1  ."
-    "stage4 planet stage2"
-    ".   stage3  .";
 }
-
-.stage--1 { grid-area: stage1; }
-.stage--2 { grid-area: stage2; }
-.stage--3 { grid-area: stage3; }
-.stage--4 { grid-area: stage4; }
 
 /* ---------- Planet ---------- */
 .planet-stage {
-  grid-area: planet;
-  position: relative;
-  width: min(320px, 64vw);
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: min(320px, 46vw);
+  height: min(320px, 46vw);
   aspect-ratio: 1;
   display: grid;
   place-items: center;
@@ -511,9 +500,12 @@ a {
 
 /* ---------- Stage cards ---------- */
 .stage {
-  position: relative;
-  width: 100%;
-  max-width: 300px;
+  --r: clamp(300px, 32vw, 340px);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: clamp(200px, 21vw, 240px);
+  max-width: none;
   padding: 22px 22px 24px;
   border-radius: var(--radius);
   background: linear-gradient(180deg, var(--surface-2), var(--surface));
@@ -521,8 +513,19 @@ a {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease, background 0.35s ease;
+  transform:
+    translate(-50%, -50%)
+    rotate(var(--a))
+    translate(var(--r))
+    rotate(calc(-1 * var(--a)));
+  transition: translate 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease, background 0.35s ease;
 }
+
+.stage--1 { --a: -90deg; }
+.stage--2 { --a: -18deg; }
+.stage--3 { --a: 54deg; }
+.stage--4 { --a: 126deg; }
+.stage--5 { --a: 198deg; }
 
 .stage__state {
   align-self: flex-start;
@@ -596,7 +599,7 @@ a {
 .stage--active .stage__desc { color: var(--text-dim); }
 
 .stage--active:hover {
-  transform: translateY(-6px);
+  translate: 0 -6px;
   border-color: var(--green);
   box-shadow: 0 24px 56px -22px var(--glow-green);
   background: linear-gradient(180deg, rgba(91, 229, 138, 0.06), var(--surface));
@@ -622,7 +625,7 @@ a {
 .stage--soon .stage__title { color: var(--text-dim); }
 
 .stage--soon:hover {
-  transform: translateY(-4px);
+  translate: 0 -4px;
   border-color: rgba(148, 163, 184, 0.36);
   opacity: 1;
 }
@@ -1562,28 +1565,41 @@ a {
 }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 920px) {
+@media (max-width: 1024px) {
   .orbital {
+    position: static;
+    display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: auto;
-    grid-template-areas:
-      "planet"
-      "stage1"
-      "stage2"
-      "stage3"
-      "stage4";
+    gap: 16px;
+    height: auto;
     width: min(100%, 620px);
+    justify-items: center;
   }
 
   .planet-stage {
+    position: relative;
+    inset: auto;
+    margin: 0 auto;
     width: min(300px, 80vw);
+    height: min(300px, 80vw);
+    grid-row: 1;
   }
 
   .stage {
-    max-width: none;
+    position: static;
     width: 100%;
+    max-width: none;
+    transform: none;
+    translate: none;
     justify-self: stretch;
   }
+
+  .stage--1 { grid-row: 2; }
+  .stage--2 { grid-row: 3; }
+  .stage--3 { grid-row: 4; }
+  .stage--4 { grid-row: 5; }
+  .stage--5 { grid-row: 6; }
 
   .stage--soon::after {
     top: auto;
@@ -1984,4 +2000,274 @@ a {
   max-width: 1140px;
   height: auto;
   aspect-ratio: 16 / 9;
+}
+
+/* ---------- Etapa 5 · Analisis multidimensional ---------- */
+.q5-filter-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+  gap: 14px;
+  align-items: end;
+  margin: 10px 0 16px;
+  padding: 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.q5-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.q5-field label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.q5-select {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.q5-select:focus {
+  outline: 2px solid rgba(91, 229, 138, 0.4);
+  outline-offset: 1px;
+}
+
+.q5-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 6px 0 14px;
+}
+
+.q5-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(91, 229, 138, 0.35);
+  background: rgba(91, 229, 138, 0.12);
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+.q5-btn:hover {
+  border-color: var(--green);
+  background: rgba(91, 229, 138, 0.2);
+}
+
+.q5-btn--ghost {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+}
+
+.q5-btn--active {
+  border-color: var(--green);
+  background: rgba(91, 229, 138, 0.18);
+  color: var(--text);
+}
+
+.q5-btn--reset {
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-mute);
+}
+
+.q5-chips {
+  margin: 4px 0 16px;
+}
+
+.q5-note {
+  margin: 8px 0 18px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--cyan);
+  border-radius: 8px;
+  background: rgba(63, 216, 232, 0.08);
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.q5-section-title {
+  margin: 30px 0 14px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.q5-canvas {
+  position: relative;
+  width: 100%;
+  height: 340px;
+  margin-top: 10px;
+}
+
+.q5-canvas canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.q5-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.q5-matrix {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+  font-size: 13px;
+}
+
+.q5-matrix thead th {
+  text-align: left;
+  padding: 13px 16px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  white-space: nowrap;
+}
+
+.q5-matrix tbody th {
+  text-align: left;
+  padding: 12px 16px;
+  color: var(--text);
+  font-weight: 700;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.q5-matrix tbody td {
+  padding: 12px 16px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--line);
+}
+
+.q5-matrix tbody tr:last-child th,
+.q5-matrix tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.q5-matrix tbody tr:hover th,
+.q5-matrix tbody tr:hover td {
+  background: rgba(91, 229, 138, 0.04);
+}
+
+.q5-cell-reg {
+  display: block;
+  color: var(--text);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.q5-cell-rate {
+  display: block;
+  color: var(--green-soft);
+  font-weight: 700;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.q5-cell-amen {
+  display: block;
+  color: var(--text-mute);
+  font-size: 11px;
+}
+
+.q5-cell-empty {
+  color: var(--text-mute);
+}
+
+.q5-caption {
+  margin: 8px 0 4px;
+  color: var(--text-mute);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.q5-knowledge-grid {
+  display: grid;
+  gap: 18px;
+  margin: 10px 0 30px;
+}
+
+.q5-knowledge {
+  padding: 24px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+}
+
+.q5-knowledge__title {
+  margin: 0 0 16px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.q5-knowledge__list {
+  display: grid;
+  grid-template-columns: minmax(150px, 190px) 1fr;
+  gap: 12px 20px;
+  margin: 0;
+}
+
+.q5-knowledge__list dt {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--green-soft);
+}
+
+.q5-knowledge__list dd {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+@media (max-width: 640px) {
+  .q5-filter-form {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .q5-canvas {
+    height: 280px;
+  }
+
+  .q5-knowledge__list {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .q5-knowledge__list dd {
+    margin-bottom: 10px;
+  }
 }

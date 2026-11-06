@@ -1,0 +1,322 @@
+{% if error %}
+<div class="doc-prose">
+    <div class="callout">
+        <div class="callout__label">No se pudo consultar el modelo</div>
+        <div class="callout__text">
+            Revisa la conexión con Supabase y vuelve a intentarlo.
+            <small>{{ error }}</small>
+        </div>
+    </div>
+</div>
+{% elif datos %}
+<div class="doc-prose">
+    <h2 class="q5-section-title">Análisis de ocurrencias amenazadas por taxón y fuente</h2>
+    <p><strong>Pregunta:</strong> {{ apartado.titulo }}</p>
+
+    <div class="pob-meta">
+        <span class="pob-meta__item"><strong>Fuente:</strong> {{ datos.fuente }}</span>
+        <span class="pob-meta__item"><strong>Granularidad:</strong> una fila del hecho por ocurrencia</span>
+        <span class="pob-meta__item"><strong>Selección UICN:</strong> {{ datos.etiquetas.conservacion }}</span>
+    </div>
+
+    <p>
+        <strong>Dimensiones:</strong> Taxón, Conservación y Fuente.
+        <strong>Jerarquías disponibles:</strong> grupo → clase → familia → género → especie;
+        Conservación expone código y estado UICN; Fuente expone
+        <code>dataset_origen</code>, <code>tipo_registro</code> y <code>basis_of_record</code>.
+        El modelo no declara jerarquías para las dos últimas dimensiones.
+        <strong>Medidas:</strong> conteo de ocurrencias, suma y promedio de
+        <code>cantidad_registros</code>, conteo de ocurrencias CR/EN/VU y especies amenazadas
+        identificadas únicas.
+    </p>
+    <p>
+        El porcentaje de amenaza divide ocurrencias CR/EN/VU entre todas las ocurrencias de la
+        selección activa. La categoría NE, los datos insuficientes y los faltantes no se
+        interpretan como una respuesta negativa.
+    </p>
+
+    <form class="q5-filter-form" method="get"
+          action="{{ url_for('main.analisis_multidimensional', slug=apartado.slug) }}">
+        <div class="q5-field">
+            <label for="q2-fuente">Fuente · dataset_origen</label>
+            <select id="q2-fuente" name="fuente" class="q5-select">
+                <option value="">Todas las fuentes</option>
+                {% for fuente in datos.opciones.fuentes %}
+                    <option value="{{ fuente }}" {% if datos.filtros.fuente == fuente %}selected{% endif %}>
+                        {{ fuente }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="q5-field">
+            <label for="q2-grupo">Grupo taxonómico · Taxón</label>
+            <select id="q2-grupo" name="grupo" class="q5-select">
+                <option value="">Todos los grupos</option>
+                {% for grupo in datos.opciones.grupos %}
+                    <option value="{{ grupo }}" {% if datos.filtros.grupo == grupo %}selected{% endif %}>
+                        {{ grupo }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="q5-field">
+            <label for="q2-amenazadas">Conservación · filtro</label>
+            <select id="q2-amenazadas" name="amenazadas" class="q5-select">
+                <option value="0" {% if not datos.filtros.amenazadas %}selected{% endif %}>Todos los estados</option>
+                <option value="1" {% if datos.filtros.amenazadas %}selected{% endif %}>Solo CR / EN / VU</option>
+            </select>
+        </div>
+        <button type="submit" class="q5-btn">Aplicar filtros</button>
+        <button type="submit" name="operacion" value="slice" class="q5-btn q5-btn--ghost">
+            Slice · Solo amenazadas CR/EN/VU
+        </button>
+        {% if datos.filtros.fuente and datos.filtros.grupo %}
+            <button type="submit" name="operacion" value="dice" class="q5-btn q5-btn--ghost">
+                Dice · Fuente + grupo, desglose UICN
+            </button>
+        {% endif %}
+        <a class="q5-btn q5-btn--reset"
+           href="{{ url_for('main.analisis_multidimensional', slug=apartado.slug) }}">
+            Restablecer
+        </a>
+    </form>
+
+    <div class="pob-chips q5-chips" aria-label="Filtros activos">
+        <span class="pob-chip pob-chip--active">{{ datos.etiquetas.fuente }}</span>
+        <span class="pob-chip pob-chip--active">{{ datos.etiquetas.grupo }}</span>
+        <span class="pob-chip {% if datos.filtros.amenazadas %}pob-chip--active{% endif %}">
+            {{ datos.etiquetas.conservacion }}
+        </span>
+        <span class="pob-chip {% if datos.filtros.operacion %}pob-chip--active{% endif %}">
+            {{ datos.etiquetas.operacion }}
+        </span>
+    </div>
+
+    <h3 class="q5-section-title">Indicadores de la selección</h3>
+    <div class="pob-kpi-grid">
+        {% for indicador in datos.indicadores %}
+            <div class="pob-kpi">
+                <span class="pob-kpi__label">{{ indicador.etiqueta }}</span>
+                <span class="pob-kpi__value">{{ indicador.valor }}</span>
+                <span class="pob-kpi__detail">{{ indicador.detalle }}</span>
+            </div>
+        {% endfor %}
+    </div>
+
+    <h3 class="q5-section-title">Visualizaciones</h3>
+    <div class="pob-chart-grid">
+        <figure class="pob-chart">
+            <figcaption class="pob-chart__title">
+                {% if datos.filtros.amenazadas %}
+                    Ocurrencias CR/EN/VU por fuente
+                {% else %}
+                    Ocurrencias totales y CR/EN/VU por fuente
+                {% endif %}
+            </figcaption>
+            <div class="q5-canvas"><canvas id="q2-fuentes"></canvas></div>
+            <p class="pob-chart__interp">
+                CR/EN/VU son conteos de filas del hecho. La tasa por fuente usa como denominador
+                todas las ocurrencias de esa fuente dentro de los filtros activos.
+            </p>
+        </figure>
+        <figure class="pob-chart">
+            <figcaption class="pob-chart__title">Participación de grupos en las ocurrencias CR/EN/VU</figcaption>
+            <div class="q5-canvas"><canvas id="q2-taxones"></canvas></div>
+            <p class="pob-chart__interp">
+                La participación usa como denominador todas las ocurrencias amenazadas de la selección;
+                no se suman porcentajes ni se promedian tasas entre grupos.
+            </p>
+        </figure>
+    </div>
+
+    <h3 class="q5-section-title">
+        Matriz {{ datos.matriz.eje_fila }} × {{ datos.matriz.eje_columna }}
+    </h3>
+    <div class="q5-table-wrap">
+        <table class="source-table q5-matrix">
+            <thead>
+                <tr>
+                    <th scope="col">{{ datos.matriz.eje_fila }}</th>
+                    {% for columna in datos.matriz.columnas %}
+                        <th scope="col">{{ columna }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for fila in datos.matriz.filas %}
+                    <tr>
+                        <th scope="row">{{ fila }}</th>
+                        {% for columna in datos.matriz.columnas %}
+                            {% set celda = datos.matriz.celdas.get(fila, {}).get(columna) %}
+                            <td>
+                                {% if celda %}
+                                    {% if datos.filtros.operacion == 'dice' %}
+                                        <span class="q5-cell-reg">
+                                            {{ celda.iucn_codigo }} · {{ "{:,}".format(celda.ocurrencias|int) }} ocurrencias
+                                        </span>
+                                        <span class="q5-cell-amen">{{ celda.ocurrencias_amenazadas|int }} amenazadas</span>
+                                        <span class="q5-cell-rate">{{ "%.2f"|format(celda.porcentaje_de_ocurrencias_en_corte|float) }}% del corte dice</span>
+                                    {% elif datos.filtros.amenazadas %}
+                                        <span class="q5-cell-reg">{{ "{:,}".format(celda.ocurrencias_amenazadas|int) }} ocurrencias CR/EN/VU</span>
+                                        <span class="q5-cell-amen">{{ celda.especies_amenazadas_identificadas|int }} especies amenazadas únicas</span>
+                                        <span class="q5-cell-rate">{{ "%.2f"|format(celda.porcentaje_del_total_amenazado|float) }}% del total CR/EN/VU</span>
+                                    {% else %}
+                                        <span class="q5-cell-reg">{{ "{:,}".format(celda.ocurrencias|int) }} ocurrencias</span>
+                                        <span class="q5-cell-amen">{{ celda.ocurrencias_amenazadas|int }} CR/EN/VU</span>
+                                        <span class="q5-cell-rate">{{ "%.2f"|format(celda.porcentaje_amenazadas|float) }}% de la celda amenazada</span>
+                                        <span class="q5-cell-empty">{{ celda.especies_amenazadas_identificadas|int }} especies amenazadas únicas</span>
+                                    {% endif %}
+                                    <span class="q5-cell-empty">
+                                        Suma: {{ celda.cantidad_registros|int }} ·
+                                        Promedio: {{ "%.2f"|format(celda.promedio_cantidad_por_ocurrencia|float) }}
+                                    </span>
+                                {% else %}
+                                    <span class="q5-cell-empty">Sin ocurrencias</span>
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% else %}
+                    <tr><td colspan="{{ datos.matriz.columnas|length + 1 }}">La selección no contiene resultados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="q5-caption">
+        Las especies únicas se cuentan por celda y pueden repetirse en otras fuentes o grupos:
+        no se suman entre celdas. Con slice activo solo se incluyen filas CR/EN/VU y la tasa dentro
+        del corte es 100% por construcción.
+    </p>
+
+    <h3 class="q5-section-title">Interpretación</h3>
+    <p>{{ datos.interpretacion }}</p>
+
+    <h3 class="q5-section-title">Conocimientos multidimensionales</h3>
+    <div class="q5-knowledge-grid">
+        {% for conocimiento in datos.conocimientos %}
+            <article class="q5-knowledge">
+                <h4 class="q5-knowledge__title">{{ loop.index }}. {{ conocimiento.titulo }}</h4>
+                <dl class="q5-knowledge__list">
+                    <dt>Pregunta</dt><dd>{{ conocimiento.pregunta }}</dd>
+                    <dt>Dimensiones y medidas</dt><dd>{{ conocimiento.dimensiones }}</dd>
+                    <dt>Procedimiento</dt><dd>{{ conocimiento.procedimiento }}</dd>
+                    <dt>Evidencia</dt><dd>{{ conocimiento.evidencia }}</dd>
+                    <dt>Hallazgo</dt><dd>{{ conocimiento.hallazgo }}</dd>
+                    <dt>Interpretación frente a etapa 4</dt><dd>{{ conocimiento.interpretacion }}</dd>
+                    <dt>Utilidad para una decisión</dt><dd>{{ conocimiento.utilidad }}</dd>
+                    <dt>Limitación</dt><dd>{{ conocimiento.limitacion }}</dd>
+                </dl>
+            </article>
+        {% endfor %}
+    </div>
+
+    <h3 class="q5-section-title">Limitación del análisis</h3>
+    <div class="callout">
+        <div class="callout__label">Alcance</div>
+        <div class="callout__text">{{ datos.limitacion }}</div>
+    </div>
+
+    <h3 class="q5-section-title">Decisión posible</h3>
+    <p>{{ datos.decision }}</p>
+</div>
+
+<script src="{{ url_for('static', filename='js/chart.umd.min.js') }}"></script>
+<script>
+(function () {
+    const fuentes = {{ datos.grafico_fuentes|tojson }};
+    const taxones = {{ datos.grafico_taxones|tojson }};
+    const texto = '#9fb3af';
+    const grilla = 'rgba(148, 163, 184, 0.14)';
+
+    const fuentesCanvas = document.getElementById('q2-fuentes');
+    if (fuentesCanvas && window.Chart) {
+        new Chart(fuentesCanvas, {
+            type: 'bar',
+            data: {
+                labels: fuentes.etiquetas,
+                datasets: [
+                    {% if not datos.filtros.amenazadas %}
+                    {
+                        label: 'Ocurrencias',
+                        data: fuentes.ocurrencias,
+                        backgroundColor: '#3fd8e8',
+                        borderRadius: 4
+                    },
+                    {% endif %}
+                    {
+                        label: 'Ocurrencias CR/EN/VU',
+                        data: fuentes.amenazadas,
+                        backgroundColor: '#5be58a',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: texto, maxRotation: 40 }, grid: { display: false } },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Ocurrencias', color: texto },
+                        ticks: { color: texto },
+                        grid: { color: grilla }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: texto } },
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: (ctx) => {
+                                const tasa = fuentes.tasas[ctx.dataIndex];
+                                const participacion = fuentes.participaciones[ctx.dataIndex];
+                                return 'Tasa en fuente: ' + Number(tasa).toFixed(2) + '% · '
+                                    + Number(participacion).toFixed(2) + '% del total CR/EN/VU';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    const taxonesCanvas = document.getElementById('q2-taxones');
+    if (taxonesCanvas && window.Chart) {
+        new Chart(taxonesCanvas, {
+            type: 'bar',
+            data: {
+                labels: taxones.etiquetas,
+                datasets: [{
+                    label: 'Participación del total CR/EN/VU (%)',
+                    data: taxones.participaciones,
+                    backgroundColor: '#f2b84b',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: texto, maxRotation: 40 }, grid: { display: false } },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Participación (%)', color: texto },
+                        ticks: { color: texto, callback: (valor) => valor + '%' },
+                        grid: { color: grilla }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: texto } },
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: (ctx) => Number(taxones.amenazadas[ctx.dataIndex])
+                                .toLocaleString('es-CO') + ' ocurrencias CR/EN/VU'
+                        }
+                    }
+                }
+            }
+        });
+    }
+})();
+</script>
+{% endif %}

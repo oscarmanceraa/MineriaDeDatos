@@ -1,0 +1,314 @@
+{% if error %}
+<div class="doc-prose">
+    <div class="callout">
+        <div class="callout__label">No se pudo consultar el modelo</div>
+        <div class="callout__text">
+            Revisa la conexión con Supabase y vuelve a intentarlo.
+            <small>{{ error }}</small>
+        </div>
+    </div>
+</div>
+{% elif datos %}
+<div class="doc-prose">
+    <h2 class="q5-section-title">Análisis de concentración territorial</h2>
+    <p><strong>Pregunta:</strong> {{ apartado.titulo }}</p>
+
+    <div class="pob-meta">
+        <span class="pob-meta__item"><strong>Fuente:</strong> {{ datos.fuente }}</span>
+        <span class="pob-meta__item"><strong>Granularidad:</strong> una fila del hecho por ocurrencia</span>
+        <span class="pob-meta__item"><strong>Nivel visible:</strong> {{ datos.etiquetas.nivel }}</span>
+    </div>
+
+    <p>
+        <strong>Dimensiones:</strong> Territorio, Tiempo y Taxón.
+        <strong>Jerarquías:</strong> provincia → municipio; año → trimestre → mes;
+        grupo → clase → familia → género → especie.
+        <strong>Medidas:</strong> conteo de ocurrencias, suma y promedio de
+        <code>cantidad_registros</code>, y conteo distinto de especies identificadas.
+        Las especies sin identificar y los registros sin año no se interpretan como
+        ausencias; permanecen en la selección general.
+    </p>
+
+    <form class="q5-filter-form" method="get"
+          action="{{ url_for('main.analisis_multidimensional', slug=apartado.slug) }}">
+        <div class="q5-field">
+            <label for="q1-provincia">Provincia · Territorio</label>
+            <select id="q1-provincia" name="provincia" class="q5-select">
+                <option value="">Todas las provincias</option>
+                {% for provincia in datos.opciones.provincias %}
+                    <option value="{{ provincia }}" {% if datos.filtros.provincia == provincia %}selected{% endif %}>
+                        {{ provincia }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="q5-field">
+            <label for="q1-grupo">Grupo taxonómico · Taxón</label>
+            <select id="q1-grupo" name="grupo" class="q5-select">
+                <option value="">Todos los grupos</option>
+                {% for grupo in datos.opciones.grupos %}
+                    <option value="{{ grupo }}" {% if datos.filtros.grupo == grupo %}selected{% endif %}>
+                        {{ grupo }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="q5-field">
+            <label for="q1-anio">Año · Tiempo (slice)</label>
+            <select id="q1-anio" name="anio" class="q5-select">
+                <option value="">Todo el periodo</option>
+                {% for anio in datos.opciones.anios %}
+                    <option value="{{ anio }}" {% if datos.filtros.anio == anio %}selected{% endif %}>
+                        {{ anio }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <input type="hidden" name="nivel" value="{{ datos.filtros.nivel }}">
+        <input type="hidden" name="pivot" value="{{ '1' if datos.filtros.pivot else '0' }}">
+        <button type="submit" class="q5-btn">Aplicar filtros / slice</button>
+    </form>
+
+    <div class="q5-toolbar">
+        {% if datos.filtros.nivel == 'provincia' and datos.filtros.provincia %}
+            <a class="q5-btn q5-btn--ghost"
+               href="{{ url_for('main.analisis_multidimensional', slug=apartado.slug, provincia=datos.filtros.provincia, grupo=datos.filtros.grupo or '', anio=datos.filtros.anio or '', nivel='municipio', pivot='0') }}">
+                Drill-down · Ver municipios
+            </a>
+        {% elif datos.filtros.nivel == 'municipio' %}
+            <a class="q5-btn q5-btn--ghost"
+               href="{{ url_for('main.analisis_multidimensional', slug=apartado.slug, provincia=datos.filtros.provincia, grupo=datos.filtros.grupo or '', anio=datos.filtros.anio or '', nivel='provincia', pivot='0', operacion='rollup') }}">
+                Roll-up · Volver a provincia
+            </a>
+        {% endif %}
+        {% if datos.filtros.nivel == 'provincia' %}
+            <a class="q5-btn q5-btn--ghost {% if datos.filtros.pivot %}q5-btn--active{% endif %}"
+               href="{{ url_for('main.analisis_multidimensional', slug=apartado.slug, provincia=datos.filtros.provincia or '', grupo=datos.filtros.grupo or '', anio=datos.filtros.anio or '', nivel='provincia', pivot=('0' if datos.filtros.pivot else '1')) }}">
+                Pivot · {{ 'Restaurar provincia × grupo' if datos.filtros.pivot else 'Intercambiar ejes' }}
+            </a>
+        {% endif %}
+        <a class="q5-btn q5-btn--reset"
+           href="{{ url_for('main.analisis_multidimensional', slug=apartado.slug) }}">
+            Restablecer
+        </a>
+    </div>
+
+    <div class="pob-chips q5-chips" aria-label="Filtros activos">
+        <span class="pob-chip pob-chip--active">{{ datos.etiquetas.provincia }}</span>
+        <span class="pob-chip pob-chip--active">{{ datos.etiquetas.grupo }}</span>
+        <span class="pob-chip pob-chip--active">{{ datos.etiquetas.anio }}</span>
+        <span class="pob-chip">{{ datos.etiquetas.nivel }}</span>
+        {% if datos.filtros.pivot %}
+            <span class="pob-chip pob-chip--active">Pivot activo</span>
+        {% endif %}
+    </div>
+
+    <h3 class="q5-section-title">Indicadores de la selección</h3>
+    <div class="pob-kpi-grid">
+        {% for indicador in datos.indicadores %}
+            <div class="pob-kpi">
+                <span class="pob-kpi__label">{{ indicador.etiqueta }}</span>
+                <span class="pob-kpi__value">{{ indicador.valor }}</span>
+                <span class="pob-kpi__detail">{{ indicador.detalle }}</span>
+            </div>
+        {% endfor %}
+    </div>
+
+    <h3 class="q5-section-title">Visualizaciones</h3>
+    <div class="pob-chart-grid">
+        <figure class="pob-chart">
+            <figcaption class="pob-chart__title">Ocurrencias por provincia · participación del total filtrado</figcaption>
+            <div class="q5-canvas"><canvas id="q1-provincias"></canvas></div>
+            <p class="pob-chart__interp">
+                Se muestran las primeras 15 provincias ordenadas por ocurrencias. El porcentaje
+                usa como denominador todas las ocurrencias de la selección activa.
+            </p>
+        </figure>
+        <figure class="pob-chart">
+            <figcaption class="pob-chart__title">Ocurrencias y promedio de cantidad por año</figcaption>
+            <div class="q5-canvas"><canvas id="q1-tiempo"></canvas></div>
+            <p class="pob-chart__interp">
+                El promedio se recalcula dentro de cada año como AVG(cantidad_registros);
+                no se suman ni promedian los promedios anuales para formar un total.
+            </p>
+        </figure>
+    </div>
+
+    <h3 class="q5-section-title">
+        Matriz {{ datos.matriz.eje_fila }} × {{ datos.matriz.eje_columna }}
+    </h3>
+    <div class="q5-table-wrap">
+        <table class="source-table q5-matrix">
+            <thead>
+                <tr>
+                    <th scope="col">{{ datos.matriz.eje_fila }}</th>
+                    {% for columna in datos.matriz.columnas %}
+                        <th scope="col">{{ columna }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for fila in datos.matriz.filas %}
+                    <tr>
+                        <th scope="row">{{ fila }}</th>
+                        {% for columna in datos.matriz.columnas %}
+                            {% set celda = datos.matriz.celdas.get(fila, {}).get(columna) %}
+                            <td>
+                                {% if celda %}
+                                    <span class="q5-cell-reg">{{ "{:,}".format(celda.ocurrencias|int) }} ocurrencias</span>
+                                    <span class="q5-cell-rate">{{ "%.2f"|format(celda.porcentaje_ocurrencias|float) }}% del total filtrado</span>
+                                    <span class="q5-cell-amen">{{ celda.especies_identificadas|int }} especies únicas en celda</span>
+                                    <span class="q5-cell-empty">Suma: {{ celda.cantidad_registros|int }} · Promedio: {{ "%.2f"|format(celda.promedio_cantidad_por_ocurrencia|float) }}</span>
+                                {% else %}
+                                    <span class="q5-cell-empty">Sin ocurrencias</span>
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% else %}
+                    <tr><td colspan="{{ datos.matriz.columnas|length + 1 }}">La selección no contiene resultados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="q5-caption">
+        Los porcentajes de celdas usan como denominador las ocurrencias de toda la selección
+        activa; no se suman porcentajes ni se suman conteos de especies únicas entre celdas.
+    </p>
+
+    <h3 class="q5-section-title">Interpretación</h3>
+    <p>{{ datos.interpretacion }}</p>
+
+    <h3 class="q5-section-title">Conocimientos multidimensionales</h3>
+    <div class="q5-knowledge-grid">
+        {% for conocimiento in datos.conocimientos %}
+            <article class="q5-knowledge">
+                <h4 class="q5-knowledge__title">{{ loop.index }}. {{ conocimiento.titulo }}</h4>
+                <dl class="q5-knowledge__list">
+                    <dt>Pregunta</dt><dd>{{ conocimiento.pregunta }}</dd>
+                    <dt>Dimensiones y medidas</dt><dd>{{ conocimiento.dimensiones }}</dd>
+                    <dt>Procedimiento</dt><dd>{{ conocimiento.procedimiento }}</dd>
+                    <dt>Evidencia</dt><dd>{{ conocimiento.evidencia }}</dd>
+                    <dt>Hallazgo</dt><dd>{{ conocimiento.hallazgo }}</dd>
+                    <dt>Interpretación frente a etapa 4</dt><dd>{{ conocimiento.interpretacion }}</dd>
+                    <dt>Utilidad para una decisión</dt><dd>{{ conocimiento.utilidad }}</dd>
+                    <dt>Limitación</dt><dd>{{ conocimiento.limitacion }}</dd>
+                </dl>
+            </article>
+        {% endfor %}
+    </div>
+
+    <h3 class="q5-section-title">Limitación del análisis</h3>
+    <div class="callout">
+        <div class="callout__label">Alcance</div>
+        <div class="callout__text">{{ datos.limitacion }}</div>
+    </div>
+
+    <h3 class="q5-section-title">Decisión posible</h3>
+    <p>{{ datos.decision }}</p>
+</div>
+
+<script src="{{ url_for('static', filename='js/chart.umd.min.js') }}"></script>
+<script>
+(function () {
+    const provincias = {{ datos.grafico_provincias|tojson }};
+    const tiempo = {{ datos.grafico_temporal|tojson }};
+    const texto = '#9fb3af';
+    const grilla = 'rgba(148, 163, 184, 0.14)';
+
+    const provinciaCanvas = document.getElementById('q1-provincias');
+    if (provinciaCanvas && window.Chart) {
+        new Chart(provinciaCanvas, {
+            type: 'bar',
+            data: {
+                labels: provincias.etiquetas,
+                datasets: [{
+                    label: 'Ocurrencias',
+                    data: provincias.ocurrencias,
+                    backgroundColor: '#3fd8e8',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: texto, maxRotation: 40 }, grid: { display: false } },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Ocurrencias', color: texto },
+                        ticks: { color: texto },
+                        grid: { color: grilla }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: texto } },
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: (ctx) => {
+                                const n = provincias.ocurrencias[ctx.dataIndex];
+                                const p = provincias.porcentajes[ctx.dataIndex];
+                                return Number(n).toLocaleString('es-CO') + ' ocurrencias · '
+                                    + Number(p).toFixed(2) + '% de la selección';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    const tiempoCanvas = document.getElementById('q1-tiempo');
+    if (tiempoCanvas && window.Chart) {
+        new Chart(tiempoCanvas, {
+            type: 'line',
+            data: {
+                labels: tiempo.etiquetas,
+                datasets: [
+                    {
+                        label: 'Ocurrencias',
+                        data: tiempo.ocurrencias,
+                        borderColor: '#3fd8e8',
+                        backgroundColor: 'rgba(63, 216, 232, 0.16)',
+                        yAxisID: 'y',
+                        tension: 0.2
+                    },
+                    {
+                        label: 'Promedio de cantidad por ocurrencia',
+                        data: tiempo.promedios,
+                        borderColor: '#5be58a',
+                        backgroundColor: 'rgba(91, 229, 138, 0.16)',
+                        yAxisID: 'y1',
+                        tension: 0.2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: texto, maxRotation: 40 }, grid: { display: false } },
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        beginAtZero: true,
+                        title: { display: true, text: 'Ocurrencias', color: texto },
+                        ticks: { color: texto },
+                        grid: { color: grilla }
+                    },
+                    y1: {
+                        type: 'linear',
+                        position: 'right',
+                        beginAtZero: true,
+                        title: { display: true, text: 'Promedio de cantidad por ocurrencia', color: texto },
+                        ticks: { color: texto },
+                        grid: { drawOnChartArea: false }
+                    }
+                },
+                plugins: { legend: { labels: { color: texto } } }
+            }
+        });
+    }
+})();
+</script>
+{% endif %}

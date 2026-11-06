@@ -2,9 +2,13 @@ import json
 from functools import lru_cache
 from pathlib import Path
 
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, request, url_for
 
 from app.calidad_data import RESULTADOS
+from app.etapa5.q1_concentracion import q1_datos
+from app.etapa5.q2_amenaza import q2_datos
+from app.etapa5.q3_crecimiento import q3_datos
+from app.etapa5.q4_urbano_rural import q4_datos
 
 main = Blueprint('main', __name__)
 
@@ -49,6 +53,13 @@ CONOCIMIENTOS = [
     {'slug': 'territorial', 'num': '02', 'titulo': 'Territorial', 'inst': 'Comparación entre territorios y concentración de registros.', 'disponible': True},
     {'slug': 'temporal', 'num': '03', 'titulo': 'Temporal', 'inst': 'Evolución y cambios a lo largo del periodo analizado.', 'disponible': True},
     {'slug': 'multivariada', 'num': '04', 'titulo': 'Multivariada', 'inst': 'Cruce de tres o más variables del conjunto de datos.', 'disponible': True},
+]
+
+DIMENSIONES = [
+    {'slug': 'q1-concentracion-territorial', 'num': '01', 'titulo': '¿Dónde se concentran los registros y las especies al pasar de provincia a municipio?', 'inst': 'Territorio · Tiempo · Taxón', 'disponible': True},
+    {'slug': 'q2-amenaza-taxon-fuente', 'num': '02', 'titulo': '¿Qué grupos taxonómicos y fuentes concentran los registros amenazados?', 'inst': 'Taxón · Conservación · Fuente', 'disponible': True},
+    {'slug': 'q3-crecimiento-temporal', 'num': '03', 'titulo': '¿Qué explica el crecimiento de registros entre 2024 y 2026?', 'inst': 'Tiempo · Fuente · Taxón', 'disponible': True},
+    {'slug': 'q4-urbano-rural-amenaza', 'num': '04', 'titulo': '¿Las provincias rurales concentran mayor tasa de amenaza que el área urbana?', 'inst': 'Territorio · Conservación · Tiempo', 'disponible': True},
 ]
 
 
@@ -126,4 +137,75 @@ def conocimiento(slug):
         next=nxt,
         conocimientos=CONOCIMIENTOS,
         res=res,
+    )
+
+
+@main.route('/etapa-5')
+def etapa5():
+    return render_template('etapa5/index.html', dimensiones=DIMENSIONES)
+
+
+@main.route('/etapa-5/<slug>')
+def analisis_multidimensional(slug):
+    item = next((d for d in DIMENSIONES if d['slug'] == slug), None)
+    if not item or not item['disponible']:
+        return redirect(url_for('main.etapa5'))
+
+    idx = DIMENSIONES.index(item)
+    nxt = next((d for d in DIMENSIONES[idx + 1:] if d['disponible']), None)
+
+    datos = None
+    error = None
+    if slug == 'q1-concentracion-territorial':
+        try:
+            datos = q1_datos(
+                provincia=request.args.get('provincia'),
+                grupo=request.args.get('grupo'),
+                anio=request.args.get('anio'),
+                nivel=request.args.get('nivel', 'provincia'),
+                pivot=request.args.get('pivot') == '1',
+                operacion=request.args.get('operacion'),
+            )
+        except Exception as exc:  # pragma: no cover - depende de Supabase
+            error = str(exc)
+    elif slug == 'q2-amenaza-taxon-fuente':
+        try:
+            datos = q2_datos(
+                fuente=request.args.get('fuente'),
+                grupo=request.args.get('grupo'),
+                amenazadas=request.args.get('amenazadas') == '1',
+                operacion=request.args.get('operacion'),
+            )
+        except Exception as exc:  # pragma: no cover - depende de Supabase
+            error = str(exc)
+    elif slug == 'q3-crecimiento-temporal':
+        try:
+            datos = q3_datos(
+                fuente=request.args.get('fuente'),
+                grupo=request.args.get('grupo'),
+                nivel=request.args.get('nivel', 'anio'),
+                pivot=request.args.get('pivot') == '1',
+            )
+        except Exception as exc:  # pragma: no cover - depende de Supabase
+            error = str(exc)
+    elif slug == 'q4-urbano-rural-amenaza':
+        try:
+            datos = q4_datos(
+                provincia=request.args.get('provincia', 'todas'),
+                periodo=request.args.get('periodo', 'todo'),
+                categoria=request.args.get('categoria', 'Todas'),
+                conservacion=request.args.get('conservacion', 'Todas'),
+                pivot=request.args.get('pivot') == '1',
+                drill=request.args.get('drill') == '1',
+            )
+        except Exception as exc:  # pragma: no cover - depende de Supabase
+            error = str(exc)
+
+    return render_template(
+        'etapa5/r5-analisis-multidimensional.html',
+        apartado=item,
+        next=nxt,
+        dimensiones=DIMENSIONES,
+        datos=datos,
+        error=error,
     )
