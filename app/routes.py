@@ -20,6 +20,14 @@ def cargar_conocimiento(slug):
         return {}
     return json.loads(ruta.read_text(encoding='utf-8'))
 
+
+@lru_cache(maxsize=None)
+def cargar_conocimiento_oculto(slug):
+    ruta = Path(__file__).resolve().parent.parent / 'static' / 'json' / 'conocimiento_oculto' / f'{slug}.json'
+    if not ruta.is_file():
+        return {}
+    return json.loads(ruta.read_text(encoding='utf-8'))
+
 APARTADOS = [
     {'slug': 'problema-contexto', 'num': '01', 'titulo': 'Problema y contexto', 'disponible': True},
     {'slug': 'preguntas', 'num': '02', 'titulo': 'Pregunta principal y secundarias', 'disponible': True},
@@ -60,6 +68,16 @@ DIMENSIONES = [
     {'slug': 'q2-amenaza-taxon-fuente', 'num': '02', 'titulo': '¿Qué grupos taxonómicos y fuentes concentran los registros amenazados?', 'inst': 'Taxón · Conservación · Fuente', 'disponible': True},
     {'slug': 'q3-crecimiento-temporal', 'num': '03', 'titulo': '¿Qué explica el crecimiento de registros entre 2024 y 2026?', 'inst': 'Tiempo · Fuente · Taxón', 'disponible': True},
     {'slug': 'q4-urbano-rural-amenaza', 'num': '04', 'titulo': '¿Las provincias rurales concentran mayor tasa de amenaza que el área urbana?', 'inst': 'Territorio · Conservación · Tiempo', 'disponible': True},
+]
+
+SECCIONES_OCULTO = [
+    {'slug': 'modelos-supervisados', 'num': '01', 'titulo': 'Modelos supervisados', 'inst': 'Predicción supervisada y comparación de tres modelos.', 'disponible': True},
+    {'slug': 'clustering', 'num': '02', 'titulo': 'Clustering', 'inst': 'Agrupamiento y caracterización de patrones no evidentes.', 'disponible': True},
+    {'slug': 'comentarios-youtube', 'num': '03', 'titulo': 'Comentarios de YouTube', 'inst': 'Extracción, limpieza y análisis de textos.', 'disponible': True},
+    {'slug': 'conclusiones-integradas', 'num': '04', 'titulo': 'Conclusiones integradas', 'inst': 'Relación entre modelos, grupos y comentarios.', 'disponible': True},
+    {'slug': 'informe-tecnico', 'num': '05', 'titulo': 'Informe técnico', 'inst': 'Documentación y evidencias de la etapa.', 'disponible': True},
+    {'slug': 'video-sustentacion', 'num': '06', 'titulo': 'Video de sustentación', 'inst': 'Explicación de hallazgos y resultados principales.', 'disponible': True},
+    {'slug': 'integracion-entrega', 'num': '07', 'titulo': 'Integración y entrega', 'inst': 'Aplicación Flask, repositorio y enlaces finales.', 'disponible': True},
 ]
 
 
@@ -208,4 +226,27 @@ def analisis_multidimensional(slug):
         dimensiones=DIMENSIONES,
         datos=datos,
         error=error,
+    )
+
+
+@main.route('/etapa-6')
+def etapa6():
+    return render_template('etapa6/index.html', secciones=SECCIONES_OCULTO)
+
+
+@main.route('/etapa-6/<slug>')
+def conocimiento_oculto(slug):
+    item = next((s for s in SECCIONES_OCULTO if s['slug'] == slug), None)
+    if not item or not item['disponible']:
+        return redirect(url_for('main.etapa6'))
+
+    idx = SECCIONES_OCULTO.index(item)
+    nxt = next((s for s in SECCIONES_OCULTO[idx + 1:] if s['disponible']), None)
+    res = cargar_conocimiento_oculto(item['slug'])
+    return render_template(
+        'etapa6/r6-conocimiento-oculto.html',
+        apartado=item,
+        next=nxt,
+        secciones=SECCIONES_OCULTO,
+        res=res,
     )

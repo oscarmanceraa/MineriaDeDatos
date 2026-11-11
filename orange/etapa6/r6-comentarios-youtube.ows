@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scheme version="2.0" title="R6 - Comentarios de YouTube" description="Flujo base pendiente de completar">
+	<nodes>
+		<node id="0" name="CSV File Import" qualified_name="Orange.widgets.data.owcsvimport.OWCSVFileImport" project_name="Orange3" version="" title="CSV File Import" position="(150, 150)" />
+	</nodes>
+	<links />
+	<annotations />
+	<thumbnail />
+	<node_properties />
+	<session_state>
+		<window_groups />
+	</session_state>
+</scheme>

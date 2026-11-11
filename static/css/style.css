@@ -522,10 +522,11 @@ a {
 }
 
 .stage--1 { --a: -90deg; }
-.stage--2 { --a: -18deg; }
-.stage--3 { --a: 54deg; }
-.stage--4 { --a: 126deg; }
-.stage--5 { --a: 198deg; }
+.stage--2 { --a: -30deg; }
+.stage--3 { --a: 30deg; }
+.stage--4 { --a: 90deg; }
+.stage--5 { --a: 150deg; }
+.stage--6 { --a: 210deg; }
 
 .stage__state {
   align-self: flex-start;
@@ -1600,6 +1601,7 @@ a {
   .stage--3 { grid-row: 4; }
   .stage--4 { grid-row: 5; }
   .stage--5 { grid-row: 6; }
+  .stage--6 { grid-row: 7; }
 
   .stage--soon::after {
     top: auto;

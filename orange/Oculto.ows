@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scheme version="2.0" title="" description="">
+	<nodes>
+		<node id="0" name="CSV File Import" qualified_name="Orange.widgets.data.owcsvimport.OWCSVFileImport" project_name="Orange3" version="" title="CSV File Import" position="(150, 150)" />
+		<node id="1" name="Select Columns" qualified_name="Orange.widgets.data.owselectcolumns.OWSelectAttributes" project_name="Orange3" version="" title="Select Columns" position="(250.0, 140.0)" />
+	</nodes>
+	<links>
+		<link id="0" source_node_id="0" sink_node_id="1" source_channel="Data" sink_channel="Data" enabled="true" source_channel_id="data" sink_channel_id="data" />
+	</links>
+	<annotations />
+	<thumbnail />
+	<node_properties>
+		<properties node_id="0" format="literal">{'_session_items': [], '_session_items_v2': [({'type': 'AbsPath', 'path': 'C:/Users/Oscar/Desktop/9/mineriaa de datos/proyecto/Dataset/Dataset.csv'}, {'encoding': 'utf-8', 'delimiter': ',', 'quotechar': '"', 'doublequote': True, 'skipinitialspace': True, 'quoting': 0, 'columntypes': [{'start': 0, 'stop': 35, 'value': 'Auto'}], 'rowspec': [{'start': 0, 'stop': 1, 'value': 'Header'}], 'decimal_separator': '.', 'group_separator': ''})], 'compatibility_mode': False, 'controlAreaVisible': True, 'dialog_state': {'directory': 'C:/Users/Oscar/Desktop/9/mineriaa de datos/proyecto/Dataset', 'filter': 'Text - comma separated (*.csv, *)'}, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x02t\x00\x00\x00\xde\x00\x00\x03\x8b\x00\x00\x025\x00\x00\x02u\x00\x00\x00\xfc\x00\x00\x03\x8a\x00\x00\x024\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x02u\x00\x00\x00\xfc\x00\x00\x03\x8a\x00\x00\x024', '__version__': 3}</properties>
+		<properties node_id="1" format="pickle">gASVJwUAAAAAAAB9lCiMC2F1dG9fY29tbWl0lIiMEmNvbnRyb2xBcmVhVmlzaWJsZZSIjBNpZ25v
+cmVfbmV3X2ZlYXR1cmVzlImME3NhdmVkV2lkZ2V0R2VvbWV0cnmUQ0IB2dDLAAMAAAAAAdMAAABO
+AAAELAAAAsQAAAHUAAAAbAAABCsAAALDAAAAAAAAAAAGAAAAAdQAAABsAAAEKwAAAsOUjBJ1c2Vf
+aW5wdXRfZmVhdHVyZXOUiYwLX192ZXJzaW9uX1+USwGMEGNvbnRleHRfc2V0dGluZ3OUXZSMFW9y
+YW5nZXdpZGdldC5zZXR0aW5nc5SMB0NvbnRleHSUk5QpgZR9lCiMBnZhbHVlc5R9lCiMEWRvbWFp
+bl9yb2xlX2hpbnRzlH2UKIwOZGF0YXNldF9vcmlnZW6USwGGlIwJYXR0cmlidXRllEsAhpSMDXRp
+cG9fcmVnaXN0cm+USwGGlGgVSwGGlIwOZnVlbnRlX2NhbGlkYWSUSwGGlGgVSwKGlIwNYmFzaXNP
+ZlJlY29yZJRLAYaUaBVLA4aUjARwYWlzlEsBhpRoFUsEhpSMDGRlcGFydGFtZW50b5RLAYaUaBVL
+BYaUjAlwcm92aW5jaWGUSwGGlGgVSwaGlIwLY29kaWdvX2RhbmWUSwKGlGgVSweGlIwVY2F0ZWdv
+cmlhX3RlcnJpdG9yaWFslEsBhpRoFUsIhpSMD2RlY2ltYWxMYXRpdHVkZZRLAoaUaBVLCYaUjBBk
+ZWNpbWFsTG9uZ2l0dWRllEsChpRoFUsKhpSMBWZlY2hhlEsEhpRoFUsLhpSMBHllYXKUSwKGlGgV
+SwyGlIwFbW9udGiUSwKGlGgVSw2GlIwKbWVzX25vbWJyZZRLAYaUaBVLDoaUjANkYXmUSwKGlGgV
+Sw+GlIwJdHJpbWVzdHJllEsBhpRoFUsQhpSMCmRpYV9zZW1hbmGUSwGGlGgVSxGGlIwQZXNfZmlu
+X2RlX3NlbWFuYZRLAYaUaBVLEoaUjBN0ZW1wb3JhZGFfY2xpbWF0aWNhlEsBhpRoFUsThpSMB2tp
+bmdkb22USwGGlGgVSxSGlIwGcGh5bHVtlEsBhpRoFUsVhpSMBWNsYXNzlEsBhpRoFUsWhpSMC2Ns
+YXNlX2dydXBvlEsBhpRoFUsXhpSMC2l1Y25fY29kaWdvlEsBhpRoFUsYhpSMC2l1Y25fZXN0YWRv
+lEsBhpRoFUsZhpSMEWVzcGVjaWVfYW1lbmF6YWRhlEsBhpRoFUsahpSMEmNhbnRpZGFkX3JlZ2lz
+dHJvc5RLAYaUaBVLG4aUjAxvY2N1cnJlbmNlSUSUSwOGlIwEbWV0YZRLAIaUjAltdW5pY2lwaW+U
+SwOGlGhqSwGGlIwFb3JkZXKUSwOGlGhqSwKGlIwGZmFtaWx5lEsDhpRoaksDhpSMBWdlbnVzlEsD
+hpRoaksEhpSMDnNjaWVudGlmaWNOYW1llEsDhpRoaksFhpSMDG5vbWJyZV9jb211bpRLA4aUaGpL
+BoaUdUr+////hpRoB0sBdYwKYXR0cmlidXRlc5R9lChoE0sBaBdLAWgaSwFoHUsBaCBLAWgjSwFo
+JksBaClLAmgsSwFoL0sCaDJLAmg1SwRoOEsCaDtLAmg+SwFoQUsCaERLAWhHSwFoSksBaE1LAWhQ
+SwFoU0sBaFZLAWhZSwFoXEsBaF9LAWhiSwFoZUsBdYwFbWV0YXOUfZQoaGhLA2hsSwNob0sDaHJL
+A2h1SwNoeEsDaHtLA3V1YmF1Lg==
+</properties>
+	</node_properties>
+	<session_state>
+		<window_groups />
+	</session_state>
+</scheme>
