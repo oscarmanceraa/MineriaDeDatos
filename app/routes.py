@@ -77,7 +77,6 @@ SECCIONES_OCULTO = [
     {'slug': 'conclusiones-integradas', 'num': '04', 'titulo': 'Conclusiones integradas', 'inst': 'Relación entre modelos, grupos y comentarios.', 'disponible': True},
     {'slug': 'informe-tecnico', 'num': '05', 'titulo': 'Informe técnico', 'inst': 'Documentación y evidencias de la etapa.', 'disponible': True},
     {'slug': 'video-sustentacion', 'num': '06', 'titulo': 'Video de sustentación', 'inst': 'Explicación de hallazgos y resultados principales.', 'disponible': True},
-    {'slug': 'integracion-entrega', 'num': '07', 'titulo': 'Integración y entrega', 'inst': 'Aplicación Flask, repositorio y enlaces finales.', 'disponible': True},
 ]
 
 

@@ -1766,6 +1766,17 @@ a {
   margin: 12px 0 30px;
 }
 
+.r6-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  margin: 12px 0 30px;
+}
+
+.r6-gallery .pob-chart {
+  margin: 0;
+}
+
 .pob-chart {
   margin: 0;
   padding: 16px;
