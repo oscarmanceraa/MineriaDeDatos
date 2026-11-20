@@ -1,0 +1,268 @@
+<div class="doc-prose">
+
+    <div class="pob-meta">
+        <span class="pob-meta__item"><strong>Fuente:</strong> Noticias Caracol</span>
+        <span class="pob-meta__item"><strong>Tema:</strong> tráfico ilegal de fauna silvestre</span>
+        <span class="pob-meta__item"><strong>Comentarios:</strong> 500 de primer nivel</span>
+        <span class="pob-meta__item"><strong>Extracción:</strong> API de YouTube</span>
+    </div>
+
+    <p>
+        El análisis de comentarios busca complementar los resultados cuantitativos con la
+        percepción social sobre la fauna y su conservación. Para esta etapa se seleccionó un
+        video de alto impacto sobre un operativo contra el tráfico ilegal de fauna silvestre
+        en Colombia. Los comentarios no describen registros biológicos: muestran cómo el
+        público interpreta el maltrato animal, las denuncias y los castigos.
+    </p>
+
+    <h3 class="q5-section-title">Video seleccionado y criterios</h3>
+
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Título</strong></td>
+                    <td>Operativo para frenar tráfico de animales deja estas imágenes desgarradoras</td>
+                </tr>
+                <tr>
+                    <td><strong>Medio</strong></td>
+                    <td>Noticias Caracol</td>
+                </tr>
+                <tr>
+                    <td><strong>Tema</strong></td>
+                    <td>Tráfico ilegal de fauna silvestre en Colombia</td>
+                </tr>
+                <tr>
+                    <td><strong>Enlace</strong></td>
+                    <td>
+                        <a class="source-link"
+                           href="https://www.youtube.com/watch?v=9mjen0KLXsU"
+                           target="_blank" rel="noopener">
+                            youtube.com/watch?v=9mjen0KLXsU
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Alcance</strong></td>
+                    <td>Aproximadamente 665 mil vistas y alto volumen de debate público.</td>
+                </tr>
+                <tr>
+                    <td><strong>Comentarios analizados</strong></td>
+                    <td>500 comentarios de primer nivel, extraídos con la API de YouTube.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p>
+        El video se eligió porque aborda una amenaza directa para la biodiversidad —el tráfico
+        ilegal de fauna— y porque su alta visibilidad genera un debate social amplio. Es un
+        caso nacional, no exclusivo de Cundinamarca, lo que se reconoce como limitación. No se
+        publicaron nombres de usuarios ni datos personales de quienes comentaron.
+    </p>
+
+    <h3 class="q5-section-title">Preparación del corpus</h3>
+
+    <p>
+        El archivo de trabajo contiene las columnas <code>texto</code>, <code>fecha</code> y
+        <code>likes</code>. Se cargó en Orange con el widget <code>Corpus</code>, usando
+        <code>texto</code> como contenido textual y el idioma español. En
+        <code>Preprocess Text</code> se aplicaron minúsculas, limpieza de HTML, tokenización
+        por palabra, eliminación de stopwords en español y stemming. El corpus conserva 500
+        documentos; se identificó un duplicado en la revisión de calidad.
+    </p>
+
+    <div class="r6-gallery">
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/Youtube/flujo.png') }}"
+                 alt="Flujo de análisis de texto en Orange"
+                 loading="lazy">
+            <span class="pob-chart__title">Flujo de texto en Orange</span>
+            <p class="pob-chart__interp">
+                Corpus, preprocesamiento y tres salidas complementarias: nube de palabras,
+                visor de corpus y modelado de temas.
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/Youtube/corpus.png') }}"
+                 alt="Configuración del widget Corpus"
+                 loading="lazy">
+            <span class="pob-chart__title">Configuración del Corpus</span>
+            <p class="pob-chart__interp">
+                Se usa la columna <code>texto</code> como feature textual y el corpus se
+                procesa en español.
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/Youtube/preprotext.png') }}"
+                 alt="Configuración del preprocesamiento de texto"
+                 loading="lazy">
+            <span class="pob-chart__title">Preprocesamiento de texto</span>
+            <p class="pob-chart__interp">
+                Minúsculas, limpieza de HTML, tokenización, stopwords en español y stemming.
+            </p>
+        </figure>
+    </div>
+
+    <h3 class="q5-section-title">Términos y temas relevantes</h3>
+
+    <p>
+        La nube de palabras está dominada por términos sociales y emocionales, no por términos
+        ecológicos. Eso es coherente con el contenido del video: la audiencia reacciona al
+        maltrato animal y a la impunidad, más que a la composición de ecosistemas.
+    </p>
+
+    <div class="r6-gallery">
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/Youtube/wordCloud.png') }}"
+                 alt="Nube de palabras de los comentarios de YouTube"
+                 loading="lazy">
+            <span class="pob-chart__title">Nube de palabras</span>
+            <p class="pob-chart__interp">
+                Predominan términos como <code>animal</code>, <code>animalito</code>,
+                <code>persona</code>, <code>carcel</code>, <code>justicia</code>,
+                <code>policia</code>, <code>crueldad</code> y <code>pena</code>.
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/Youtube/corpusviewer.png') }}"
+                 alt="Visor de comentarios originales"
+                 loading="lazy">
+            <span class="pob-chart__title">Lectura de comentarios originales</span>
+            <p class="pob-chart__interp">
+                El visor permite comprobar el contexto de los términos y evita interpretar la
+                nube de palabras de forma aislada.
+            </p>
+        </figure>
+    </div>
+
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Términos</th>
+                    <th>Dimensión</th>
+                    <th>Interpretación</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>animal</code>, <code>animalito</code></td>
+                    <td>Empatía</td>
+                    <td>El público se enfoca en el individuo animal y en su sufrimiento.</td>
+                </tr>
+                <tr>
+                    <td><code>carcel</code>, <code>delito</code>, <code>policia</code>, <code>justicia</code>, <code>ley</code>, <code>autoridad</code></td>
+                    <td>Sanción y justicia</td>
+                    <td>Se demanda castigo y actuación de las autoridades frente al tráfico.</td>
+                </tr>
+                <tr>
+                    <td><code>crueldad</code>, <code>muerte</code>, <code>tristeza</code>, <code>pena</code>, <code>pobre</code></td>
+                    <td>Sufrimiento animal</td>
+                    <td>Reacción emocional frente a las imágenes del operativo.</td>
+                </tr>
+                <tr>
+                    <td><code>dios</code>, <code>gracias</code>, <code>ojala</code>, <code>favor</code></td>
+                    <td>Marco moral</td>
+                    <td>Expresiones de rechazo, esperanza y valoración moral.</td>
+                </tr>
+                <tr>
+                    <td><code>persona</code>, <code>humano</code>, <code>gent</code></td>
+                    <td>Responsabilidad humana</td>
+                    <td>Se atribuye el problema a la acción humana y a la falta de conciencia.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="r6-gallery">
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/Youtube/topicmodel.png') }}"
+                 alt="Resultados del modelado de temas con cinco tópicos"
+                 loading="lazy">
+            <span class="pob-chart__title">Modelado de temas</span>
+            <p class="pob-chart__interp">
+                Cinco temas exploratorios. La coherencia de 0,309 es baja, por lo que los
+                temas deben leerse como hipótesis de interpretación.
+            </p>
+        </figure>
+    </div>
+
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Tema</th>
+                    <th>Palabras principales</th>
+                    <th>Etiqueta propuesta</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><code>animalito</code>, <code>justicia</code>, <code>autoridad</code>, <code>hacen</code></td>
+                    <td>Justicia y autoridades</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td><code>animal</code>, <code>humano</code>, <code>ley</code>, <code>tristeza</code></td>
+                    <td>Empatía y responsabilidad humana</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td><code>carcel</code>, <code>negocio</code>, <code>animal</code></td>
+                    <td>Castigo y tráfico como negocio</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td><code>animalito</code>, <code>crueldad</code>, <code>pena</code>, <code>pobre</code></td>
+                    <td>Crueldad y sufrimiento animal</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td><code>animal</code>, <code>carcel</code>, <code>ley</code>, <code>deben</code></td>
+                    <td>Leyes, deberes y sanción</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="q5-section-title">Interpretación de los hallazgos</h3>
+
+    <p>
+        Los comentarios aportan una dimensión que no está en los registros biológicos: la
+        percepción social del tráfico de fauna. El público no habla principalmente de
+        ecosistemas ni de riqueza de especies; habla de animales individuales, de crueldad, de
+        impunidad y de castigo. El tráfico se interpreta como un delito y como un negocio, y
+        se exige la actuación de las autoridades.
+    </p>
+
+    <p>
+        Esto complementa los resultados del dataset y del clustering: mientras los datos
+        muestran patrones de ocurrencia y perfiles de observación, los comentarios muestran
+        que la sociedad percibe el tráfico ilegal como un problema moral y judicial. Esa
+        percepción puede apoyar campañas de educación ambiental, comunicación de denuncias y
+        priorización de acciones de control.
+    </p>
+
+    <h3 class="q5-section-title">Limitaciones</h3>
+
+    <ul class="callout-list">
+        <li>Se analizó un solo video de un medio nacional; no representa a toda la población ni exclusivamente a Cundinamarca.</li>
+        <li>Los comentarios son de primer nivel; no se incluyeron respuestas a comentarios.</li>
+        <li>La muestra corresponde a la audiencia de Noticias Caracol y al caso específico del operativo.</li>
+        <li>El texto contiene ruido, spam y términos fuera de contexto, como <code>restaurant hackeado</code> o <code>california</code>.</li>
+        <li>El stemming y las stopwords dejan términos ruido como <code>dio</code>, <code>gracia</code>, <code>ma</code>; el preprocesamiento puede refinarse.</li>
+        <li>La coherencia de los temas es 0,309; los tópicos son exploratorios y no deben presentarse como categorías definitivas.</li>
+    </ul>
+
+</div>

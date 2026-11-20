@@ -1,0 +1,159 @@
+<div class="doc-prose">
+
+    <div class="pob-meta">
+        <span class="pob-meta__item"><strong>Supervisado:</strong> AUC 0,766; accuracy 70,3%</span>
+        <span class="pob-meta__item"><strong>Clustering:</strong> K = 4; silhouette 0,262</span>
+        <span class="pob-meta__item"><strong>Comentarios:</strong> 500; 5 temas exploratorios</span>
+    </div>
+
+    <p>
+        Los tres análisis responden a preguntas distintas, pero convergen en una idea: la
+        biodiversidad registrada en Cundinamarca está mediada por la observación humana y por
+        presiones sociales. Los modelos encuentran señal, pero también muestran límites claros.
+        Los comentarios añaden la dimensión social del tráfico de fauna, que no aparece en los
+        registros.
+    </p>
+
+    <h3 class="q5-section-title">Síntesis por análisis</h3>
+
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Análisis</th>
+                    <th>Hallazgo principal</th>
+                    <th>Evidencia</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Supervisado</strong></td>
+                    <td>
+                        La categoría urbana/rural se puede predecir parcialmente a partir de
+                        taxonomía y tiempo, pero no de forma determinista.
+                    </td>
+                    <td>
+                        Random Forest: AUC 0,766, accuracy 70,3%, F1 0,705, MCC 0,399.
+                        Urbana es la clase más difícil (recall 0,623).
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Clustering</strong></td>
+                    <td>
+                        Los registros se organizan en cuatro perfiles con distinta composición
+                        territorial y tamaño.
+                    </td>
+                    <td>
+                        K = 4; silhouette 0,262. C4 es el más urbano (59,4% urbano), C2 el más
+                        rural (58,8%) y C1 el más indeterminado (42,2%).
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Comentarios</strong></td>
+                    <td>
+                        El tráfico ilegal de fauna se percibe como un problema moral y judicial,
+                        no solo ecológico.
+                    </td>
+                    <td>
+                        500 comentarios; predominan términos de justicia, castigo, crueldad,
+                        empatía y responsabilidad humana.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="q5-section-title">Coincidencias y diferencias</h3>
+
+    <p>
+        El modelo supervisado y el clustering coinciden en que la categoría territorial deja
+        huella en los registros: los árboles encuentran señal predictiva y los grupos muestran
+        composiciones urbanas y rurales diferenciadas. Sin embargo, ambos análisis también
+        coinciden en que esa señal es débil: el AUC es moderado, el accuracy no es alto y el
+        silhouette indica superposición. Esa debilidad es coherente con un fenómeno mediado
+        por el esfuerzo y la fuente de observación.
+    </p>
+
+    <p>
+        La diferencia principal está en la naturaleza de la evidencia. Los datos y los modelos
+        hablan de patrones de ocurrencia y de observación; los comentarios hablan de
+        percepciones, emociones y demandas sociales. El análisis de texto no confirma ni refuta
+        los patrones ecológicos, pero amplía el problema: el tráfico de fauna aparece como una
+        presión socialmente visible y castigable.
+    </p>
+
+    <h3 class="q5-section-title">Decisiones que pueden apoyarse en los resultados</h3>
+
+    <ul class="callout-list">
+        <li><strong>Mejorar el muestreo:</strong> equilibrar el esfuerzo de observación entre zonas urbanas y rurales para reducir el sesgo que capturan los modelos.</li>
+        <li><strong>Reforzar educación ambiental:</strong> los comentarios muestran empatía por los animales y rechazo al maltrato; ese marco puede usarse en campañas de conservación.</li>
+        <li><strong>Comunicar el tráfico como delito:</strong> la audiencia demanda castigo y actuación de autoridades; conviene vincular conservación con denuncia y enforcement.</li>
+        <li><strong>Priorizar fuentes y territorios:</strong> revisar qué fuentes concentran los clusters urbanos y rurales y si su cobertura es equilibrada.</li>
+    </ul>
+
+    <h3 class="q5-section-title">Evidencia frente a hipótesis</h3>
+
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Hallazgo</th>
+                    <th>Tipo</th>
+                    <th>Comentario</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Random Forest y Tree superan a Logistic Regression.</td>
+                    <td>Evidencia</td>
+                    <td>Se observa en las métricas y en las curvas ROC de la misma partición.</td>
+                </tr>
+                <tr>
+                    <td>Urbana es más difícil de predecir que Rural.</td>
+                    <td>Evidencia</td>
+                    <td>Recall urbano de 0,623 frente a 0,771 en Rural para Random Forest.</td>
+                </tr>
+                <tr>
+                    <td>Existen cuatro perfiles de registros.</td>
+                    <td>Evidencia exploratoria</td>
+                    <td>K = 4 es estable, pero el silhouette de 0,262 indica grupos superpuestos.</td>
+                </tr>
+                <tr>
+                    <td>Los clusters reflejan diferencias ecológicas reales.</td>
+                    <td>Hipótesis</td>
+                    <td>No puede afirmarse: también pueden reflejar sesgo de observación y fuentes.</td>
+                </tr>
+                <tr>
+                    <td>Los comentarios representan a toda la población.</td>
+                    <td>Hipótesis no sustentada</td>
+                    <td>Es un solo video y una audiencia específica; no es una muestra representativa.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="q5-section-title">Limitaciones integradas</h3>
+
+    <ul class="callout-list">
+        <li>Los registros de ocurrencia no equivalen a individuos ni a esfuerzo de muestreo uniforme.</li>
+        <li>La categoría urbano/rural se construyó con criterios geográficos; por eso se excluyeron variables de localización del modelo supervisado.</li>
+        <li>El modelo supervisado tiene desempeño moderado y errores asimétricos; no debe usarse como clasificador operativo sin validación adicional.</li>
+        <li>El clustering tiene separación débil y se hizo a nivel de registro, no de municipio.</li>
+        <li>El análisis de comentarios se basa en un solo video nacional y en 500 comentarios de primer nivel; no representa a toda la población.</li>
+        <li>El preprocesamiento de texto conserva ruido y los temas tienen coherencia baja (0,309).</li>
+    </ul>
+
+    <div class="callout">
+        <div class="callout__label">Conclusión integrada</div>
+        <div class="callout__text">
+            La biodiversidad registrada está condicionada por la observación humana y por
+            presiones sociales. Los modelos muestran que la categoría urbana/rural deja una
+            señal débil pero detectable en los registros; el clustering revela perfiles
+            diferenciados; y los comentarios muestran que el tráfico ilegal de fauna se percibe
+            como un problema moral y judicial. El conocimiento nuevo no está en predecir con
+            alta precisión, sino en entender los límites de los datos y la dimensión social de
+            las presiones sobre la fauna.
+        </div>
+    </div>
+
+</div>

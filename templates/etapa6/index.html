@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Etapa 06 · Conocimiento oculto{% endblock %}
+{% block nav_etapa6 %}is-active{% endblock %}
+
+{% block content %}
+<section class="etapa-page">
+
+    <nav class="breadcrumb" aria-label="Ruta de navegación">
+        <a href="{{ url_for('main.index') }}" class="breadcrumb-link">Inicio</a>
+        <span class="breadcrumb-sep" aria-hidden="true">/</span>
+        <span class="breadcrumb-current">Etapa 06</span>
+    </nav>
+
+    <header class="etapa-hero">
+        <p class="etapa-hero__kicker">Etapa activa · Minería de Datos</p>
+        <h1 class="etapa-hero__title">Conocimiento oculto</h1>
+        <p class="etapa-hero__sub">
+            Búsqueda de patrones y relaciones no evidentes mediante aprendizaje supervisado,
+            agrupamiento y análisis de comentarios de YouTube.
+        </p>
+    </header>
+
+    <div class="doc-prose">
+        <h2 class="q5-section-title">Propósito de la etapa</h2>
+        <p>
+            Esta sección profundiza en la comprensión del problema del proyecto mediante
+            modelos de aprendizaje supervisado y no supervisado implementados en Orange Data
+            Mining. Los resultados se complementan con el análisis de comentarios extraídos
+            mediante la API de YouTube para generar conclusiones sustentadas en evidencia.
+        </p>
+
+        <h2 class="q5-section-title">Relación con las etapas anteriores</h2>
+        <p>
+            Se parte del conjunto de datos depurado en las etapas 2 y 3, y de los hallazgos
+            descriptivos y multidimensionales de las etapas 4 y 5. Cualquier transformación
+            adicional necesaria para los modelos será documentada en el apartado correspondiente.
+        </p>
+    </div>
+
+    <div class="apartados-grid">
+        {% for s in secciones %}
+            {% if s.disponible %}
+                <a class="item-card item-card--link" href="{{ url_for('main.conocimiento_oculto', slug=s.slug) }}">
+                    <span class="item-num">{{ s.num }}</span>
+                    <h2 class="item-title">{{ s.titulo }}</h2>
+                    <span class="item-cta">
+                        Abrir apartado
+                        <span class="item-arrow" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </span>
+                    </span>
+                </a>
+            {% else %}
+                <div class="item-card item-card--soon" data-tip="Disponible en próximas iteraciones del proyecto">
+                    <span class="item-num">{{ s.num }}</span>
+                    <h2 class="item-title">{{ s.titulo }}</h2>
+                    <span class="item-state">Próximamente</span>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+</section>
+{% endblock %}

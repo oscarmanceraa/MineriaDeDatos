@@ -1,0 +1,379 @@
+<div class="doc-prose">
+
+    <div class="pob-meta">
+        <span class="pob-meta__item"><strong>Datos:</strong> 17.106 registros Urbana/Rural</span>
+        <span class="pob-meta__item"><strong>Variable objetivo:</strong> categoria_territorial</span>
+        <span class="pob-meta__item"><strong>Modelos:</strong> Tree, Random Forest y Logistic Regression</span>
+        <span class="pob-meta__item"><strong>Evaluación:</strong> validación cruzada de 10 folds</span>
+    </div>
+
+    <p>
+        Esta sección busca identificar si las características taxonómicas, temporales y de
+        observación de un registro permiten distinguir entre una zona urbana y una rural.
+        El ejercicio se planteó como una clasificación binaria supervisada y se implementó
+        en Orange Data Mining sobre el conjunto de datos depurado en las etapas anteriores.
+    </p>
+
+    <h3 class="q5-section-title">Pregunta de predicción y tipo de problema</h3>
+
+    <div class="callout">
+        <div class="callout__label">Pregunta de predicción</div>
+        <div class="callout__text">
+            ¿Es posible identificar si un registro de biodiversidad corresponde a una zona
+            urbana o rural a partir de su grupo taxonómico, su fecha de observación y otras
+            características disponibles en el registro?
+        </div>
+    </div>
+
+    <p>
+        Es un problema de <strong>clasificación binaria</strong> porque la variable objetivo
+        tiene dos categorías válidas: <code>Urbana</code> y <code>Rural</code>. Se excluyeron
+        2.981 registros con categoría <code>No Determinada</code>, que no representan una
+        categoría territorial utilizable y concentran registros sin municipio asignado.
+        El conjunto final quedó en 17.106 registros: 9.484 rurales y 7.622 urbanos.
+    </p>
+
+    <h3 class="q5-section-title">Variable objetivo y variables predictoras</h3>
+
+    <p>
+        La variable objetivo es <code>categoria_territorial</code>. Las predictoras se
+        limitaron a información disponible en el momento de la observación y se excluyeron
+        las variables geográficas y las fuentes que podrían funcionar como atajos del target.
+    </p>
+
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Rol</th>
+                    <th>Variables</th>
+                    <th>Justificación</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Target</strong></td>
+                    <td><code>categoria_territorial</code></td>
+                    <td>Categoría urbana o rural del registro.</td>
+                </tr>
+                <tr>
+                    <td><strong>Features</strong></td>
+                    <td>
+                        <code>clase_grupo</code>, <code>year</code>, <code>month</code>,
+                        <code>temporada_climatica</code>, <code>es_fin_de_semana</code>,
+                        <code>especie_amenazada</code>, <code>basisOfRecord</code>
+                    </td>
+                    <td>Taxonomía, tiempo y condiciones de observación disponibles antes de predecir.</td>
+                </tr>
+                <tr>
+                    <td><strong>Metas</strong></td>
+                    <td>
+                        <code>occurrenceID</code>, <code>scientificName</code>,
+                        <code>municipio</code>, <code>provincia</code>
+                    </td>
+                    <td>Identificadores y contexto para análisis posterior, nunca como predictoras.</td>
+                </tr>
+                <tr>
+                    <td><strong>Excluidas</strong></td>
+                    <td>
+                        <code>provincia</code>, <code>municipio</code>, <code>codigo_dane</code>,
+                        <code>decimalLatitude</code>, <code>decimalLongitude</code>,
+                        <code>dataset_origen</code>, <code>tipo_registro</code>,
+                        <code>fuente_calidad</code>, <code>cantidad_registros</code>
+                    </td>
+                    <td>
+                        Geografía usada para construir el target, fuentes con asociación directa
+                        con la categoría y variables constantes o redundantes.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="q5-section-title">Preparación de los datos</h3>
+
+    <p>
+        El preprocesamiento se aplicó dentro de la validación cruzada, conectando el
+        <strong>Preprocessor</strong> de <code>Preprocess</code> a la entrada
+        <strong>Preprocessor</strong> de <code>Test &amp; Score</code>. Así cada fold se
+        imputa, continuiza y normaliza solo con su partición de entrenamiento.
+    </p>
+
+    <figure class="pob-chart">
+        <img src="{{ url_for('static', filename='img/etapa6/SupervisadoOrange/flujoSupervisado.png') }}"
+             alt="Flujo supervisado en Orange con tres modelos, preprocesamiento y evaluación"
+             loading="lazy">
+        <span class="pob-chart__title">Flujo supervisado en Orange</span>
+        <p class="pob-chart__interp">
+            El flujo conecta los datos filtrados y purgados a <code>Test &amp; Score</code>,
+            el preprocesamiento entra por la entrada <code>Preprocessor</code> y los tres
+            modelos entran por <code>Learner</code>. La matriz de confusión y el análisis ROC
+            se alimentan desde <code>Evaluation Results</code>.
+        </p>
+    </figure>
+
+    <div class="r6-gallery">
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/SupervisadoOrange/preprocess.png') }}"
+                 alt="Configuración de imputación, continuización y normalización en Orange"
+                 loading="lazy">
+            <span class="pob-chart__title">Preprocesamiento</span>
+            <p class="pob-chart__interp">
+                Imputación por promedio o valor más frecuente, continuización con una columna
+                por valor y estandarización a media 0 y desviación estándar 1.
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/SupervisadoOrange/testAndScoreModelos.png') }}"
+                 alt="Resultados comparativos de Tree, Random Forest y Logistic Regression"
+                 loading="lazy">
+            <span class="pob-chart__title">Comparación de los tres modelos</span>
+            <p class="pob-chart__interp">
+                Los tres modelos se evaluaron con la misma partición estratificada de 10 folds.
+                Random Forest y Tree quedaron prácticamente empatados; Logistic Regression
+                obtuvo el desempeño más bajo.
+            </p>
+        </figure>
+    </div>
+
+    <h3 class="q5-section-title">Modelos y parámetros</h3>
+
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Modelo</th>
+                    <th>Widget</th>
+                    <th>Parámetros principales</th>
+                    <th>Propósito</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Árbol de decisión</strong></td>
+                    <td><code>Tree</code></td>
+                    <td>Profundidad máxima 10; mínimo 5 instancias por hoja.</td>
+                    <td>Obtener reglas interpretables sobre las diferencias urbano/rural.</td>
+                </tr>
+                <tr>
+                    <td><strong>Random Forest</strong></td>
+                    <td><code>Random Forest</code></td>
+                    <td>100 árboles; número de atributos por split = raíz cuadrada; semilla fija.</td>
+                    <td>Mejorar la capacidad predictiva combinando múltiples árboles.</td>
+                </tr>
+                <tr>
+                    <td><strong>Regresión logística</strong></td>
+                    <td><code>Logistic Regression</code></td>
+                    <td>Regularización L2; C = 1.</td>
+                    <td>Modelo lineal probabilístico de referencia.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3 class="q5-section-title">Evaluación y métricas</h3>
+
+    <p>
+        Se usó validación cruzada de 10 folds con estratificación. El accuracy de referencia
+        por clase mayoritaria es 55,4%, por lo que el 70,3% obtenido por Tree y Random Forest
+        representa una mejora real, aunque moderada. El AUC cercano a 0,76 confirma una
+        capacidad discriminativa limitada.
+    </p>
+
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Modelo</th>
+                    <th>AUC</th>
+                    <th>CA</th>
+                    <th>F1</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>MCC</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Tree</td>
+                    <td>0,764</td>
+                    <td>0,703</td>
+                    <td>0,700</td>
+                    <td>0,701</td>
+                    <td>0,703</td>
+                    <td>0,393</td>
+                </tr>
+                <tr>
+                    <td>Random Forest</td>
+                    <td>0,766</td>
+                    <td>0,703</td>
+                    <td>0,705</td>
+                    <td>0,704</td>
+                    <td>0,705</td>
+                    <td>0,399</td>
+                </tr>
+                <tr>
+                    <td>Logistic Regression</td>
+                    <td>0,684</td>
+                    <td>0,657</td>
+                    <td>0,648</td>
+                    <td>0,657</td>
+                    <td>0,657</td>
+                    <td>0,297</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p>
+        Las métricas por clase muestran que la categoría <strong>Urbana</strong> es la más
+        difícil de recuperar. Random Forest alcanza un recall urbano de 0,623, mientras que
+        Logistic Regression solo llega a 0,483 y tiende a predecir Rural.
+    </p>
+
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Clase objetivo</th>
+                    <th>Modelo</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>F1</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td rowspan="3">Urbana</td>
+                    <td>Tree</td>
+                    <td>0,688</td>
+                    <td>0,609</td>
+                    <td>0,646</td>
+                </tr>
+                <tr>
+                    <td>Random Forest</td>
+                    <td>0,686</td>
+                    <td>0,623</td>
+                    <td>0,653</td>
+                </tr>
+                <tr>
+                    <td>Logistic Regression</td>
+                    <td>0,657</td>
+                    <td>0,483</td>
+                    <td>0,557</td>
+                </tr>
+                <tr>
+                    <td rowspan="3">Rural</td>
+                    <td>Tree</td>
+                    <td>0,712</td>
+                    <td>0,778</td>
+                    <td>0,744</td>
+                </tr>
+                <tr>
+                    <td>Random Forest</td>
+                    <td>0,718</td>
+                    <td>0,771</td>
+                    <td>0,743</td>
+                </tr>
+                <tr>
+                    <td>Logistic Regression</td>
+                    <td>0,657</td>
+                    <td>0,798</td>
+                    <td>0,721</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="r6-gallery">
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/SupervisadoOrange/MatrizTree.png') }}"
+                 alt="Matriz de confusión del modelo Tree"
+                 loading="lazy">
+            <span class="pob-chart__title">Matriz de confusión: Tree</span>
+            <p class="pob-chart__interp">
+                Vista normalizada por clase predicha. El árbol detecta mejor Rural que Urbana.
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/SupervisadoOrange/MatrizRandomF.png') }}"
+                 alt="Matriz de confusión de Random Forest"
+                 loading="lazy">
+            <span class="pob-chart__title">Matriz de confusión: Random Forest</span>
+            <p class="pob-chart__interp">
+                Mejora ligeramente la recuperación de Urbana frente al árbol, con una estructura
+                de errores muy similar.
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/SupervisadoOrange/MatrizRegresion.png') }}"
+                 alt="Matriz de confusión de Logistic Regression"
+                 loading="lazy">
+            <span class="pob-chart__title">Matriz de confusión: Logistic Regression</span>
+            <p class="pob-chart__interp">
+                El modelo lineal concentra sus errores en Urbana y sobrepredice Rural.
+            </p>
+        </figure>
+    </div>
+
+    <div class="r6-gallery">
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/SupervisadoOrange/RocUrbana.png') }}"
+                 alt="Curva ROC para la clase Urbana"
+                 loading="lazy">
+            <span class="pob-chart__title">ROC para Urbana</span>
+            <p class="pob-chart__interp">
+                Tree y Random Forest se superponen; Logistic Regression queda más cerca de la diagonal.
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/SupervisadoOrange/RocRural.png') }}"
+                 alt="Curva ROC para la clase Rural"
+                 loading="lazy">
+            <span class="pob-chart__title">ROC para Rural</span>
+            <p class="pob-chart__interp">
+                La curva refleja el mismo patrón: los modelos de árboles discriminan mejor que
+                la regresión logística.
+            </p>
+        </figure>
+    </div>
+
+    <h3 class="q5-section-title">Comparación y modelo seleccionado</h3>
+
+    <p>
+        Random Forest obtuvo el mejor AUC (0,766), el mejor F1 (0,705) y el mejor MCC (0,399),
+        pero la diferencia con Tree es de milésimas. La comparación pareada de AUC da una
+        probabilidad de 0,873 de que Random Forest supere a Tree; sin embargo, la brecha
+        práctica es mínima.
+    </p>
+
+    <p>
+        Se selecciona <strong>Random Forest</strong> como modelo principal por su ligera ventaja
+        en desempeño global, y se conserva <strong>Tree</strong> como modelo explicativo
+        complementario, porque sus reglas permiten interpretar qué combinaciones de taxón y
+        tiempo se asocian con cada categoría. Logistic Regression se descarta por su bajo
+        recall en Urbana y su MCC de 0,297.
+    </p>
+
+    <h3 class="q5-section-title">Conocimiento aportado y limitaciones</h3>
+
+    <p>
+        El resultado muestra que la categoría urbano/rural no es determinista a partir de la
+        taxonomía y la fecha: hay señal, pero es moderada. El modelo aprende sobre todo
+        diferencias de composición taxonómica y temporales. Parte de esa señal puede reflejar
+        sesgos de observación y de las fuentes, no solo diferencias ecológicas.
+    </p>
+
+    <ul class="callout-list">
+        <li>Los registros no representan individuos ni esfuerzo de muestreo uniforme.</li>
+        <li>La categoría territorial se construyó con criterios geográficos; por eso se excluyeron municipio, provincia, código DANE y coordenadas.</li>
+        <li>Urbana es la clase más difícil: el mejor recall es 0,623, no un desempeño alto.</li>
+        <li>El AUC de 0,76 y el MCC de 0,399 indican una relación moderada, no un modelo predictivo fuerte.</li>
+        <li>El modelo no debe usarse para inferir causalidad ni para generalizar a toda la biodiversidad de Cundinamarca.</li>
+    </ul>
+
+</div>

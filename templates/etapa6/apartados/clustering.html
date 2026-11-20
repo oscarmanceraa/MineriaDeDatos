@@ -1,0 +1,310 @@
+<div class="doc-prose">
+
+    <div class="pob-meta">
+        <span class="pob-meta__item"><strong>Datos:</strong> 20.087 registros de ocurrencia</span>
+        <span class="pob-meta__item"><strong>Algoritmo:</strong> k-Means</span>
+        <span class="pob-meta__item"><strong>Grupos:</strong> K = 4</span>
+        <span class="pob-meta__item"><strong>Variables:</strong> 7 predictoras, sin usar el target</span>
+    </div>
+
+    <p>
+        El clustering busca perfiles de registros de biodiversidad que compartan
+        características taxonómicas, temporales y de observación. A diferencia del modelo
+        supervisado, aquí no se predice la categoría urbana/rural: se agrupan los registros
+        sin usar esa variable y luego se compara cómo se distribuyen los grupos entre zonas.
+    </p>
+
+    <h3 class="q5-section-title">Pregunta de agrupamiento</h3>
+
+    <div class="callout">
+        <div class="callout__label">Pregunta de clustering</div>
+        <div class="callout__text">
+            ¿Qué perfiles de observación de biodiversidad se pueden identificar a partir de la
+            composición taxonómica, el tiempo y las condiciones de registro, sin utilizar la
+            categoría urbana o rural como variable de agrupamiento?
+        </div>
+    </div>
+
+    <h3 class="q5-section-title">Variables y tratamiento de los datos</h3>
+
+    <p>
+        Se usaron las mismas variables disponibles para el ejercicio supervisado, pero
+        <code>categoria_territorial</code> se conservó únicamente como metadato. Las variables
+        de agrupamiento fueron:
+    </p>
+
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Rol</th>
+                    <th>Variables</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Features</strong></td>
+                    <td>
+                        <code>clase_grupo</code>, <code>year</code>, <code>month</code>,
+                        <code>temporada_climatica</code>, <code>es_fin_de_semana</code>,
+                        <code>especie_amenazada</code>, <code>basisOfRecord</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Metas</strong></td>
+                    <td>
+                        <code>categoria_territorial</code>, <code>municipio</code>,
+                        <code>occurrenceID</code>, <code>scientificName</code>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p>
+        Se excluyeron las variables geográficas y las fuentes de datos para evitar que los
+        grupos se formaran por el origen administrativo o por la ubicación, que están ligados
+        a la categoría territorial. Las variables categóricas se continuizaron con una columna
+        por valor y todas las features se estandarizaron a media 0 y desviación estándar 1.
+    </p>
+
+    <div class="r6-gallery">
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/Clustering/SelectColumnC.png') }}"
+                 alt="Selección de variables para clustering en Orange"
+                 loading="lazy">
+            <span class="pob-chart__title">Selección de variables</span>
+            <p class="pob-chart__interp">
+                Siete features y cuatro metadatos. La categoría territorial queda fuera de las
+                variables que usa k-Means.
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/Clustering/Preprocess.png') }}"
+                 alt="Preprocesamiento para clustering: imputación, continuización y normalización"
+                 loading="lazy">
+            <span class="pob-chart__title">Preprocesamiento</span>
+            <p class="pob-chart__interp">
+                Imputación, continuización y estandarización antes de calcular distancias.
+            </p>
+        </figure>
+    </div>
+
+    <h3 class="q5-section-title">Algoritmo y selección de K</h3>
+
+    <p>
+        Se implementó <strong>k-Means</strong> con inicialización <strong>k-Means++</strong>,
+        10 re-ejecuciones y un máximo de 300 iteraciones. Para elegir K se usó una muestra
+        reproducible de 5.000 registros, porque Orange no calcula silhouette para más de
+        5.000 instancias. Después, el modelo final se ejecutó con los 20.087 registros.
+    </p>
+
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>K</th>
+                    <th>Silhouette promedio (muestra de 5.000)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>2</td><td>0,204</td></tr>
+                <tr><td>3</td><td>0,227</td></tr>
+                <tr><td>4</td><td>0,262</td></tr>
+                <tr><td>5</td><td>0,267</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p>
+        K = 5 obtuvo el silhouette más alto, pero la diferencia con K = 4 es solo 0,005.
+        Se eligió <strong>K = 4</strong> porque ofrece un equilibrio razonable entre calidad
+        e interpretabilidad, sin añadir un quinto grupo por una mejora prácticamente
+        despreciable. El silhouette de 0,262 indica una separación débil: los grupos existen,
+        pero se superponen.
+    </p>
+
+    <div class="r6-gallery">
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/Clustering/comparacion.png') }}"
+                 alt="Comparación de silhouette para K entre 2 y 5"
+                 loading="lazy">
+            <span class="pob-chart__title">Comparación de K</span>
+            <p class="pob-chart__interp">
+                La muestra de 5.000 permite calcular silhouette y comparar alternativas.
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/Clustering/k4.png') }}"
+                 alt="Configuración final de k-Means con K igual a 4"
+                 loading="lazy">
+            <span class="pob-chart__title">Configuración final</span>
+            <p class="pob-chart__interp">
+                K = 4 sobre los 20.087 registros. El aviso de silhouette es esperado porque
+                la validación se hizo en la muestra.
+            </p>
+        </figure>
+    </div>
+
+    <h3 class="q5-section-title">Resultados finales</h3>
+
+    <p>
+        El agrupamiento final sobre los 20.087 registros generó cuatro grupos de tamaños
+        desiguales. El grupo C3 concentra algo más de dos quintas partes de los registros;
+        C2 y C4 son intermedios, y C1 es un grupo minoritario.
+    </p>
+
+    <div class="pob-kpi-grid">
+        <div class="pob-kpi">
+            <span class="pob-kpi__label">C1</span>
+            <span class="pob-kpi__value">846</span>
+            <span class="pob-kpi__detail">4,2% del total. Grupo minoritario con alta proporción de categoría no determinada.</span>
+        </div>
+        <div class="pob-kpi">
+            <span class="pob-kpi__label">C2</span>
+            <span class="pob-kpi__value">5.685</span>
+            <span class="pob-kpi__detail">28,3% del total. Perfil con la mayor proporción de registros rurales.</span>
+        </div>
+        <div class="pob-kpi">
+            <span class="pob-kpi__label">C3</span>
+            <span class="pob-kpi__value">8.576</span>
+            <span class="pob-kpi__detail">42,7% del total. Núcleo de mayor volumen y composición mixta.</span>
+        </div>
+        <div class="pob-kpi">
+            <span class="pob-kpi__label">C4</span>
+            <span class="pob-kpi__value">4.980</span>
+            <span class="pob-kpi__detail">24,8% del total. Perfil con la mayor proporción de registros urbanos.</span>
+        </div>
+    </div>
+
+    <div class="r6-gallery">
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/Clustering/distClusters.png') }}"
+                 alt="Distribución final de registros por cluster"
+                 loading="lazy">
+            <span class="pob-chart__title">Tamaño final de los grupos</span>
+            <p class="pob-chart__interp">
+                C3 es el grupo más grande; C1 es claramente minoritario.
+            </p>
+        </figure>
+
+        <figure class="pob-chart">
+            <img src="{{ url_for('static', filename='img/etapa6/Clustering/Datatable21k.png') }}"
+                 alt="Tabla de datos final con la columna Cluster"
+                 loading="lazy">
+            <span class="pob-chart__title">Asignación por registro</span>
+            <p class="pob-chart__interp">
+                Cada registro conserva su cluster y sus metadatos. La tabla final contiene
+                20.087 instancias.
+            </p>
+        </figure>
+    </div>
+
+    <h3 class="q5-section-title">Caracterización de los grupos</h3>
+
+    <p>
+        La comparación con la categoría territorial se hizo después del agrupamiento, usando
+        la zona como metadato. Los grupos no se construyeron con esa variable, pero al
+        contrastarlos se observan diferencias claras en su composición territorial.
+    </p>
+
+    <div class="source-table-wrap">
+        <table class="source-table">
+            <thead>
+                <tr>
+                    <th>Cluster</th>
+                    <th>No Determinada</th>
+                    <th>Rural</th>
+                    <th>Urbana</th>
+                    <th>Interpretación</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>C1</strong></td>
+                    <td>357</td>
+                    <td>396</td>
+                    <td>93</td>
+                    <td>Grupo minoritario con alta indeterminación territorial.</td>
+                </tr>
+                <tr>
+                    <td><strong>C2</strong></td>
+                    <td>939</td>
+                    <td>3.342</td>
+                    <td>1.404</td>
+                    <td>Perfil predominantemente rural.</td>
+                </tr>
+                <tr>
+                    <td><strong>C3</strong></td>
+                    <td>1.203</td>
+                    <td>4.204</td>
+                    <td>3.169</td>
+                    <td>Núcleo mixto de mayor volumen.</td>
+                </tr>
+                <tr>
+                    <td><strong>C4</strong></td>
+                    <td>482</td>
+                    <td>1.542</td>
+                    <td>2.956</td>
+                    <td>Perfil predominantemente urbano.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <figure class="pob-chart">
+        <img src="{{ url_for('static', filename='img/etapa6/Clustering/gby2.png') }}"
+             alt="Conteo de registros por cluster y categoría territorial"
+             loading="lazy">
+        <span class="pob-chart__title">Cluster vs. categoría territorial</span>
+        <p class="pob-chart__interp">
+            C4 concentra la mayor proporción de registros urbanos (59,4%), C2 la mayor
+            proporción rural (58,8%) y C1 la mayor proporción de registros sin categoría
+            determinada (42,2%).
+        </p>
+    </figure>
+
+    <p>
+        Los grupos se nombran por su composición territorial y su tamaño, no por una supuesta
+        identidad ecológica que aún requiere validación:
+    </p>
+
+    <ul class="callout-list">
+        <li><strong>C1 — minoritario e indeterminado:</strong> 846 registros; la mayor parte de sus casos no tiene categoría territorial determinada. Puede estar capturando registros atípicos o con menor información geográfica.</li>
+        <li><strong>C2 — rural:</strong> 5.685 registros; casi tres quintas partes son rurales. Es el perfil más claramente rural.</li>
+        <li><strong>C3 — núcleo mixto:</strong> 8.576 registros; el grupo más grande, con una composición intermedia entre rural y urbano.</li>
+        <li><strong>C4 — urbano:</strong> 4.980 registros; casi tres quintas partes son urbanas. Es el perfil más claramente urbano.</li>
+    </ul>
+
+    <h3 class="q5-section-title">Patrones ocultos y apoyo a decisiones</h3>
+
+    <p>
+        El clustering no descubre una separación ecológica limpia, pero sí muestra que los
+        registros se organizan en perfiles con distinta composición territorial y distinto
+        volumen. C4 es el grupo más urbano y C2 el más rural, lo que sugiere que las
+        características taxonómicas y temporales contienen señal sobre el contexto de
+        observación. Al mismo tiempo, el silhouette bajo y la presencia de un grupo minoritario
+        indican que esa señal es débil y que parte de la estructura puede deberse al sesgo de
+        observación, a las fuentes y a la falta de información territorial en algunos registros.
+    </p>
+
+    <p>
+        Estos perfiles pueden apoyar decisiones de priorización de muestreo y de comunicación:
+        si ciertos grupos están dominados por registros urbanos o rurales, conviene revisar si
+        el esfuerzo de observación está equilibrado y si las fuentes cubren todos los
+        territorios. No deben interpretarse como tipos ecológicos definitivos.
+    </p>
+
+    <h3 class="q5-section-title">Limitaciones</h3>
+
+    <ul class="callout-list">
+        <li>El silhouette de 0,262 indica grupos superpuestos; la separación es débil.</li>
+        <li>El clustering se hizo a nivel de registro, no de municipio; no produce perfiles territoriales agregados.</li>
+        <li>La categoría territorial se usó solo como metadato, pero los grupos pueden reflejar sesgos de observación y de fuentes.</li>
+        <li>La salida de Orange está estandarizada, por lo que no se presentan promedios directos de año, mes o taxones; la caracterización se apoya en tamaños y composición territorial.</li>
+        <li>Los grupos C1 y C4 deben interpretarse con cautela por su tamaño y por la proporción de registros sin categoría determinada.</li>
+    </ul>
+
+</div>
